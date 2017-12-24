@@ -114,68 +114,92 @@ class SiegeClient(TelegramClient):
         self.log("Done loading messages...")
         Siege.return_to_main(self)
 
-        while True:
-            """
-            From Start to finish Bastion Siege logic...
-            
-            Or is there a way to put it somewhere else, outside the Client?
-            
-            """
+        """
+        From Start to finish Bastion Siege logic...
+        
+        Or is there a way to put it somewhere else, outside the Client?
+        
+        """
 
-            upgradePriorities = {0, 1, 3, 4, 2}
+        upgradePriorities = {0, 1, 3, 4, 2}
 
-            time.sleep(10)
-            Siege.send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
-            Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
-            Siege.send_message_and_wait(self, self.status['replyMarkup'][5])  # Back
+        time.sleep(10)
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Back
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][5])  # Back
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][8])  # Back
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][6])  # Trade
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Buy
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][0])  # Wood
+        while (self.city['wood'] < self.city['storageUpgradeWood']):
+            Siege.send_message_and_wait(self, min([self.city['storageUpgradeWood'] - self.city['wood'],
+                                                   self.city['gold'] / 200]))
+            # TRIPLE TODO - here and below sleep some amount of time
+            # update gold and resources for that amount of time
+            # handle the message that says purchased, adding accordingly.
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][9])  # Back
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][1])  # Stone
+        while (self.city['stone'] < self.city['storageUpgradeStone']):
+            Siege.send_message_and_wait(self, min([self.city['storageUpgradeStone'] - self.city['stone'],
+                                                   self.city['gold'] / 200]))
+            # sleep some amount of time
+            # update gold and resources for that amount of time
+            # handle the message that says purchased, adding accordingly.
+        Siege.send_message_and_wait(self, self.status['replyMarkup'][9])  # Back
 
-            print(self.status['replyMarkup'])
+        print(self.status['replyMarkup'])
 
-            # Siege.send_message_and_wait(self, )
+        # Siege.send_message_and_wait(self, )
 
-            time.sleep(1)
-            # Send chat message
-            # self.send_message(entity, "Back")
+        time.sleep(1)
+        # Send chat message
+        # self.send_message(entity, "Back")
 
-    def update_handler(self, update_object):
+        exit("Reached Program End!")
+
+
+def update_handler(self, update_object):
+    print("update_object is of type: ", type(update_object))
+    if hasattr(update_object, "message"):
+        print(update_object.message)
+    if type(update_object) is UpdatesTg:
+        for update in update_object.updates:
+            if type(update) is UpdateNewMessage:
+                if update.message.from_id == self.BOT_ID:
+                    message = update.message.message
+                    # for i in range(0, len(message.split())):
+                    #    self.log(str(i) + ": " + message.split()[i])
+                    Siege.parse_message(self, message)
+
+                    markup = []
+                    for row in update.message.reply_markup.rows:
+                        for button in row.buttons:
+                            markup.append(button.text)
+
+                    self.status['replyMarkup'] = markup
+                    self.status['lastMsgID'] = update.message.id
+            else:
+                if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox)):
+                    self.log("Update is Type: ")
+                    self.log(type(update))
+    elif type(update_object) is UpdateShortMessage:
+        if update_object.user_id == self.BOT_ID:
+            Siege.parse_message(self, update_object.message)
+            print(update_object.message)
+        else:
+            self.log(update_object)
+        self.status['lastMsgID'] = update_object.id
+    else:
         print("update_object is of type: ", type(update_object))
         if hasattr(update_object, "message"):
             print(update_object.message)
-        if type(update_object) is UpdatesTg:
-            for update in update_object.updates:
-                if type(update) is UpdateNewMessage:
-                    if update.message.from_id == self.BOT_ID:
-                        message = update.message.message
-                        # for i in range(0, len(message.split())):
-                        #    self.log(str(i) + ": " + message.split()[i])
-                        Siege.parse_message(self, message)
 
-                        markup = []
-                        for row in update.message.reply_markup.rows:
-                            for button in row.buttons:
-                                markup.append(button.text)
 
-                        self.status['replyMarkup'] = markup
-                        self.status['lastMsgID'] = update.message.id
-                else:
-                    if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox)):
-                        self.log("Update is Type: ")
-                        self.log(type(update))
-        elif type(update_object) is UpdateShortMessage:
-            if update_object.user_id == self.BOT_ID:
-                Siege.parse_message(self, update_object.message)
-                print(update_object.message)
-            else:
-                self.log(update_object)
-            self.status['lastMsgID'] = update_object.id
-        else:
-            print("update_object is of type: ", type(update_object))
-            if hasattr(update_object, "message"):
-                print(update_object.message)
-
-    @staticmethod
-    def log(msg):
-        print(msg)
+@staticmethod
+def log(msg):
+    print(msg)
 
 
 config = load_config()

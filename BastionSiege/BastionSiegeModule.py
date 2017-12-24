@@ -11,7 +11,7 @@ def send_message_and_wait(self, message):
     self.send_message(self.entity, message)
     while lastid == self.status['lastMsgID']:
         print("lastMsgId is " + str(self.status['lastMsgID']))
-        time.sleep(1)
+        time.sleep(5)
         pass
 
 
@@ -337,9 +337,9 @@ def parse_building_storage(self, msg):
     self.city['gold'] = msg[12][:-1]
     self.city['people'] = msg[14][:-1]
     self.city['storageFillCost'] = msg[16][:-1]
-    self.city['mineUpgradeCost'] = msg[18].split("💰")[0]
-    self.city['mineUpgradeWood'] = msg[19].split("🌲")[0]
-    self.city['mineUpgradeStone'] = msg[20].split("⛏")[0]
+    self.city['storageUpgradeCost'] = msg[18].split("💰")[0]
+    self.city['storageUpgradeWood'] = msg[19].split("🌲")[0]
+    self.city['storageUpgradeStone'] = msg[20].split("⛏")[0]
 
     self.status['menuDepth'] = 2
 
