@@ -6,7 +6,7 @@ from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.contacts import ResolveUsernameRequest
 from telethon.tl.types import (
-    UpdatesTg, UpdateNewMessage, UpdateShortMessage, UpdateReadHistoryOutbox, UpdateReadHistoryInbox
+    UpdatesTg, UpdateNewMessage, UpdateShortMessage, UpdateReadHistoryOutbox, UpdateReadHistoryInbox, UpdateMessageID
 )
 from telethon.utils import get_display_name
 
@@ -50,7 +50,7 @@ class SiegeClient(TelegramClient):
 
     BOT_ID = int(252148344)
 
-    status = {'menuDepth': 2}  # TODO Is this properly instanced? Does it belong in init, possibly?
+    status = {'menuDepth': 3}  # TODO Is this properly instanced? Does it belong in init, possibly?
     city = {'gold': 0, 'wood': 0, 'stone': 0, 'food': 0}
 
     states = {'main', 'war', 'ranking', 'buildings', 'alliance', 'settings.cfg', 'workshop', 'trade',
@@ -121,9 +121,10 @@ class SiegeClient(TelegramClient):
         
         """
 
-        upgradePriorities = {0, 1, 3, 4, 2}
+        # upgradePriorities = {0, 1, 3, 4, 2}
 
         time.sleep(10)
+
         Siege.send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
         Siege.send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall
         Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Back
@@ -144,7 +145,10 @@ class SiegeClient(TelegramClient):
 
         Siege.pretty_print(self.status['replyMarkup'])
 
-        exit("Can upgrade storage!")
+        self.log("Can upgrade storage!")
+
+        while True:
+            """"""
 
     def update_handler(self, update_object):
         if type(update_object) is UpdatesTg:
@@ -164,16 +168,17 @@ class SiegeClient(TelegramClient):
                         self.status['replyMarkup'] = markup
                         self.status['lastMsgID'] = update.message.id
                 else:
-                    if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox)):
+                    if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox) or
+                            isinstance(update, UpdateMessageID)):
                         """"""
                         # self.log("Update is Type: ") todo - updatemessageid? useful? uncomment for this debug trail
                         # self.log(type(update))
         elif type(update_object) is UpdateShortMessage:
             if update_object.user_id == self.BOT_ID:
                 Siege.parse_message(self, update_object.message)
-                print(update_object.message)
             else:
-                self.log(update_object)
+                """"""
+                # self.log(update_object)
             self.status['lastMsgID'] = update_object.id
         else:
             if hasattr(update_object, "message"):
@@ -181,7 +186,7 @@ class SiegeClient(TelegramClient):
                 print(Siege.clean_trim(update_object.message))
                 print(update_object.message.replace(u'\u200B', ''))
             else:
-                print()    # print("[" + str(type(update_object)) + "has no message]")
+                """"""    # print("[" + str(type(update_object)) + "has no message]")
 
     @staticmethod
     def log(msg):

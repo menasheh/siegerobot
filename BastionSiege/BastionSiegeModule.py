@@ -12,19 +12,37 @@ def send_message_and_wait(self, message):
     lastid = self.status['lastMsgID']
     self.send_message(self.entity, message)
     while lastid == self.status['lastMsgID']:
-        print("lastMsgId is " + str(self.status['lastMsgID']))
-        time.sleep(5)
+        time.sleep(random.randint(1000, 4000) / 1000)  # Integer division?
         pass
 
 
 def update_gold(self):
-    timediff = math.floor((time.time() - self.city['goldLastUpdated']) / 1000) - 1
-    self.log(timediff)
+    # todo - if population wasn't maximum when gold last updated, need to use some sort of summation...
+    timediff = math.floor((time.time() - self.city['goldLastUpdated']) / 60)
+    # self.log(("Oldtime was " + str(self.city['goldLastUpdated'])) + ", newtime is " + str(time.time()) +
+    #         ", and timediff is " + str(timediff) + ". Daily gold is " + str(self.city['dailyGoldProduction']) + ".")
     self.city['gold'] += timediff * self.city['dailyGoldProduction']
+    self.city['goldLastUpdated'] = time.time()
+
+
+def update_resources(self):
+    update_resource(self, "wood")
+    update_resource(self, "stone")
+    update_resource(self, "food")
+
+
+def update_resource(self, resource):
+    timediff = math.floor((time.time() - self.city[resource + 'LastUpdated']) / 60)
+    # self.log(("Oldtime was " + str(self.city['goldLastUpdated'])) + ", newtime is " + str(time.time()) +
+    #         ", and timediff is " + str(timediff) + ". Daily gold is " + str(self.city['dailyGoldProduction']) + ".")
+    self.city[resource] += timediff * self.city['daily' + resource.capitalize() + 'Production']
+    self.city[resource + 'LastUpdated'] = time.time()
 
 
 def procrastinate():
-    time.sleep(random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300)))
+    rand_time = random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300))
+    print("snoozing for " + str(rand_time) + " seconds")
+    time.sleep(rand_time)
 
 
 def purchase_resources_toward_upgrade(self, resource, building):
@@ -34,11 +52,12 @@ def purchase_resources_toward_upgrade(self, resource, building):
     while self.city[resource] < self.city[goal_quantity_index]:
         purchase_quantity = min([self.city[goal_quantity_index] - self.city[resource],
                                  # self.city['max' + resource.capitalize] - self.city[resource],
-                                 math.floor(self.city['gold'] / 200)])
-        print(self.city[goal_quantity_index], self.city[resource], purchase_quantity, math.floor(self.city['gold'] / 200))
+                                 math.floor(self.city['gold'] / 2)])
         send_message_and_wait(self, str(purchase_quantity))  # Not future-proof if price of
+        # TODO forecast finish time
         procrastinate()
-        update_gold(self)  # update gold TODO and resources for that amount of time
+        update_gold(self)  # update gold
+        update_resources(self)
     send_message_and_wait(self, self.status['replyMarkup'][9])  # Back
 
 
@@ -63,7 +82,7 @@ def parse_message(self, message):
         parse_war_profile(self, message)
     elif 'Town hall' in message:
         parse_building_town_hall(self, message)
-    elif 'Houses' in message:
+    elif '🏘Houses' in message:
         parse_building_houses(self, message)
     elif 'Resources' in message.split()[0]:
         parse_resource_message(self, message)
@@ -81,6 +100,8 @@ def parse_message(self, message):
     elif 'Farm' in message.split()[0]:
         parse_building_farm(self, message)
     # War
+    elif 'Info' in message.split()[0]:
+        parse_war_recruitment_info(self, message)
     elif 'Our scouts' in message:
         parse_scout_message(self, message)
     elif 'Choose number.' in message:
@@ -187,44 +208,77 @@ def parse_buildings_profile(self, msg):
 def parse_war_profile(self, msg):
     self.log('Parsing war profile')
 
-    tmp = msg.split("\n")
-    pretty_print(tmp)
+    reg = re.compile(r'(\d+)🎖\D+(\d+)\D+(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)⚔(⛔️|✅)\D+(\d+)🍖'
+                     r'(⛔️|✅)(.+Next attack - (\d+) (min|sec)\.)?(.+Next ally attack - (\d+) (min|sec)\.)?(.+No attacks'
+                     r' - (\d+) (min|sec)\.)?(.+Continues the battle with( alliance)? \[?(\W?)]?([\w ]+)(\nAttack: (.+)'
+                     r'Defence: (.+))?)?', re.S)
+    m = re.search(reg, msg)
 
-    self.city['cooldownDefense'] = 0
-    self.city['cooldownAttack'] = 0
-    self.city['cooldownAttackClan'] = 0
+    self.city['wins'] = int(m.group(1))
+    self.city['karma'] = int(m.group(2))
+    self.city['territory'] = int(m.group(3))
+    self.city['wall'] = int(m.group(4))
+    self.city['maxWall'] = int(m.group(5))
+    self.city['archers'] = int(m.group(6))
+    self.city['maxArchers'] = int(m.group(7))
+    self.city['trebuchetWorkers'] = int(m.group(8))
+    self.city['maxTrebuchetWorkers'] = int(m.group(9))
+    self.city['soldiers'] = int(m.group(10))
+    self.city['maxSoldiers'] = int(m.group(11))
+    self.city['food'] = int(m.group(13))
+    self.city['canAttack'] = False if '⛔' in m.group(12) + m.group(14) else True
+    if m.group(15) is None:
+        self.city['cooldownAttack'] = 0
+    else:
+        self.city['cooldownAttack'] = m.group(16) * (1 if m.group(17) is "sec" else 60)
+    if m.group(18) is None:
+        self.city['cooldownAttackClan'] = 0
+    else:
+        self.city['cooldownAttackClan'] = m.group(19) * (1 if m.group(20) is "sec" else 60)
+    if m.group(21) is None:
+        self.city['cooldownDefense'] = 0
+    else:
+        self.city['cooldownDefense'] = m.group(22) * (1 if m.group(23) is "sec" else 60)
     self.city['cdLastUpdated'] = time.time()
-
-    for i in range(12, len(tmp)):  # Some wasted execution steps here, don't know if anything can be done about that...
-        if 'No attacks' in tmp[i]:
-            self.city['cooldownDefense'] = int(tmp[i].split()[4])
-        elif 'Next attack' in msg:
-            self.city['cooldownAttack'] = int(tmp[i].split()[4])
-            self.city['cooldownAttackClan'] = int(tmp[i].split()[4])
-        elif 'Next ally attack' in msg:
-            self.city['cooldownAttackClan'] = int(tmp[i].split()[5])
-        elif 'Continues' in msg:
-            self.city['currentEnemy'] = tmp[i][5]
-            self.log('WARN: Enemies with space may not be logged properly')  # TODO regex fix this...
-
-    self.log(self.city)
-
-    msg = msg.split()
-
-    self.city['wins'] = int(msg[1][:-1])
-    self.city['karma'] = int(msg[3][:-1])
-    self.city['territory'] = int(msg[5][:-1])
-    self.city['wall'] = int(msg[7].split("/")[0])
-    self.city['maxWall'] = int(msg[7][:-1].split("/")[1])
-    self.city['archers'] = int(msg[8].split("/")[0])
-    self.city['maxArchers'] = int(msg[8][:-1].split("/")[1])
-    self.city['trebuchet'] = int(msg[10].split("/")[0])
-    self.city['maxTrebuchet'] = int(msg[10][:-1].split("/")[1])
-    self.city['soldiers'] = int(msg[11].split("/")[0])
-    self.city['maxSoldiers'] = int(msg[11].split("/")[1].split("⚔")[0])
-    self.city['food'] = int(msg[12][:-1].split("🍖")[0])
+    if m.group(24) is None:
+        self.city['warStatus'] = 'peace'
+        self.city['currentEnemyClan'] = ''
+        self.city['currentEnemyClanName'] = ''
+        self.city['currentEnemyName'] = ''
+    else:
+        if m.group(25) is None:
+            self.city['currentEnemyClan'] = m.group(26)
+            self.city['currentEnemyName'] = m.group(27)
+        else:
+            self.city['currentEnemyClan'] = m.group(26)
+            self.city['currentEnemyClanName'] = m.group(27)
+            if self.city['governor'] in m.group(29): # TODO regardless if i'm attacking or defending, count attackers and defenders. More useful if other bot receives such messages and sends them on here, to aid in decision of attacking or not.
+                self.city['warStatus'] = 'clanAttack'
+                self.city['currentClanWarEnemies'] = m.group(30)
+                self.city['currentClanWarFriends'] = m.group(29)
+            elif self.city['governor'] in m.group(30):
+                self.city['warStatus'] = 'clanDefence'
+                self.city['currentClanWarEnemies'] = m.group(29)
+                self.city['currentClanWarFriends'] = m.group(30)
+                # TODO check if I'm first, which would mean I'm the one defending
+            else:
+                self.log('Could not find self in current clan battle!')
 
     self.status['menuDepth'] = 1
+
+
+def parse_war_recruitment_info(self, msg):
+    reg = re.compile(r'(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+', re.S)
+    m = re.search(reg, msg)
+
+    self.city['soldiers'] = m.group(1)
+    self.city['maxSoldiers'] = m.group(2)
+    self.city['archers'] = m.group(3)
+    self.city['maxArchers'] = m.group(4)
+    self.city['trebuchetWorkers'] = m.group(5)
+    self.city['maxTrebuchetWorkers'] = m.group(6)
+
+    self.status['menuDepth'] = 2
 
 
 def parse_resource_message(self, msg):
@@ -237,22 +291,25 @@ def parse_resource_message(self, msg):
     if 'no place' in msg:
         self.log('no room for resources we attempted to purchase')  # TODO do something about this to ruin trade loop
 
-    msg = msg.split()
+    regex = re.compile(r'(\d+).$', re.M)
+    regex2 = re.compile(r'(\d+)./')
 
-    self.city['gold'] = int(msg[2][:-1])
+    m = re.findall(regex, msg)
+    m2 = re.findall(regex2, msg)
+
+    self.city['gold'] = int(m[0])
     self.city['goldLastUpdated'] = time.time()
-    self.city['wood'] = int(msg[4][:-1])
+    self.city['wood'] = int(m[1])
     self.city['woodLastUpdated'] = time.time()
-    self.city['stone'] = int(msg[6][:-1])
+    self.city['stone'] = int(m[2])
     self.city['stoneLastUpdated'] = time.time()
-    self.city['food'] = int(msg[8][:-1])
+    self.city['food'] = int(m[3])
     self.city['foodLastUpdated'] = time.time()
-    if len(msg) > 10:
+    if len(m) > 4:
         #  Technically speaking I could just hardcode 2 or use a resourcePrice variable...
-        self.city['woodPrice'] = int(msg[11].split("💰")[0]) / int(msg[11].split("/")[1][:-1])
-        self.city['stonePrice'] = int(msg[13].split("💰")[0]) / int(msg[13].split("/")[1][:-1])
-        self.city['foodPrice'] = int(msg[15].split("💰")[0]) / int(msg[15].split("/")[1][:-1])
-
+        self.city['woodPrice'] = int(m2[0]) / int(m[4])
+        self.city['stonePrice'] = int(m2[1]) / int(m[5])
+        self.city['foodPrice'] = int(m2[2]) / int(m[6])
     self.status['menuDepth'] = 1
 
 
@@ -433,21 +490,28 @@ def parse_building_town_hall(self, msg):
 
 def parse_building_walls(self, msg):
     self.log('parsing walls')
-    msg = msg.split()
-    self.city['walls'] = int(msg[2])
-    self.city['archers'] = int(msg[4].split("/")[0])
-    self.city['maxArchers'] = int(msg[4].split("/")[1][:-1])
-    # Individual Recruit cost?
-    self.log("This will break if less than 1000 walls...  I so shoulda been using regex this whole time...") # TODO REGEX THIS
-    self.city['wallDurability'] = int(msg[10].split("y")[1].split("/")[0])
-    self.city['wallMaxDurability'] = int(msg[10].split("y")[1].split("/")[1][:-1])
-    self.city['gold'] = int(msg[12][:-1])
+
+    reg = re.compile(
+        r'(\d+)\D+(\d+)/(\d+)🏹\D+(\d+)💰(\d+)🍖/(\d+)👥\D+\+(\d+)\D+(\d+)/(\d+)\D+(\d+)\D+(\d+)👥.+(Repair|'
+        r'Upgrade)\D+(\d+)💰(⛔️|✅)\D+(\d+)🌲(⛔️|✅)\D+(\d+)⛏(⛔️|✅)', re.S)
+    m = re.search(reg, msg)
+
+    self.city['walls'] = int(m.group(1))
+    self.city['archers'] = int(m.group(2))
+    self.city['maxArchers'] = int(m.group(3))
+    # Individual Recruit cost? 10, 1, 1 are current values of 4, 5, 6
+    self.city['wallAttackBonus'] = int(m.group(7))
+    self.city['wallDurability'] = int(m.group(8))
+    self.city['wallMaxDurability'] = int(m.group(9))
+    self.city['gold'] = int(m.group(10))
     self.city['goldLastUpdated'] = time.time()
-    self.city['people'] = int(msg[14][:-1])
+    self.city['people'] = int(m.group(11))
     self.city['peopleLastUpdated'] = time.time()
-    self.city['wallsUpgradeCost'] = int(msg[10].split("💰")[0])
-    self.city['wallsUpgradeWood'] = int(msg[11].split("🌲")[0])
-    self.city['wallsUpgradeStone'] = int(msg[12].split("⛏")[0])
+    self.city['wallStatus'] = m.group(12)
+    self.city['walls' + self.city['wallStatus'] + 'Cost'] = int(m.group(13))
+    self.city['walls' + self.city['wallStatus'] + 'Wood'] = int(m.group(15))
+    self.city['walls' + self.city['wallStatus'] + 'Stone'] = int(m.group(17))
+    self.city['wallsCanUpgrade'] = False if '⛔' in m.group(14) + m.group(16) + m.group(18) else True
 
     self.status['menuDepth'] = 2
 
@@ -462,13 +526,24 @@ def parse_war_attacked(self, msg):
 
 def parse_war_victory(self, msg):
     self.log('parsing victory - no code yet!')
-    print(clean_trim(msg))
-    msg = msg.split()
+    print(msg)
 
 
 def parse_war_defeat(self, msg):
     self.log('parsing defeat')
-    print(clean_trim(msg))
+
+    reg = re.compile(
+        r'with \[?(\W)?]?([\w, ]+) complete. Unfortunately, (.+),.+ lose\. (None|Only (\d+)⚔) of the (\d+)⚔\D+(\d+)💰'
+        r'\D+(\d+)🗺')
+    m = re.search(reg, msg)
+
+    self.city['lastEnemyClan'] = m.group(1)
+    self.city['lastEnemyName'] = m.group(2)
+    self.city['governor'] = m.group(3)
+    if m.group(5) is not None:
+        self.city['soldiers'] = self.city['soldiers'] + int(m.group(5))
+    self.city['soldiersInPreviousBattle'] = int(m.group(6))
+    self.city['gold'] = self.city['gold'] - int(m.group(7))
 
 
 def parse_war_clan_join(self, msg):
@@ -489,6 +564,9 @@ def parse_war_clan_defend(self, msg):
     self.city['clanAttackingAllianceSymbol'] = match.group(3)
     self.city['clanAttackingPlayer'] = match.group(4)
     self.city['clanAttackingAllianceName'] = match.group(5)
+    self.log(self.city['clanAllyUnderAttack'])
+    self.log('If that\'s a name of a city, gezunterheit, delete two log lines. Otherwise shift indexes.')
+    # todo get way to attack (inline keyboard)
 
 
 def pretty_print(object):
