@@ -579,9 +579,9 @@ def parse_building_town_hall(self, msg):
     self.city['goldLastUpdated'] = time.time()
     self.city['maxGold'] = int(msg[7][:-1])
     self.city['dailyGoldProduction'] = int(msg[8].split("/")[0][:-1])
-    self.city['housesUpgradeCost'] = int(msg[10].split("💰")[0])
-    self.city['housesUpgradeWood'] = int(msg[11].split("🌲")[0])
-    self.city['housesUpgradeStone'] = int(msg[12].split("⛏")[0])
+    self.city['townhallUpgradeCost'] = int(msg[10].split("💰")[0])
+    self.city['townhallUpgradeWood'] = int(msg[11].split("🌲")[0])
+    self.city['townhallUpgradeStone'] = int(msg[12].split("⛏")[0])
     # Should deal with upgradeability...
 
     self.status['menuDepth'] = 2
