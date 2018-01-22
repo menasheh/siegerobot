@@ -48,10 +48,12 @@ def procrastinate():
 def develop(self):
     # send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
     send_message_and_wait(self, "Buildings")  # Buildings
-    send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall
+    send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall #TODO - this is just to parse coinrate and upgrade resources. Can calculate both of those with math, in theory.
     send_message_and_wait(self, self.status['replyMarkup'][2])  # Back
     send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
     send_message_and_wait(self, self.status['replyMarkup'][5])  # Back
+    send_message_and_wait(self, self.status['replyMarkup'][1])  # Houses
+    send_message_and_wait(self, self.status['replyMarkup'][2])  # Back
     send_message_and_wait(self, self.status['replyMarkup'][5])  # Sawmill
     send_message_and_wait(self, self.status['replyMarkup'][4])  # Back
     send_message_and_wait(self, self.status['replyMarkup'][6])  # Mine
