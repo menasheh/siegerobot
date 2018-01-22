@@ -139,8 +139,8 @@ class SiegeClient(TelegramClient):
                         for row in update.message.reply_markup.rows:
                             for button in row.buttons:
                                 markup.append(button.text)
-
-                        self.status['replyMarkup'] = markup
+                        if not markup == []: # TODO Make sure this works - on clan defend, shouldn't change it
+                            self.status['replyMarkup'] = markup
                         self.status['lastMsgID'] = update.message.id
                 else:
                     if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox) or

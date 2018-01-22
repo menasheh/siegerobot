@@ -63,38 +63,14 @@ def develop(self):
 
     while True:
 
-        purchase_resources_toward_upgrade(self, 'wood', 'storage')
-        purchase_resources_toward_upgrade(self, 'stone', 'storage')
-
-        send_message_and_wait(self, self.status['replyMarkup'][10])  # Up Menu
-
-        waittime = (self.city['storageUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']
-        self.log("upgrade of storage will require gold generated from " + waittime + "minutes.")
-
-        time.sleep(60 * (waittime + 1))
-
-        send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
-        send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
-
-        oldlevel = self.city['storage']
-        send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
-        while self.city['storage'] == oldlevel:
-            self.log("Something went wrong with storage upgrade, please investigate.")
-            procrastinate()
-            send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
-
-        send_message_and_wait(self, self.status['replyMarkup'][6])  # Up Menu
-        send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
-        send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
-
         while (self.city['maxWood'] > self.city['housesUpgradeWood']) \
                 & (self.city['maxStone'] > self.city['housesUpgradeStone']):
             purchase_resources_toward_upgrade(self, 'wood', 'houses')
             purchase_resources_toward_upgrade(self, 'stone', 'houses')
-            send_message_and_wait(self, self.status['replyMarkup'][10])  # Up Menu
+            send_message_and_wait(self, self.status['replyMarkup'][4])  # Up Menu
 
-            waittime = (self.city['housesUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']
-            self.log("upgrade of houses will require gold generated from " + waittime + "minutes.")
+            waittime = math.ceil((self.city['housesUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction'])
+            self.log("upgrade of houses will require gold generated from " + str(waittime) + " minutes.")
 
             time.sleep(60 * (waittime + 1))
 
@@ -116,10 +92,10 @@ def develop(self):
                 & (self.city['maxStone'] > self.city['townhallUpgradeStone']):
             purchase_resources_toward_upgrade(self, 'wood', 'houses')
             purchase_resources_toward_upgrade(self, 'stone', 'houses')
-            send_message_and_wait(self, self.status['replyMarkup'][10])  # Up Menu
+            send_message_and_wait(self, self.status['replyMarkup'][4])  # Up Menu
 
-            waittime = (self.city['townhallUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']
-            self.log("upgrade of townhall will require gold generated from " + waittime + "minutes.")
+            waittime = math.ceil((self.city['townhallUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction'])
+            self.log("upgrade of townhall will require gold generated from " + str(waittime) + " minutes.")
 
             time.sleep(60 * (waittime + 1))
 
@@ -137,6 +113,30 @@ def develop(self):
             send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
             send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
 
+        purchase_resources_toward_upgrade(self, 'wood', 'storage')
+        purchase_resources_toward_upgrade(self, 'stone', 'storage')
+
+        send_message_and_wait(self, self.status['replyMarkup'][4])  # Up Menu
+
+        waittime = math.ceil(((self.city['storageUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']))
+        self.log("upgrade of storage will require gold generated from " + str(waittime) + " minutes.")
+
+        time.sleep(60 * waittime)
+
+        send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
+        send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
+
+        oldlevel = self.city['storage']
+        send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+        while self.city['storage'] == oldlevel:
+            self.log("Something went wrong with storage upgrade, please investigate.")
+            procrastinate()
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+
+        send_message_and_wait(self, self.status['replyMarkup'][6])  # Up Menu
+        send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
+        send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
+
 
 def purchase_resources_toward_upgrade(self, resource, building):
     # Assumes in the trade menu. Bad assumption TODO fix
@@ -151,6 +151,7 @@ def purchase_resources_toward_upgrade(self, resource, building):
         procrastinate()
         update_gold(self)  # update gold
         update_resources(self)
+        self.log(self.city['replyMarkup'])
     send_message_and_wait(self, self.status['replyMarkup'][9])  # Back
 
 
