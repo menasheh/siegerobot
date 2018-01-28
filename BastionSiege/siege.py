@@ -12,7 +12,7 @@ from telethon.utils import get_display_name
 
 
 def load_config(path='settings'):
-    path = 'settings/' + path + '.cfg'
+    path = 'config/' + path + '.cfg'
     # Loads the user settings.cfg located under `config/` TODO multiple phone numbers
     result = {}
     with open(path, 'r', encoding='utf-8') as file:
@@ -49,14 +49,7 @@ def print_title(title):
 class SiegeClient(TelegramClient):
     """Bot for Bastion Siege @BastionSiegeBot """
 
-    BOT_ID = int(252148344)
-
-    status = {'menuDepth': 3}  # TODO Is this properly instanced? Does it belong in init, possibly?
-    city = {'gold': 0, 'wood': 0, 'stone': 0, 'food': 0}
-
-    states = {'main', 'war', 'ranking', 'buildings', 'alliance', 'settings.cfg', 'workshop', 'trade',
-              'help', 'war.patrol', 'war.patrol', 'war.recruit'
-              }
+    BOT_ID = int(252148344) # Applies to all instances of SiegeClient
 
     def __init__(self, session_user_id, user_phone, api_id, api_hash, proxy=None):
         print_title('Initialization')
@@ -91,6 +84,24 @@ class SiegeClient(TelegramClient):
 
         self.entity = ""
 
+        class Object:
+            pass
+        self.city = Object()
+        self.city.gold = 0
+        self.city.goldLastUpdated = 0
+        self.city.wood = 0
+        self.city.stone = 0
+        self.city.food = 0
+
+        self.status = Object()
+        self.status.menuDepth = 3
+
+        self.city.update_times = Object()
+
+        self.states = {'main', 'war', 'ranking', 'buildings', 'alliance', 'settings.cfg', 'workshop', 'trade',
+                  'help', 'war.patrol', 'war.patrol', 'war.recruit'
+                  }
+
     def run(self):
         self.add_update_handler(self.update_handler)
 
@@ -102,17 +113,18 @@ class SiegeClient(TelegramClient):
 
         self.log("Loading messages...")
         # TODO 10 in production
-        total_count, messages, senders = self.get_message_history(self.entity, limit=20)
+        total_count, messages, senders = self.get_message_history(self.entity, limit=2)
 
         for msg in messages:
             self.log(msg)
             if msg.from_id == self.BOT_ID:
                 Siege.parse_message(self, msg.message)
-                self.status['lastMsgID'] = msg.id
+                self.status.lastMsgID = msg.id
                 if hasattr(self.status, 'menuDepth'):
                     continue
 
         self.log("Done loading messages...")
+
         Siege.return_to_main(self)
 
         """
@@ -141,11 +153,11 @@ class SiegeClient(TelegramClient):
                             for button in row.buttons:
                                 markup.append(button.text)
                         if not markup == []:  # TODO Make sure this works - on clan defend, shouldn't change it
-                            self.status['replyMarkup'] = markup
+                            self.status.replyMarkup = markup
                         else:
                             self.log("New markup empty, not updating...")
                         # Siege.pretty_print(markup)  # TEST line
-                        self.status['lastMsgID'] = update.message.id
+                        self.status.lastMsgID = update.message.id
                 else:
                     if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox) or
                             isinstance(update, UpdateMessageID)):
@@ -158,7 +170,7 @@ class SiegeClient(TelegramClient):
             else:
                 """"""
                 # self.log(update_object)
-            self.status['lastMsgID'] = update_object.id
+            self.status.lastMsgID = update_object.id
         else:
             if hasattr(update_object, "message"):
                 print("update_object is of type: ", type(update_object))
