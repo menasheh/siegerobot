@@ -71,10 +71,13 @@ def develop(self):
             purchase_resources_toward_upgrade(self, 'stone', 'houses')
             send_message_and_wait(self, self.status['replyMarkup'][4])  # Up Menu
 
-            waittime = math.ceil((self.city['housesUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction'])
+            waittime = max( 0, math.ceil((self.city['housesUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']))
             self.log("upgrade of houses will require gold generated from " + str(waittime) + " minutes.")
 
             time.sleep(60 * (waittime + 1))
+
+            self.log("printing replyMarkup for diagnostic purposes:")
+            pretty_print(self.status['replyMarkup'])
 
             send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
             send_message_and_wait(self, self.status['replyMarkup'][1])  # Houses
@@ -96,10 +99,13 @@ def develop(self):
             purchase_resources_toward_upgrade(self, 'stone', 'houses')
             send_message_and_wait(self, self.status['replyMarkup'][4])  # Up Menu
 
-            waittime = math.ceil((self.city['townhallUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction'])
+            waittime = max(0, math.ceil((self.city['townhallUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']))
             self.log("upgrade of townhall will require gold generated from " + str(waittime) + " minutes.")
 
             time.sleep(60 * (waittime + 1))
+
+            self.log("printing replyMarkup for diagnostic purposes:")
+            pretty_print(self.status['replyMarkup'])
 
             send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
             send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall
@@ -120,10 +126,13 @@ def develop(self):
 
         send_message_and_wait(self, self.status['replyMarkup'][4])  # Up Menu
 
-        waittime = math.ceil(((self.city['storageUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']))
+        waittime = max(0, math.ceil((self.city['storageUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']))
         self.log("upgrade of storage will require gold generated from " + str(waittime) + " minutes.")
 
         time.sleep(60 * waittime)
+
+        self.log("printing replyMarkup for diagnostic purposes:")
+        pretty_print(self.status['replyMarkup'])
 
         send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
         send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
@@ -153,8 +162,24 @@ def purchase_resources_toward_upgrade(self, resource, building):
         procrastinate()
         update_gold(self)  # update gold
         update_resources(self)
-        self.log(self.city['replyMarkup'])
-    send_message_and_wait(self, self.status['replyMarkup'][9])  # Back
+
+    self.log("printing replyMarkup for diagnostic purposes:")
+    pretty_print(self.status['replyMarkup'])
+    # send_message_and_wait(self, self.status['replyMarkup'][9])  # Back # Markup wasn't working... needs fixing, but...
+    send_message_and_wait(self, "⬅️ Back")  # Back
+
+
+def farm(self):
+    return_to_main(self)
+    send_message_and_wait(self, "Buildings")  # Buildings
+    send_message_and_wait(self, self.status['replyMarkup'][3])  # Barracks
+    send_message_and_wait(self, self.status['replyMarkup'][4])  # War
+    # If walls need repairing, do it
+    # If anyone needs recruiting - barracks, wall, trebuchet, do it
+    # Find someone to kill
+    # Kill them
+    # Wait until army returns - then buy resources toward upgrade
+
 
 
 def return_to_main(self):
@@ -218,8 +243,6 @@ def parse_message(self, message):
     #    parse_war_clan_join(self, message)
     else:
         self.log('ERROR: unknown message type!!!')
-        human_readable_indexes(self, message)
-        print(clean_trim(message))
         print(message)
 
 
@@ -348,15 +371,17 @@ def parse_war_profile(self, msg):
         else:
             self.city['currentEnemyClan'] = m.group(26)
             self.city['currentEnemyClanName'] = m.group(27)
+
+            # TODO -
             if self.city['governor'] in m.group(29): # TODO regardless if i'm attacking or defending, count attackers and defenders. More useful if other bot receives such messages and sends them on here, to aid in decision of attacking or not.
                 self.city['warStatus'] = 'clanAttack'
                 self.city['currentClanWarEnemies'] = m.group(30)
                 self.city['currentClanWarFriends'] = m.group(29)
-            elif self.city['governor'] in m.group(30):
+            elif self.city['governor'] in m.group(30):  #defending # TODO check if I'm first, which would mean I'm the one defending
                 self.city['warStatus'] = 'clanDefence'
                 self.city['currentClanWarEnemies'] = m.group(29)
                 self.city['currentClanWarFriends'] = m.group(30)
-                # TODO check if I'm first, which would mean I'm the one defending
+
             else:
                 self.log('Could not find self in current clan battle!')
 
@@ -429,110 +454,120 @@ def parse_scout_message(self, msg):
 
 def parse_building_barracks(self, msg):
     self.log('parse barracks message')
-    msg = msg.split()
-    self.city['barracks'] = int(msg[2])
-    self.city['soldiers'] = int(msg[4].split("/")[0])
-    self.city['maxSoldiers'] = int(msg[4].split("/")[1].split("⚔")[0])
-    self.city['barracksRecruitCostGold'] = int(msg[6].split("💰")[0])
-    self.city['barracksRecruitCostFood'] = int(msg[6].split("💰")[1].split("/")[0][:-1])
-    self.city['barracksRecruitCostPeople'] = int(msg[6].split("/")[1][:-1])
-    self.city['gold'] = int(msg[8][:-1])
-    self.city['people'] = int(msg[10][:-1])
-    self.city['barracksUpgradeCost'] = int(msg[12].split("💰")[0])
-    self.city['barracksUpgradeWood'] = int(msg[13].split("🌲")[0])
-    self.city['barracksUpgradeStone'] = int(msg[14].split("⛏")[0])
 
-    self.log("Need to deal with upgradability")
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city['barracks'] = int(m[0])
+    self.city['soldiers'] = int(m[1])
+    self.city['maxSoldiers'] = int(m[2])
+    self.city['barracksRecruitCostGold'] = int(m[3])
+    self.city['barracksRecruitCostFood'] = int(m[4])
+    self.city['barracksRecruitCostPeople'] = int(m[5])
+    self.city['gold'] = int(m[6])
+    self.city['people'] = int(m[7])
+    self.city['barracksUpgradeCost'] = int(m[8])
+    self.city['barracksUpgradeWood'] = int(m[9])
+    self.city['barracksUpgradeStone'] = int(m[10])
+    self.log("Possibly deal with reading upgradability")
 
     self.status['menuDepth'] = 2
 
 
 def parse_building_farm(self, msg):
     self.log('parse farm message')
-    msg = msg.split()
-    self.city['farm'] = int(msg[2])
-    self.city['farmWorkers'] = int(msg[4].split("/")[0])
-    self.city['maxFarmWorkers'] = int(msg[4].split("/")[1][:-1])
-    self.city['farmLocalStorage'] = int(msg[5].split("/")[0])
+
+    reg = re.compile(r'-?(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city['farm'] = int(m[0])
+    self.city['farmWorkers'] = int(m[1])
+    self.city['maxFarmWorkers'] = int(m[2])
+    self.city['farmLocalStorage'] = int(m[3])
     #  farmMaxLocalStorage
-    self.city['dailyFoodProduction'] = int(msg[6].split("🍖")[0])
-    self.city['dailyFoodConsumption'] = int(msg[8].split("🍖")[0])
-    self.city['storageWorkers'] = int(msg[10][:-1])
-    #  self.city['']
+    self.city['dailyFoodProduction'] = int(m[5])
+    self.city['dailyFoodConsumption'] = int(m[6])
+    self.city['storageWorkers'] = int(m[7])
     #  Hire cost and costPeople
-    self.city['gold'] = int(msg[14][:-1])
-    self.city['people'] = int(msg[16][:-1])
-    self.city['farmUpgradeCost'] = int(msg[18].split("💰")[0])
-    self.city['farmUpgradeWood'] = int(msg[19].split("🌲")[0])
-    self.city['farmUpgradeStone'] = int(msg[20].split("⛏")[0])
+    self.city['gold'] = int(m[10])
+    self.city['people'] = int(m[11])
+    self.city['farmUpgradeCost'] = int(m[12])
+    self.city['farmUpgradeWood'] = int(m[13])
+    self.city['farmUpgradeStone'] = int(m[14])
 
     self.status['menuDepth'] = 2
 
 
 def parse_building_houses(self, msg):
     self.log('parse houses message')
-    msg = msg.split()
-    self.city['houses'] = int(msg[2])
-    self.city['people'] = int(msg[4].split("/")[0])
-    self.city['peopleLastUpdated'] = time.time()
-    self.city['maxPeople'] = int(msg[4].split("/")[1][:-1])
-    self.city['dailyPeopleIncrease'] = int(msg[5].split("👥")[0])
-    self.city['dailyFoodConsumption'] = int(msg[6].split("🍖")[0])
-    self.city['dailyFoodProduction'] = int(msg[8].split("🍖")[0])
-    self.city['storageWorkers'] = int(msg[10][:-1])
-    self.city['housesUpgradeCost'] = int(msg[12].split("💰")[0])
-    self.city['housesUpgradeWood'] = int(msg[13].split("🌲")[0])
-    self.city['housesUpgradeStone'] = int(msg[14].split("⛏")[0])
 
-    self.log("did not deal with upgradeability, might need to")
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city['houses'] = int(m[0])
+    self.city['people'] = int(m[1])
+    self.city['peopleLastUpdated'] = time.time()
+    self.city['maxPeople'] = int(m[2])
+    self.city['dailyPeopleIncrease'] = int(m[3])
+    self.city['dailyFoodConsumption'] = int(m[4])
+    self.city['dailyFoodProduction'] = int(m[5])
+    self.city['storageWorkers'] = int(m[6])
+    self.city['housesUpgradeCost'] = int(m[7])
+    self.city['housesUpgradeWood'] = int(m[8])
+    self.city['housesUpgradeStone'] = int(m[9])
+    self.log("houseUpgradeabilityCheck")
 
     self.status['menuDepth'] = 2
 
 
 def parse_building_mine(self, msg):
     self.log('parse mine message')
-    msg = msg.split()
 
-    self.city['mine'] = int(msg[2])
-    self.city['mineWorkers'] = int(msg[4].split("/")[0])
-    self.city['mineMaxWorkers'] = int(msg[4].split("/")[1][:-1])
-    self.city['mineLocalStorage'] = int(msg[5].split("/")[0])
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city['mine'] = int(m[0])
+    self.city['mineWorkers'] = int(m[1])
+    self.city['mineMaxWorkers'] = int(m[2])
+    self.city['mineLocalStorage'] = int(m[3])
     # mineMaxLocalStorage
-    self.city['dailyStoneProduction'] = int(msg[6].split("⛏")[0])
-    self.city['storageWorkers'] = int(msg[8][:-1])
+    self.city['dailyStoneProduction'] = int(m[5])
+    self.city['storageWorkers'] = int(m[6])
     # Individual cost variable for hiring?
     #
-    self.city['gold'] = int(msg[12][:-1])
+    self.city['gold'] = int(m[9])
     self.city['goldLastUpdated'] = time.time()
-    self.city['people'] = int(msg[14][:-1])
+    self.city['people'] = int(m[10])
     self.city['peopleLastUpdated'] = time.time()
-    self.city['mineUpgradeCost'] = int(msg[16].split("💰")[0])
-    self.city['mineUpgradeWood'] = int(msg[17].split("🌲")[0])
-    self.city['mineUpgradeStone'] = int(msg[18].split("⛏")[0])
+    self.city['mineUpgradeCost'] = int(m[11])
+    self.city['mineUpgradeWood'] = int(m[12])
+    self.city['mineUpgradeStone'] = int(m[13])
 
     self.status['menuDepth'] = 2
 
 
 def parse_building_sawmill(self, msg):
     self.log('parse sawmill message')
-    msg = msg.split()
 
-    self.city['sawmill'] = int(msg[2])
-    self.city['sawmillWorkers'] = int(msg[4].split("/")[0])
-    self.city['sawmillMaxWorkers'] = int(msg[4].split("/")[1][:-1])
-    self.city['sawmillLocalStorage'] = int(msg[5].split("/")[0])
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city['sawmill'] = int(m[0])
+    self.city['sawmillWorkers'] = int(m[1])
+    self.city['sawmillMaxWorkers'] = int(m[2])
+    self.city['sawmillLocalStorage'] = int(m[3])
     # sawmillMaxLocalStorage
-    self.city['dailyWoodProduction'] = int(msg[6].split("🌲")[0])
-    self.city['storageWorkers'] = int(msg[8][:-1])
+    self.city['dailyWoodProduction'] = int(m[5])
+    self.city['storageWorkers'] = int(m[6])
     # Individual cost variable for hiring?
     #
-    self.city['gold'] = int(msg[12][:-1])
+    self.city['gold'] = int(m[9])
     self.city['goldLastUpdated'] = time.time()
-    self.city['people'] = int(msg[14][:-1])
+    self.city['people'] = int(m[10])
     self.city['peopleLastUpdated'] = time.time()
-    self.city['sawmillUpgradeCost'] = int(msg[16].split("💰")[0])
-    self.city['sawmillUpgradeWood'] = int(msg[17].split("🌲")[0])
-    self.city['sawmillUpgradeStone'] = int(msg[18].split("⛏")[0])
+    self.city['sawmillUpgradeCost'] = int(m[11])
+    self.city['sawmillUpgradeWood'] = int(m[12])
+    self.city['sawmillUpgradeStone'] = int(m[13])
 
     self.status['menuDepth'] = 2
 
@@ -540,50 +575,55 @@ def parse_building_sawmill(self, msg):
 def parse_building_storage(self, msg):
     self.log('parsing building - storage')
 
-    self.log('regex this, please!\n')
-    self.log(msg)
-    self.log("\n")
+    storage_is_full = 0
 
-    msg = msg.split()
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
 
-    self.city['storage'] = int(msg[2])
-    self.city['storageWorkers'] = int(msg[4].split("/")[0])
-    self.city['storageMaxWorkers'] = int(msg[4].split("/")[1][:-1])
-    self.city['wood'] = int(msg[6].split("/")[0])
+    self.city['storage'] = int(m[0])
+    self.city['storageWorkers'] = int(m[1])
+    self.city['storageMaxWorkers'] = int(m[2])
+    self.city['wood'] = int(m[3])
     self.city['woodLastUpdated'] = time.time()
-    self.city['maxWood'] = int(msg[6].split("/")[1][:-1])
-    self.city['stone'] = int(msg[7].split("/")[0])
+    self.city['maxWood'] = int(m[4])
+    self.city['stone'] = int(m[5])
     self.city['stoneLastUpdated'] = time.time()
-    self.city['maxStone'] = int(msg[7].split("/")[1][:-1])
-    self.city['food'] = int(msg[8].split("/")[0])
+    self.city['maxStone'] = int(m[6])
+    self.city['food'] = int(m[7])
     self.city['foodLastUpdated'] = time.time()
-    self.city['maxFood'] = int(msg[8].split("/")[1][:-1])
+    self.city['maxFood'] = int(m[8])
     # Individual cost variable(s) for hiring?
     #
-    self.city['gold'] = int(msg[12][:-1])
+    self.city['gold'] = int(m[11])
     self.city['goldLastUpdated'] = time.time()
-    self.city['people'] = int(msg[14][:-1])
+    self.city['people'] = int(m[12])
     self.city['peopleLastUpdated'] = time.time()
-    self.city['storageFillCost'] = int(msg[16][:-2])
-    self.city['storageUpgradeCost'] = int(msg[18].split("💰")[0])
-    self.city['storageUpgradeWood'] = int(msg[19].split("🌲")[0])
-    self.city['storageUpgradeStone'] = int(msg[20].split("⛏")[0])
+    if "Fill" in msg:
+        self.city['storageFillCost'] = int(m[13])
+        storage_is_full = 1
+    else:
+        self.city['storageFillCost'] = 0
+    self.city['storageUpgradeCost'] = int(m[14 - storage_is_full])
+    self.city['storageUpgradeWood'] = int(m[15 - storage_is_full])
+    self.city['storageUpgradeStone'] = int(m[16 - storage_is_full])
 
     self.status['menuDepth'] = 2
 
 
 def parse_building_town_hall(self, msg):
     self.log('parsing town hall message')
-    msg = msg.split()
 
-    self.city['townhall'] = int(msg[3])
-    self.city['gold'] = int(msg[5][:-1])
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city['townhall'] = int(m[0])
+    self.city['gold'] = int(m[1])
     self.city['goldLastUpdated'] = time.time()
-    self.city['maxGold'] = int(msg[7][:-1])
-    self.city['dailyGoldProduction'] = int(msg[8].split("/")[0][:-1])
-    self.city['townhallUpgradeCost'] = int(msg[10].split("💰")[0])
-    self.city['townhallUpgradeWood'] = int(msg[11].split("🌲")[0])
-    self.city['townhallUpgradeStone'] = int(msg[12].split("⛏")[0])
+    self.city['maxGold'] = int(m[2])
+    self.city['dailyGoldProduction'] = int(m[3])
+    self.city['townhallUpgradeCost'] = int(m[4])
+    self.city['townhallUpgradeWood'] = int(m[5])
+    self.city['townhallUpgradeStone'] = int(m[6])
     # Should deal with upgradeability...
 
     self.status['menuDepth'] = 2
@@ -622,12 +662,27 @@ def parse_war_attacked(self, msg):
     match = re.match(r'.+! \[?(\W?)]?(.+) approaches t.+', msg)
     self.city['attackingClan'] = match.group(1)
     self.city['attackingPlayer'] = match.group(2)
-    # TODO - indicate that trade can't happen somewherehowhen?
+    self.city['warStatus'] = "defend"
 
 
 def parse_war_victory(self, msg):
-    self.log('parsing victory - no code yet!')
+    self.log('parsing victory, but need better regex')
+
     print(msg)
+
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city['warStatus'] = 'peace'
+
+    self.city['soldiers'] = int(m[0])
+    self.city['lastBattleSentSoldiers'] = int(m[1])
+    self.city['lastBattleGold'] = int(m[2])
+    self.city['lastBattleTerritory'] = int(m[3])
+
+    update_gold(self)
+    self.city['gold'] += self.city['lastBattleGold']  # TODO sometimes get no gold, fix crash
+    self.city['territory'] += self.city['lastBattleTerritory']
 
 
 def parse_war_defeat(self, msg):
@@ -660,13 +715,20 @@ def parse_war_clan_defend(self, msg):
         self.log("Regex Error - Clan Defense could not parse:\n" + clean_trim(msg) + "\n===END=MSG===\n")
         return
 
-    self.city['alliance'] = match.group(1)
-    self.city['clanAllyUnderAttack'] = match.group(2)
-    self.city['clanAttackingAllianceSymbol'] = match.group(3)
-    self.city['clanAttackingPlayer'] = match.group(4)
-    self.city['clanAttackingAllianceName'] = match.group(5)
+    self.city['alliance'] = match.group(2)
+    self.city['clanAllyUnderAttack'] = match.group(3)
+    self.city['clanAttackingAllianceSymbol'] = match.group(4)
+    self.city['clanAttackingPlayer'] = match.group(5)
+    self.city['clanAttackingAllianceName'] = match.group(6)
+
+    self.log(self.city['alliance'])
     self.log(self.city['clanAllyUnderAttack'])
-    self.log('If that\'s a name of a city, gezunterheit, delete two log lines. Otherwise shift indexes.')
+    self.log(self.city['clanAttackingAllianceSymbol'])
+    self.log(self.city['clanAttackingPlayer'])
+    self.log(self.city['clanAttackingAllianceName'])
+
+    self.log(self.city['clanAllyUnderAttack'])
+    self.log('If that\'s a name of a city, gezunterheit, delete eight log lines. Otherwise shift indexes.')
     # todo get way to attack (inline keyboard)
 
 

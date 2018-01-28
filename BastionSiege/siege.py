@@ -11,7 +11,8 @@ from telethon.tl.types import (
 from telethon.utils import get_display_name
 
 
-def load_config(path='config/settings.cfg'):
+def load_config(path='settings'):
+    path = 'settings/' + path + '.cfg'
     # Loads the user settings.cfg located under `config/` TODO multiple phone numbers
     result = {}
     with open(path, 'r', encoding='utf-8') as file:
@@ -101,7 +102,7 @@ class SiegeClient(TelegramClient):
 
         self.log("Loading messages...")
         # TODO 10 in production
-        total_count, messages, senders = self.get_message_history(self.entity, limit=2)
+        total_count, messages, senders = self.get_message_history(self.entity, limit=20)
 
         for msg in messages:
             self.log(msg)
@@ -139,8 +140,11 @@ class SiegeClient(TelegramClient):
                         for row in update.message.reply_markup.rows:
                             for button in row.buttons:
                                 markup.append(button.text)
-                        if not markup == []: # TODO Make sure this works - on clan defend, shouldn't change it
+                        if not markup == []:  # TODO Make sure this works - on clan defend, shouldn't change it
                             self.status['replyMarkup'] = markup
+                        else:
+                            self.log("New markup empty, not updating...")
+                        # Siege.pretty_print(markup)  # TEST line
                         self.status['lastMsgID'] = update.message.id
                 else:
                     if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox) or
@@ -158,7 +162,6 @@ class SiegeClient(TelegramClient):
         else:
             if hasattr(update_object, "message"):
                 print("update_object is of type: ", type(update_object))
-                print(Siege.clean_trim(update_object.message))
                 print(update_object.message.replace(u'\u200B', ''))
             else:
                 """"""    # print("[" + str(type(update_object)) + "has no message]")
@@ -167,8 +170,8 @@ class SiegeClient(TelegramClient):
     def log(msg):
         print(msg)
 
-
-config = load_config()
+# TODO - foreach .cfg file in config folder (?)
+config = load_config("settings")
 
 client = SiegeClient(
     session_user_id=str(config.get('session_name', 'anonymous')),
