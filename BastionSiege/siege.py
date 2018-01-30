@@ -49,7 +49,7 @@ def print_title(title):
 class SiegeClient(TelegramClient):
     """Bot for Bastion Siege @BastionSiegeBot """
 
-    BOT_ID = int(252148344) # Applies to all instances of SiegeClient
+    BOT_ID = int(252148344)  # Applies to all instances of SiegeClient
 
     def __init__(self, session_user_id, user_phone, api_id, api_hash, proxy=None):
         print_title('Initialization')
@@ -116,14 +116,13 @@ class SiegeClient(TelegramClient):
         total_count, messages, senders = self.get_message_history(self.entity, limit=2)
 
         for msg in messages:
-            self.log(msg)
             if msg.from_id == self.BOT_ID:
                 Siege.parse_message(self, msg.message)
                 self.status.lastMsgID = msg.id
                 if hasattr(self.status, 'menuDepth'):
                     continue
 
-        self.log("Done loading messages...")
+        self.log("Done.")
 
         Siege.return_to_main(self)
 
@@ -152,6 +151,8 @@ class SiegeClient(TelegramClient):
                         for row in update.message.reply_markup.rows:
                             for button in row.buttons:
                                 markup.append(button.text)
+                                if "ttack" in button.text or "help in battle" in button.text:
+                                    print("Found in Markup: " + button.text)  # buttons[0] KeyboardButtonCallback... not sure how to send that message. investigate.
                         if not markup == []:  # TODO Make sure this works - on clan defend, shouldn't change it
                             self.status.replyMarkup = markup
                         else:
@@ -182,6 +183,7 @@ class SiegeClient(TelegramClient):
     def log(msg):
         print(msg)
 
+
 # TODO - foreach .cfg file in config folder (?)
 config = load_config("settings")
 
@@ -202,5 +204,8 @@ except Exception as e:
         type(e), e, traceback.format_exc()))
 
 finally:
+    if hasattr(client.status, 'replyMarkup'):
+        print("printing replyMarkup for diagnostic purposes:")
+        Siege.pretty_print(getattr(client.status, 'replyMarkup'))
     client.disconnect()
     print('\nThanks for using the bot! Exiting...')  # TODO - time running

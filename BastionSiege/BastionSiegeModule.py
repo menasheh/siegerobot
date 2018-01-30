@@ -1,6 +1,7 @@
 import math
 import random
 import re
+import sys
 import time
 
 
@@ -31,20 +32,23 @@ def update_resources(self):
 
 def update_resource(self, resource):
     timediff = math.floor((time.time() - getattr(self.city.update_times, resource)) / 60)
-    setattr(self.city, resource, getattr(self.city, resource) + timediff * getattr(self.city, 'daily' + resource.capitalize() + 'Production'))
+    setattr(self.city, resource, getattr(self.city, resource) + timediff * getattr(self.city,
+                                                                                   'daily' + resource.capitalize() + 'Production'))
     setattr(self.city.update_times, resource, time.time())
 
 
 def procrastinate():
     rand_time = random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300))
     print("snoozing for " + str(rand_time) + " seconds")
+    # TODO URGENT TODO - use /refresh and continue when breaks, but save line for a debug breakpoint too somewhere...
     time.sleep(rand_time)
 
 
 def develop(self):
     # send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
     send_message_and_wait(self, "Buildings")  # Buildings
-    send_message_and_wait(self, self.status.replyMarkup[0])  # Town Hall #TODO - this is just to parse coinrate and upgrade resources. Can calculate both of those with math, in theory.
+    # TODO - this is just to parse coinrate and upgrade resources. Can calculate both of those with math, given level
+    send_message_and_wait(self, self.status.replyMarkup[0])  # Town Hall
     send_message_and_wait(self, self.status.replyMarkup[2])  # Back
     send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
     send_message_and_wait(self, self.status.replyMarkup[5])  # Back
@@ -60,107 +64,31 @@ def develop(self):
     send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
 
     while True:
-
-        while (self.city.maxWood > self.city.housesUpgradeWood) \
-                & (self.city.maxStone > self.city.housesUpgradeStone):
-            purchase_resources_toward_upgrade(self, 'wood', 'houses')
-            purchase_resources_toward_upgrade(self, 'stone', 'houses')
-            send_message_and_wait(self, self.status.replyMarkup[4])  # Up Menu
-
-            waittime = max( 0, math.ceil((self.city.housesUpgradeCost - self.city.gold) / self.city.dailyGoldProduction))
-            self.log("upgrade of houses will require gold generated from " + str(waittime) + " minutes.")
-
-            time.sleep(60 * (waittime + 1))
-
-            self.log("printing replyMarkup for diagnostic purposes:")
-            pretty_print(self.status.replyMarkup)
-
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Houses
-
-            oldlevel = self.city.houses
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-            while self.city.houses == oldlevel:
-                self.log("Something went wrong with houses upgrade, please investigate.")
-                procrastinate()
-                send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-
-            send_message_and_wait(self, self.status.replyMarkup[3])  # Up Menu
-            send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
-
-        while (self.city.maxWood > self.city.townhallUpgradeWood) \
-                & (self.city.maxStone > self.city.townhallUpgradeStone):
-            purchase_resources_toward_upgrade(self, 'wood', 'townhall')
-            purchase_resources_toward_upgrade(self, 'stone', 'townhall')
-            send_message_and_wait(self, self.status.replyMarkup[4])  # Up Menu
-
-            waittime = max(0, math.ceil((self.city.townhallUpgradeCost - self.city.gold) / self.city.dailyGoldProduction))
-            self.log("upgrade of townhall will require gold generated from " + str(waittime) + " minutes.")
-
-            time.sleep(60 * (waittime + 1))
-
-            self.log("printing replyMarkup for diagnostic purposes:")
-            pretty_print(self.status.replyMarkup)
-
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
-            send_message_and_wait(self, self.status.replyMarkup[0])  # Town Hall
-
-            oldlevel = self.city.townhall
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-            while self.city.townhall == oldlevel:
-                self.log("Something went wrong with townhall upgrade, please investigate.")
-                procrastinate()
-                send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-
-            send_message_and_wait(self, self.status.replyMarkup[3])  # Up Menu
-            send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
-
-        purchase_resources_toward_upgrade(self, 'wood', 'storage')
-        purchase_resources_toward_upgrade(self, 'stone', 'storage')
-
-        send_message_and_wait(self, self.status.replyMarkup[4])  # Up Menu
-
-        waittime = max(0, math.ceil((self.city.storageUpgradeCost - self.city.gold) / self.city.dailyGoldProduction))
-        self.log("upgrade of storage will require gold generated from " + str(waittime) + " minutes.")
-
-        time.sleep(60 * waittime)
-
-        self.log("printing replyMarkup for diagnostic purposes:")
-        pretty_print(self.status.replyMarkup)
-
-        send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
-        send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
-
-        oldlevel = self.city.storage
-        send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-        while self.city.storage == oldlevel:
-            self.log("Something went wrong with storage upgrade, please investigate.")
-            procrastinate()
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-
-        send_message_and_wait(self, self.status.replyMarkup[6])  # Up Menu
-        send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
-        send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
+        upgrade_if_possible(self, 'houses')
+        upgrade_if_possible(self, 'townhall')
+        upgrade_if_possible(self, 'storage')
 
 
 def purchase_resources_toward_upgrade(self, resource, building):
     # Assumes in the trade menu. Bad assumption TODO fix
     send_message_and_wait(self, resource.capitalize())
     goal_quantity_attribute_name = building + 'Upgrade' + resource.capitalize()
+    if getattr(self.city, goal_quantity_attribute_name) > getattr(self.city, 'max' + resource.capitalize()):
+        self.log("Will attempt to purchase " + str(getattr(self.city, goal_quantity_attribute_name)) + " " + resource +
+                 " to upgrade " + building + " but max" + resource.capitalize() + " is " + str(
+            getattr(self.city, 'max' +
+                    resource.capitalize())))
     while getattr(self.city, resource) < getattr(self.city, goal_quantity_attribute_name):
         purchase_quantity = min(getattr(self.city, goal_quantity_attribute_name) - getattr(self.city, resource),
                                 math.floor(self.city.gold / 2))
         send_message_and_wait(self, str(purchase_quantity))  # Not future-proof if price changes
         # TODO forecast finish time
-        procrastinate()
-        update_gold(self)  # update gold
-        update_resources(self)
+        if self.city.gold < 2:
+            procrastinate()
+            update_gold(self)  # update gold
+            update_resources(self)
 
-    self.log("printing replyMarkup for diagnostic purposes:")
-    pretty_print(self.status.replyMarkup)
-    # send_message_and_wait(self, self.status.replyMarkup[9])  # Back # Markup wasn't working... needs fixing, but...
+    # send_message_and_wait(self, self.status.replyMarkup[9])  # Back # Markup wasn't working b/c clan attacks perhaps
     send_message_and_wait(self, "⬅️ Back")  # Back
 
 
@@ -176,6 +104,60 @@ def farm(self):
     # Wait until army returns - then buy resources toward upgrade
 
 
+def upgrade_if_possible(self, building):
+    print(self.city.maxWood)
+    print(getattr(self.city, building + 'UpgradeWood'))
+    print(self.city.maxStone)
+    print(getattr(self.city, building + 'UpgradeStone'))
+    while self.city.maxWood > getattr(self.city, building + 'UpgradeWood') and self.city.maxStone > getattr(self.city,
+          building + 'UpgradeStone'):
+        purchase_resources_toward_upgrade(self, 'wood', building)
+        purchase_resources_toward_upgrade(self, 'stone', building)
+        send_message_and_wait(self, self.status.replyMarkup[4])  # Up Menu
+
+        # todo - make this a method
+        waittime = max(0, int(
+            math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
+
+        if waittime > 0:
+            self.log("Upgrade of " + building + " will require gold income from " + str(waittime) + " minutes.")
+            time.sleep(60 * (waittime + 1))
+        # todo - end new method
+
+        if building == "trebuchet":
+            send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
+        else:
+            send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
+
+        building_index = -1
+        for x in range(0, len(self.status.replyMarkup)):
+            if building.capitalize() in self.status.replyMarkup[x]:
+                building_index = x
+                break
+        if building_index == -1:
+            sys.exit("Building " + building + " seems not to exist.")
+
+        send_message_and_wait(self, self.status.replyMarkup[building_index])
+
+        oldlevel = getattr(self.city, building)
+        send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
+        while getattr(self.city, building) == oldlevel:
+            self.log("Something went wrong with " + building + " upgrade, please investigate.")
+            procrastinate() #TODO - use waittime method, again (in case lost money to war, for example)
+            send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
+
+        index = -1
+        for x in range(0, len(self.status.replyMarkup)):
+            if "Menu" in self.status.replyMarkup[x]:
+                index = x
+                break
+        if index == -1:
+            sys.exit("ReplyMarkup appears to miss a Menu button.")
+        send_message_and_wait(self, self.status.replyMarkup[index])  # Up Menu
+        send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
+        send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
+
+
 def return_to_main(self):
     while self.status.menuDepth > 0:
         send_message_and_wait(self, 'Back')
@@ -188,6 +170,7 @@ def human_readable_indexes(self, message):
 
 def parse_message(self, message):
     message = message.replace(u'\u200B', '')
+    first_line = message.split()[0]
     # Main Info and Buildings
     if 'Season' in message:
         parse_profile(self, message)
@@ -199,21 +182,24 @@ def parse_message(self, message):
         parse_building_town_hall(self, message)
     elif '🏘Houses' in message:
         parse_building_houses(self, message)
-    elif 'Resources' in message.split()[0] or 'no place in the storage' in message:
+    elif 'Resources' in first_line or 'no place in the storage' in message:
         parse_resource_message(self, message)
-    elif 'Storage' in message.split()[0]:
+    elif 'Storage' in first_line:
         parse_building_storage(self, message)
-    elif 'Barracks' in message.split()[0]:
+    elif 'Barracks' in first_line:
         parse_building_barracks(self, message)
-    elif 'Walls' in message.split()[0]:
-        human_readable_indexes(self, message)
+    elif 'Walls' in first_line:
         parse_building_walls(self, message)
-    elif 'Sawmill' in message.split()[0]:
+    elif 'Sawmill' in first_line:
         parse_building_sawmill(self, message)
-    elif 'Mine' in message.split()[0]:
+    elif 'Mine' in first_line:
         parse_building_mine(self, message)
-    elif 'Farm' in message.split()[0]:
+    elif 'Farm' in first_line:
         parse_building_farm(self, message)
+    elif 'Workshop' in first_line:
+        parse_workshop(self, message)
+    elif 'Trebuchet' in first_line:
+        parse_trebuchet(self, message)
     # War
     elif 'Info' in message.split()[0]:
         parse_war_recruitment_info(self, message)
@@ -241,7 +227,6 @@ def parse_message(self, message):
 
 
 def parse_profile(self, msg):
-    self.log('Parsing profile')
     match = re.match(r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓People(['
                      r'0-9]+)👥Army([0-9]+)⚔Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖', clean_trim(msg))
     if match is None:
@@ -274,7 +259,6 @@ def parse_profile(self, msg):
 
 
 def parse_buildings_profile(self, msg):
-    self.log('Parsing buildings profile')
     msg = clean_trim(msg)
     match = re.match(r'.+🏤([0-9]+)([⛔,✅]).?🏚([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥🏘([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+'
                      r')👥🌻([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥🌲([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥⛏([0-9]+)([⛔,✅])'
@@ -367,11 +351,13 @@ def parse_war_profile(self, msg):
             self.city.currentEnemyClanName = m.group(27)
 
             # TODO -
-            if self.city.governor in m.group(29): # TODO regardless if i'm attacking or defending, count attackers and defenders. More useful if other bot receives such messages and sends them on here, to aid in decision of attacking or not.
+            if self.city.governor in m.group(
+                    29):  # TODO regardless if i'm attacking or defending, count attackers and defenders. More useful if other bot receives such messages and sends them on here, to aid in decision of attacking or not.
                 self.city.warStatus = 'clanAttack'
                 self.city.currentClanWarEnemies = m.group(30)
                 self.city.currentClanWarFriends = m.group(29)
-            elif self.city.governor in m.group(30):  #defending # TODO check if I'm first, which would mean I'm the one defending
+            elif self.city.governor in m.group(
+                    30):  # defending # TODO check if I'm first, which would mean I'm the one defending
                 self.city.warStatus = 'clanDefence'
                 self.city.currentClanWarEnemies = m.group(29)
                 self.city.currentClanWarFriends = m.group(30)
@@ -465,8 +451,6 @@ def parse_building_barracks(self, msg):
 
 
 def parse_building_farm(self, msg):
-    self.log('parse farm message')
-
     reg = re.compile(r'-?(\d+)')
     m = re.findall(reg, msg)
 
@@ -557,7 +541,7 @@ def parse_building_sawmill(self, msg):
 
 
 def parse_building_storage(self, msg):
-    storage_is_full = 0
+    storage_is_full = 1
 
     reg = re.compile(r'(\d+)')
     m = re.findall(reg, msg)
@@ -580,9 +564,9 @@ def parse_building_storage(self, msg):
     self.city.update_times.gold = time.time()
     self.city.people = int(m[12])
     self.city.update_times.people = time.time()
-    if "Fill" in msg:
+    if re.search(re.compile("Fill", re.M), msg):
         self.city.storageFillCost = int(m[13])
-        storage_is_full = 1
+        storage_is_full = 0
     else:
         self.city.storageFillCost = 0
     self.city.storageUpgradeCost = int(m[14 - storage_is_full])
@@ -627,10 +611,40 @@ def parse_building_walls(self, msg):
     self.city.people = int(m.group(11))
     self.city.update_times.people = time.time()
     self.city.wallStatus = m.group(12)
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Cost' , int(m.group(13)))
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Wood' , int(m.group(15)))
+    setattr(self.city, 'walls' + self.city.wallStatus + 'Cost', int(m.group(13)))
+    setattr(self.city, 'walls' + self.city.wallStatus + 'Wood', int(m.group(15)))
     setattr(self.city, 'walls' + self.city.wallStatus + 'Stone', int(m.group(17)))
     self.city.wallsCanUpgrade = False if '⛔' in m.group(14) + m.group(16) + m.group(18) else True
+
+    self.status.menuDepth = 2
+
+
+def parse_workshop(self, msg):
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city.trebuchet = int(m[0])
+    self.city.trebuchetWorkers = int(m[1])
+    self.city.trebuchetMaxWorkers = int(m[2])
+
+    self.status.menuDepth = 1
+
+
+def parse_trebuchet(self, msg):
+    reg = re.compile(r'(\d+)')
+    m = re.findall(reg, msg)
+
+    self.city.trebuchet = int(m[0])
+    self.city.trebuchetWorkers = int(m[1])
+    self.city.trebuchetMaxWorkers = int(m[2])
+    # cost
+    self.city.trebuchetAttackBonus = int(m[5])
+    self.city.trebuchetAttack = int(m[6])
+    self.city.gold = int(m[7])
+    self.city.people = int(m[8])
+    self.city.trebuchetUpgradeCost = int(m[9])
+    self.city.trebuchetUpgradeWood = int(m[10])
+    self.city.trebuchetUpgradeStone = int(m[11])
 
     self.status.menuDepth = 2
 
@@ -696,14 +710,6 @@ def parse_war_clan_defend(self, msg):
     self.city.clanAttackingPlayer = match.group(5)
     self.city.clanAttackingAllianceName = match.group(6)
 
-    self.log(self.city.alliance)
-    self.log(self.city.clanAllyUnderAttack)
-    self.log(self.city.clanAttackingAllianceSymbol)
-    self.log(self.city.clanAttackingPlayer)
-    self.log(self.city.clanAttackingAllianceName)
-
-    self.log(self.city.clanAllyUnderAttack)
-    self.log('If that\'s a name of a city, gezunterheit, delete eight log lines. Otherwise shift indexes.')
     # todo get way to attack (inline keyboard)
 
 

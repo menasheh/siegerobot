@@ -5,7 +5,6 @@ m = re.search(r'(^Your ⚔Army).+([0-9]{1,2})', "Your ⚔Army has not yet recove
                            1                   " Wait another 2 min.")
 """
 
-
 def print_matches(m):
     if m is not None:
         for i in range(1, m.lastindex):
@@ -19,23 +18,30 @@ def print_matches(m):
 reg = re.compile(r'(-?\d+)')
 # [⛏,🌲]
 
-str1 = """🏘Houses   
+str1 = """⚔Trebuchet
 
-Level            482
-People    9640/9640👥
-           +482👥/day
-          -4820🍖/day
+Level            112
+Workers       20/20👥
 
-Farm      +1810🍖/day
-Storage        4740👥
+Hire           1💰/1👥
+
+Atk. bonus      +56⚔
+Attack         2240⚔
+
+Gold       31800184💰
+People         9660👥
 
 Upgrade   
-         23377200💰⛔️
-         11688600🌲​✅
-         11688600⛏​✅"""
+         51528000💰⛔️
+          6441000🌲✅
+          1932300⛏✅️"""
 
+storage_is_full = 0
 
-print(re.findall(reg, str1))
+reg = re.compile(r'(\d+)')
+m = re.findall(reg, str1)
+
+print(m)
 print_matches(re.search(reg, str1))
 
 
@@ -49,3 +55,4 @@ print_matches(re.search(reg, str1))
 
 ⚔ The shop is closed because war in progress...
 """
+
