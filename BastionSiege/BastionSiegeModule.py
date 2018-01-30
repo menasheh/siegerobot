@@ -64,9 +64,10 @@ def develop(self):
     send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
 
     while True:
-        upgrade_if_possible(self, 'houses')
-        upgrade_if_possible(self, 'townhall')
-        upgrade_if_possible(self, 'storage')
+        upgrade_while_possible(self, 'houses')
+        upgrade_while_possible(self, 'townhall')
+        # upgrade_while_possible(self, 'walls')
+        upgrade_while_possible(self, 'storage')
 
 
 def purchase_resources_toward_upgrade(self, resource, building):
@@ -97,14 +98,16 @@ def farm(self):
     send_message_and_wait(self, "Buildings")  # Buildings
     send_message_and_wait(self, self.status.replyMarkup[3])  # Barracks
     send_message_and_wait(self, self.status.replyMarkup[4])  # War
+
     # If walls need repairing, do it
+
     # If anyone needs recruiting - barracks, wall, trebuchet, do it
     # Find someone to kill
     # Kill them
     # Wait until army returns - then buy resources toward upgrade
 
 
-def upgrade_if_possible(self, building):
+def upgrade_while_possible(self, building):
     print(self.city.maxWood)
     print(getattr(self.city, building + 'UpgradeWood'))
     print(self.city.maxStone)
@@ -148,14 +151,17 @@ def upgrade_if_possible(self, building):
 
         index = -1
         for x in range(0, len(self.status.replyMarkup)):
-            if "Menu" in self.status.replyMarkup[x]:
+            if "menu" in self.status.replyMarkup[x]:
                 index = x
                 break
         if index == -1:
-            sys.exit("ReplyMarkup appears to miss a Menu button.")
+            sys.exit("ReplyMarkup appears to miss a menu button.")
         send_message_and_wait(self, self.status.replyMarkup[index])  # Up Menu
         send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
         send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
+        if building == "storage":
+            self.log("Upgrading of storage could continue forever. Breaking while loop.")
+            break
 
 
 def return_to_main(self):

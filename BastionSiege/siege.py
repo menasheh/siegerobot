@@ -6,7 +6,8 @@ from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.contacts import ResolveUsernameRequest
 from telethon.tl.types import (
-    UpdatesTg, UpdateNewMessage, UpdateShortMessage, UpdateReadHistoryOutbox, UpdateReadHistoryInbox, UpdateMessageID
+    KeyboardButton, KeyboardButtonCallback, UpdatesTg, UpdateNewMessage, UpdateShortMessage, UpdateReadHistoryOutbox,
+    UpdateReadHistoryInbox, UpdateMessageID
 )
 from telethon.utils import get_display_name
 
@@ -86,6 +87,7 @@ class SiegeClient(TelegramClient):
 
         class Object:
             pass
+
         self.city = Object()
         self.city.gold = 0
         self.city.goldLastUpdated = 0
@@ -143,21 +145,28 @@ class SiegeClient(TelegramClient):
                 if type(update) is UpdateNewMessage:
                     if update.message.from_id == self.BOT_ID:
                         message = update.message.message
-                        # for i in range(0, len(message.split())):
-                        #    self.log(str(i) + ": " + message.split()[i])
                         Siege.parse_message(self, message)
-
                         markup = []
+
+                        class Object:
+                            pass
+                        chatbuttons = Object()
+                        chatbuttons.id = update.message.id
+                        chatbuttons.text = []
+                        chatbuttons.data = []
                         for row in update.message.reply_markup.rows:
                             for button in row.buttons:
-                                markup.append(button.text)
-                                if "ttack" in button.text or "help in battle" in button.text:
-                                    print("Found in Markup: " + button.text)  # buttons[0] KeyboardButtonCallback... not sure how to send that message. investigate.
-                        if not markup == []:  # TODO Make sure this works - on clan defend, shouldn't change it
+                                if type(button) is KeyboardButton:
+                                    markup.append(button.text)
+                                elif type(button) is KeyboardButtonCallback:
+                                    chatbuttons.text.append(button.text)
+                                    chatbuttons.data.append(button.data)
+                        if not markup == []:
                             self.status.replyMarkup = markup
+                        elif not chatbuttons.text == []:
+                            self.status.chatbuttons = chatbuttons
                         else:
-                            self.log("New markup empty, not updating...")
-                        # Siege.pretty_print(markup)  # TEST line
+                            self.log("No markup or data callback entries. Not updating...")
                         self.status.lastMsgID = update.message.id
                 else:
                     if not (isinstance(update, UpdateReadHistoryOutbox) or isinstance(update, UpdateReadHistoryInbox) or
