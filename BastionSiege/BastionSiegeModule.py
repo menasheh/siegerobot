@@ -663,22 +663,24 @@ def parse_war_attacked(self, msg):
 
 
 def parse_war_victory(self, msg):
-    self.log('parsing victory, but need better regex')
-
+    self.log('parsing victory, but need better regex (if no terr or coins gained, works?')
     print(msg)
 
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+    reg = re.compile(r'with (?:\[(\W)])?([\w ]+) complete.+winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
+                     r' (\d+)🗺 joined)')
+    m = re.search(reg, msg)
 
     self.city.warStatus = 'peace'
 
-    self.city.soldiers = int(m[0])
-    self.city.lastBattleSentSoldiers = int(m[1])
-    self.city.lastBattleGold = int(m[2])
-    self.city.lastBattleTerritory = int(m[3])
+    self.city.lastEnemyClan = int(m.group(1))
+    self.city.lastEnemyName = int(m.group(2))
+    self.city.soldiers = int(m.group(3))
+    self.city.lastBattleSentSoldiers = int(m.group(4))
+    self.city.lastBattleGold = int(m.group(5))
+    self.city.lastBattleTerritory = int(m.group(6))
 
     update_gold(self)
-    self.city.gold += self.city.lastBattleGold  # TODO sometimes get no gold, fix crash
+    self.city.gold += self.city.lastBattleGold
     self.city.territory += self.city.lastBattleTerritory
 
 
