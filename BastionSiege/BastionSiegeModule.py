@@ -19,8 +19,8 @@ def send_message_and_wait(self, message):
 
 def update_gold(self):
     # todo - if population wasn't maximum when gold last updated, need to use some sort of summation...
-    timediff = math.floor((time.time() - self.city.update_times.gold) / 60)
-    self.city.gold += timediff * self.city.dailyGoldProduction
+    timediff = math.floor((time.time() - getattr(self.city.update_times, 'gold', time.time())) / 60)
+    self.city.gold += timediff * getattr(self.city, 'dailyGoldProduction', 0)
     self.city.update_times.gold = time.time()
 
 
@@ -134,7 +134,7 @@ def upgrade_while_possible(self, building):
 
         building_index = -1
         for x in range(0, len(self.status.replyMarkup)):
-            if building.capitalize() in self.status.replyMarkup[x]:
+            if building.replace("townhall", "town hall").capitalize() in self.status.replyMarkup[x]:
                 building_index = x
                 break
         if building_index == -1:
@@ -672,14 +672,15 @@ def parse_war_victory(self, msg):
 
     self.city.warStatus = 'peace'
 
-    self.city.lastEnemyClan = int(m.group(1))
-    self.city.lastEnemyName = int(m.group(2))
-    self.city.soldiers = int(m.group(3))
-    self.city.lastBattleSentSoldiers = int(m.group(4))
-    self.city.lastBattleGold = int(m.group(5))
-    self.city.lastBattleTerritory = int(m.group(6))
+    self.city.lastEnemyClan = m.group(1) or ''
+    self.city.lastEnemyName = m.group(2)
+    self.city.lastBattleReturnedSoldiers = int(m.group(3))
+    self.city.lastBattleSentSoldiers = int(m.group(4) or m.group(3))
+    self.city.lastBattleGold = int(m.group(5) or 0)
+    self.city.lastBattleTerritory = int(m.group(6) or 0)
 
     update_gold(self)
+    self.city.soldiers = max(self.city.soldiers + self.city.lastBattleReturnedSoldiers, self.city.barracks * 40)
     self.city.gold += self.city.lastBattleGold
     self.city.territory += self.city.lastBattleTerritory
 
