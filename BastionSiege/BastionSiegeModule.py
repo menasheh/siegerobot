@@ -188,7 +188,7 @@ def parse_message(self, message):
         parse_building_town_hall(self, message)
     elif '🏘Houses' in message:
         parse_building_houses(self, message)
-    elif 'Resources' in first_line or 'no place in the storage' in message:
+    elif 'Resources' in first_line or 'no place in the storage' in message or 'find money.' in message:
         parse_resource_message(self, message)
     elif 'Storage' in first_line:
         parse_building_storage(self, message)
