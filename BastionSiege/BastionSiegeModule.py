@@ -391,6 +391,9 @@ def parse_war_recruitment_info(self, msg):
 def parse_resource_message(self, msg):
     if 'delivered' in msg:
         self.log('resources purchased')
+    if 'find money.' in msg:
+        self.log('ERROR: not enough money for resources.')
+        send_message_and_wait(self, "1")  # Remind script of actual resource amount by purchasing 1
     if 'no place' in msg:
         self.log('no room for resources we attempted to purchase')  # TODO do something about this to ruin trade loop
     else:
