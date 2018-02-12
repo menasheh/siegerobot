@@ -1,5 +1,4 @@
 from BastionSiege import BastionSiegeModule as Siege
-import time
 import traceback
 from getpass import getpass
 from telethon import TelegramClient
@@ -10,6 +9,11 @@ from telethon.tl.types import (
     UpdateReadHistoryInbox, UpdateMessageID
 )
 from telethon.utils import get_display_name
+
+# File-based logging
+import sys
+from os.path import expanduser
+sys.stdout = open(expanduser("~") + '/.hidden/siege.log', 'w+', 1)
 
 
 def load_config(path='settings'):
