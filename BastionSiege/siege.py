@@ -1,4 +1,5 @@
 from BastionSiege import BastionSiegeModule as Siege
+import datetime
 import traceback
 from getpass import getpass
 from telethon import TelegramClient
@@ -194,7 +195,8 @@ class SiegeClient(TelegramClient):
 
     @staticmethod
     def log(msg):
-        print(msg)
+        dts = datetime.datetime.now().strftime("[%Y-%m-%d_%H:%M:%S] ")
+        print(dts + msg)
 
 
 # TODO - foreach .cfg file in config folder (?)

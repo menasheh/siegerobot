@@ -10,10 +10,14 @@ def clean_trim(string):
 
 
 def send_message_and_wait(self, message):
+    start_time = time.time()
     lastid = self.status.lastMsgID
     self.send_message(self.entity, message)
     while lastid == self.status.lastMsgID:
         time.sleep(random.randint(1000, 4000) / 1000)  # Integer division?
+        sleeptime = (time.time() - start_time) / 60
+        if sleeptime > 60 * 5 * 1:  # Sleep 2
+            self.log("WARN - sleeping " + str(sleeptime) + " minutes.  mistake?")
         pass
 
 
@@ -107,25 +111,24 @@ def farm(self):
     # Wait until army returns - then buy resources toward upgrade
 
 
+def gold_time_to_upgrade(self, building):
+    return 1 + max(0, int(
+        math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
+
+
 def upgrade_while_possible(self, building):
-    print(self.city.maxWood)
-    print(getattr(self.city, building + 'UpgradeWood'))
-    print(self.city.maxStone)
-    print(getattr(self.city, building + 'UpgradeStone'))
-    while self.city.maxWood > getattr(self.city, building + 'UpgradeWood') and self.city.maxStone > getattr(self.city,
-          building + 'UpgradeStone'):
+    while self.city.maxWood > getattr(self.city, building + 'UpgradeWood') and\
+            self.city.maxStone > getattr(self.city, building + 'UpgradeStone'):
+
         purchase_resources_toward_upgrade(self, 'wood', building)
         purchase_resources_toward_upgrade(self, 'stone', building)
         send_message_and_wait(self, self.status.replyMarkup[4])  # Up Menu
 
-        # todo - make this a method
-        waittime = max(0, int(
-            math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
+        waittime = gold_time_to_upgrade(self, building)
 
         if waittime > 0:
             self.log("Upgrade of " + building + " will require gold income from " + str(waittime) + " minutes.")
             time.sleep(60 * (waittime + 1))
-        # todo - end new method
 
         if building == "trebuchet":
             send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
@@ -146,7 +149,7 @@ def upgrade_while_possible(self, building):
         send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
         while getattr(self.city, building) == oldlevel:
             self.log("Something went wrong with " + building + " upgrade, please investigate.")
-            procrastinate() #TODO - use waittime method, again (in case lost money to war, for example)
+            procrastinate()  # TODO - use waittime method, again (in case lost money to war, for example)
             send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
 
         index = -1
@@ -390,7 +393,7 @@ def parse_war_recruitment_info(self, msg):
 
 def parse_resource_message(self, msg):
     if 'delivered' in msg:
-        self.log('resources purchased')
+        'resources purchased'
     if 'find money.' in msg:
         self.log('ERROR: not enough money for resources.')
         send_message_and_wait(self, "1")  # Remind script of actual resource amount by purchasing 1
@@ -669,8 +672,9 @@ def parse_war_victory(self, msg):
     self.log('parsing victory, but need better regex (if no terr or coins gained, works?')
     print(msg)
 
-    reg = re.compile(r'with (?:\[(\W)])?([\w ]+) complete.+winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
-                     r' (\d+)🗺 joined)')
+    reg = re.compile(
+        r'with (?:\[(\W)])?([\w ]+) complete.+winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
+        r' (\d+)🗺 joined)')
     m = re.search(reg, msg)
 
     self.city.warStatus = 'peace'
