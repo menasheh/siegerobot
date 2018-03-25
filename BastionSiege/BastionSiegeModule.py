@@ -112,8 +112,7 @@ def farm(self):
 
 
 def gold_time_to_upgrade(self, building):
-    return 1 + max(0, int(
-        math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
+    return max(0, int(math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
 
 
 def upgrade_while_possible(self, building):
@@ -499,7 +498,6 @@ def parse_building_houses(self, msg):
     self.city.housesUpgradeCost = int(m[7])
     self.city.housesUpgradeWood = int(m[8])
     self.city.housesUpgradeStone = int(m[9])
-    self.log("houseUpgradeabilityCheck")
 
     self.status.menuDepth = 2
 
