@@ -123,32 +123,7 @@ class SiegeClient(TelegramClient):
 
         # upgradePriorities = {0, 1, 3, 4, 2}
 
-        time.sleep(10)
-
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Back
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][5])  # Back
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][5])  # Sawmill
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][4])  # Back
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][6])  # Mine
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][4])  # Back
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][7])  # Farm
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][4])  # Back
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][8])  # Back
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
-        Siege.send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
-
-        Siege.purchase_resources_toward_upgrade(self, 'wood', 'storage')
-        Siege.purchase_resources_toward_upgrade(self, 'stone', 'storage')
-
-        Siege.pretty_print(self.status['replyMarkup'])
-
-        self.log("Can upgrade storage!")
-
-        while True:
-            """"""
+        Siege.develop(self)
 
     def update_handler(self, update_object):
         if type(update_object) is UpdatesTg:

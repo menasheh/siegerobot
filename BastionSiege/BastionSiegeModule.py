@@ -45,6 +45,99 @@ def procrastinate():
     time.sleep(rand_time)
 
 
+def develop(self):
+    # send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
+    send_message_and_wait(self, "Buildings")  # Buildings
+    send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall
+    send_message_and_wait(self, self.status['replyMarkup'][2])  # Back
+    send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
+    send_message_and_wait(self, self.status['replyMarkup'][5])  # Back
+    send_message_and_wait(self, self.status['replyMarkup'][5])  # Sawmill
+    send_message_and_wait(self, self.status['replyMarkup'][4])  # Back
+    send_message_and_wait(self, self.status['replyMarkup'][6])  # Mine
+    send_message_and_wait(self, self.status['replyMarkup'][4])  # Back
+    send_message_and_wait(self, self.status['replyMarkup'][7])  # Farm
+    send_message_and_wait(self, self.status['replyMarkup'][5])  # Up Menu
+    send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
+    send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
+
+    while True:
+
+        purchase_resources_toward_upgrade(self, 'wood', 'storage')
+        purchase_resources_toward_upgrade(self, 'stone', 'storage')
+
+        send_message_and_wait(self, self.status['replyMarkup'][10])  # Up Menu
+
+        waittime = (self.city['storageUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']
+        self.log("upgrade of storage will require gold generated from " + waittime + "minutes.")
+
+        time.sleep(60 * (waittime + 1))
+
+        send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
+        send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
+
+        oldlevel = self.city['storage']
+        send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+        while self.city['storage'] == oldlevel:
+            self.log("Something went wrong with storage upgrade, please investigate.")
+            procrastinate()
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+
+        send_message_and_wait(self, self.status['replyMarkup'][6])  # Up Menu
+        send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
+        send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
+
+        while (self.city['maxWood'] > self.city['housesUpgradeWood']) \
+                & (self.city['maxStone'] > self.city['housesUpgradeStone']):
+            purchase_resources_toward_upgrade(self, 'wood', 'houses')
+            purchase_resources_toward_upgrade(self, 'stone', 'houses')
+            send_message_and_wait(self, self.status['replyMarkup'][10])  # Up Menu
+
+            waittime = (self.city['housesUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']
+            self.log("upgrade of houses will require gold generated from " + waittime + "minutes.")
+
+            time.sleep(60 * (waittime + 1))
+
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Houses
+
+            oldlevel = self.city['houses']
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+            while self.city['houses'] == oldlevel:
+                self.log("Something went wrong with houses upgrade, please investigate.")
+                procrastinate()
+                send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+
+            send_message_and_wait(self, self.status['replyMarkup'][3])  # Up Menu
+            send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
+
+        while (self.city['maxWood'] > self.city['townhallUpgradeWood']) \
+                & (self.city['maxStone'] > self.city['townhallUpgradeStone']):
+            purchase_resources_toward_upgrade(self, 'wood', 'houses')
+            purchase_resources_toward_upgrade(self, 'stone', 'houses')
+            send_message_and_wait(self, self.status['replyMarkup'][10])  # Up Menu
+
+            waittime = (self.city['townhallUpgradeCost'] - self.city['gold']) / self.city['dailyGoldProduction']
+            self.log("upgrade of townhall will require gold generated from " + waittime + "minutes.")
+
+            time.sleep(60 * (waittime + 1))
+
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
+            send_message_and_wait(self, self.status['replyMarkup'][0])  # Town Hall
+
+            oldlevel = self.city['townhall']
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+            while self.city['townhall'] == oldlevel:
+                self.log("Something went wrong with townhall upgrade, please investigate.")
+                procrastinate()
+                send_message_and_wait(self, self.status['replyMarkup'][1])  # Upgrade
+
+            send_message_and_wait(self, self.status['replyMarkup'][3])  # Up Menu
+            send_message_and_wait(self, self.status['replyMarkup'][5])  # Trade
+            send_message_and_wait(self, self.status['replyMarkup'][1])  # Buy
+
+
 def purchase_resources_toward_upgrade(self, resource, building):
     # Assumes in the trade menu. Bad assumption TODO fix
     send_message_and_wait(self, resource.capitalize())
@@ -442,7 +535,12 @@ def parse_building_sawmill(self, msg):
 
 
 def parse_building_storage(self, msg):
-    self.log(self.city)
+    self.log('parsing building - storage')
+
+    self.log('regex this, please!\n')
+    self.log(msg)
+    self.log("\n")
+
     msg = msg.split()
 
     self.city['storage'] = int(msg[2])
@@ -463,7 +561,7 @@ def parse_building_storage(self, msg):
     self.city['goldLastUpdated'] = time.time()
     self.city['people'] = int(msg[14][:-1])
     self.city['peopleLastUpdated'] = time.time()
-    self.city['storageFillCost'] = int(msg[16][:-1])
+    self.city['storageFillCost'] = int(msg[16][:-2])
     self.city['storageUpgradeCost'] = int(msg[18].split("💰")[0])
     self.city['storageUpgradeWood'] = int(msg[19].split("🌲")[0])
     self.city['storageUpgradeStone'] = int(msg[20].split("⛏")[0])
