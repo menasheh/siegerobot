@@ -1,4 +1,4 @@
-import BastionSiegeModule as Siege
+from BastionSiege import BastionSiegeModule as Siege
 import time
 import traceback
 from getpass import getpass
@@ -12,7 +12,7 @@ from telethon.utils import get_display_name
 
 
 def load_config(path='config/settings.cfg'):
-    """Loads the user settings.cfg located under `config/` TODO multiple phone numbers"""
+    # Loads the user settings.cfg located under `config/` TODO multiple phone numbers
     result = {}
     with open(path, 'r', encoding='utf-8') as file:
         for line in file:
@@ -48,7 +48,7 @@ def print_title(title):
 class SiegeClient(TelegramClient):
     """Bot for Bastion Siege @BastionSiegeBot """
 
-    BOT_ID = 252148344
+    BOT_ID = int(252148344)
 
     status = {}  # TODO Is this properly instanced? Does it belong in init, possibly?
     city = {}
@@ -124,6 +124,7 @@ class SiegeClient(TelegramClient):
 
             upgradePriorities = {0, 1, 3, 4, 2}
 
+            time.sleep(10)
             Siege.send_message_and_wait(self, self.status['replyMarkup'][1])  # Buildings
             Siege.send_message_and_wait(self, self.status['replyMarkup'][2])  # Storage
             Siege.send_message_and_wait(self, self.status['replyMarkup'][5])  # Back
@@ -172,10 +173,10 @@ class SiegeClient(TelegramClient):
             if hasattr(update_object, "message"):
                 print(update_object.message)
 
-
     @staticmethod
     def log(msg):
         print(msg)
+
 
 config = load_config()
 

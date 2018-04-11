@@ -2,6 +2,10 @@ import re
 import time
 
 
+def clean_trim(string):
+    return ''.join(string.split()).replace(u'\u200B', '')
+
+
 def send_message_and_wait(self, message):
     lastid = self.status['lastMsgID']
     self.send_message(self.entity, message)
@@ -66,88 +70,76 @@ def parse_message(self, message):
 
 
 def parse_profile(self, msg):
-    """
-    TODO
-    This is WAY TOO MANUAL - perhaps need some helper methods?
-    """
     self.log('Parsing profile')
+    match = re.match(r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓People(['
+                     r'0-9]+)👥Army([0-9]+)⚔Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖', clean_trim(msg))
+    if match is None:
+        self.log("Regex Error - Buildings Profile could not parse:\n" + clean_trim(msg) + "\n===END=MSG===\n")
+        exit(1)
     msg = msg.split()
-
-    self.log("should try to get clan out of here...")
-    # self.city['governor'] = msg[0]
-    # self.city['name'] = msg[1]
+    self.city['alliance'] = match.group(1) if len(match.group(1)) > 1 else "none"
+    self.city['governor'] = msg[0] if self.city['alliance'] is "none" else msg[0][3:]
+    self.city['name'] = msg[1]
     self.city['status'] = msg[3]
-    self.city['territory'] = msg[5][:-1]
-    # self.city['season'] = msg[7][:-1]
-    # self.city['weather'] = msg[9][:-1]
-    # self.city['timeHour'] = msg[11][:-1].split(":")[0]
-    # self.city['timeMinute'] = msg[11][:-1].split(":")[1]
-    # self.city['timeSecond'] = msg[11][:-1].split(":")[2]
-    self.city['people'] = msg[13][:-1]
-    self.city['soldiers'] = msg[15][:-1]
-    self.city['gold'] = msg[17][:-1]
-    self.city['wood'] = msg[19][:-1]
-    self.city['stone'] = msg[21][:-1]
-    self.city['food'] = msg[23][:-1]
+    self.city['territory'] = match.group(2)
+    self.city['season'] = match.group(3)
+    self.city['weather'] = match.group(4)
+    self.city['timeHour'] = match.group(5)
+    self.city['timeMinute'] = match.group(6)
+    self.city['timeSecond'] = match.group(7)
+    self.city['people'] = match.group(8)
+    self.city['soldiers'] = match.group(9)
+    self.city['gold'] = match.group(10)
+    self.city['wood'] = match.group(11)
+    self.city['stone'] = match.group(12)
+    self.city['food'] = match.group(13)
 
     self.status['menuDepth'] = 0
 
 
 def parse_buildings_profile(self, msg):
     self.log('Parsing buildings profile')
+    msg = clean_trim(msg)
+    match = re.match(r'.+🏤([0-9]+)([⛔,✅]).?🏚([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥🏘([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+'
+                     r')👥🌻([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥🌲([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥⛏([0-9]+)([⛔,✅])'
+                     r'.?([0-9]+)/([0-9]+)👥🛡([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)⚔🏰([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)🏹'
+                     r'.+', msg)
+    if match is None:
+        self.log("Regex Error - Buildings Profile could not parse:\n" + msg + "\n===END=MSG===\n")
+        exit(1)
 
-    msg = ''.join(msg.split())
-    match = re.search("🏤([0-9]+)⛔", msg)
-    print(match)
-    print(msg)
+    self.city['townhall'] = match.group(1)
+    self.city['townhallCanUpgrade'] = False if '⛔' in match.group(2) else True
+    self.city['storage'] = match.group(3)
+    self.city['storageCanUpgrade'] = False if '⛔' in match.group(4) else True
+    self.city['storageWorkers'] = match.group(5)
+    self.city['storageMaxWorkers'] = match.group(6)
+    self.city['houses'] = match.group(7)
+    self.city['housesCanUpgrade'] = False if '⛔' in match.group(8) else True
+    self.city['people'] = match.group(9)
+    self.city['maxPeople'] = match.group(10)
+    self.city['farm'] = match.group(11)
+    self.city['farmCanUpgrade'] = False if '⛔' in match.group(12) else True
+    self.city['farmWorkers'] = match.group(13)
+    self.city['maxFarmWorkers'] = match.group(14)
+    self.city['sawmill'] = match.group(15)
+    self.city['sawmillCanUpgrade'] = False if '⛔' in match.group(16) else True
+    self.city['sawmillWorkers'] = match.group(17)
+    self.city['sawmillMaxWorkers'] = match.group(18)
+    self.city['mine'] = match.group(19)
+    self.city['mineCanUpgrade'] = False if '⛔' in match.group(20) else True
+    self.city['mineWorkers'] = match.group(21)
+    self.city['mineMaxWorkers'] = match.group(22)
+    self.city['barracks'] = match.group(23)
+    self.city['barracksCanUpgrade'] = False if '⛔' in match.group(24) else True
+    self.city['soldiers'] = match.group(25)
+    self.city['maxSoldiers'] = match.group(26)
+    self.city['walls'] = match.group(27)
+    self.city['wallsCanUpgrade'] = False if '⛔' in match.group(28) else True
+    self.city['archers'] = match.group(29)
+    self.city['maxArchers'] = match.group(30)
 
-    rg = re.search('🏤([0-9]+)([⛔,✅])', msg)
-    self.city['townhall'] = rg[1]
-    self.city['townhallCanUpgrade'] = False if '⛔' == rg[2] else True
-
-    self.city['storage'] = msg[4][:-2]
-    self.city['storageCanUpgrade'] = False if '⛔' == msg[4] else True
-    tmp = msg[5][:-1].split("/")
-    self.city['storageWorkers'] = tmp[0]
-    self.city['storageMaxWorkers'] = tmp[1]
-
-    self.city['houses'] = msg[7][:-2]
-    self.city['housesCanUpgrade'] = False if '⛔' in msg[7] else True
-    tmp = msg[8][:-1].split("/")
-    self.city['people'] = tmp[0]
-    self.city['maxPeople'] = tmp[1]
-
-    self.city['farm'] = msg[10][:-2]
-    self.city['farmCanUpgrade'] = False if '⛔' in msg[10] else True
-    tmp = msg[11][:-1].split("/")
-    self.city['farmWorkers'] = tmp[0]
-    self.city['maxFarmWorkers'] = tmp[1]
-
-    self.city['sawmill'] = msg[13][:-2]
-    self.city['sawmillCanUpgrade'] = False if '⛔' in msg[13] else True
-    tmp = msg[14][:-1].split("/")
-    self.city['sawmillWorkers'] = tmp[0]
-    self.city['sawmillMaxWorkers'] = tmp[1]
-
-    self.city['mine'] = msg[16][:-2]
-    self.city['mineCanUpgrade'] = False if '⛔' in msg[16] else True
-    tmp = msg[17][:-1].split("/")
-    self.city['mineWorkers'] = tmp[0]
-    self.city['mineMaxWorkers'] = tmp[1]
-
-    self.city['barracks'] = msg[19][:-2]
-    self.city['barracksCanUpgrade'] = False if '⛔' in msg[19] else True
-    tmp = msg[20][:-1].split("/")
-    self.city['soldiers'] = tmp[0]
-    self.city['maxSoldiers'] = tmp[1]
-
-    self.city['walls'] = msg[22][:-2]
-    self.city['wallsCanUpgrade'] = False if '⛔' in msg[22] else True
-    tmp = msg[23][:-1].split("/")
-    self.city['archers'] = tmp[0]
-    self.city['maxArchers'] = tmp[1]
-
-    self.status['menuDepth'] = 1
+    self.status['menuDepth'] = 1  # keeps track of back - up might be different
 
 
 def parse_war_profile(self, msg):
