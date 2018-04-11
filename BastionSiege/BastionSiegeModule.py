@@ -15,9 +15,11 @@ def send_message_and_wait(self, message):
     self.send_message(self.entity, message)
     while lastid == self.status.lastMsgID:
         time.sleep(random.randint(1000, 4000) / 1000)  # Integer division?
-        sleeptime = (time.time() - start_time) / 60
+        sleeptime = int(time.time() - start_time) / 60
         if sleeptime > 60 * 5 * 1:  # Sleep 2
-            self.log("WARN - sleeping " + str(sleeptime) + " minutes.  mistake?")
+            self.log("WARN - sleeping " + str(sleeptime) + " minutes.  Relaunching...")
+
+            os.execv(sys.executable, [sys.executable] + sys.argv)
         pass
 
 
