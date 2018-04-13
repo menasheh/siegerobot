@@ -18,8 +18,7 @@ def send_message_and_wait(self, message):
         sleeptime = int(time.time() - start_time) / 60
         if sleeptime > 60 * 5 * 1:  # Sleep 2
             self.log("WARN - sleeping " + str(sleeptime) + " minutes.  Relaunching...")
-
-            os.execv(sys.executable, [sys.executable] + sys.argv)
+            self.restart()
         pass
 
 

@@ -1,7 +1,10 @@
-from BastionSiege import BastionSiegeModule as Siege
-import datetime
+from datetime import datetime
 import traceback
+import sys
+import BastionSiegeModule as Siege
 from getpass import getpass
+import os
+from os.path import expanduser
 from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.contacts import ResolveUsernameRequest
@@ -10,11 +13,14 @@ from telethon.tl.types import (
     UpdateReadHistoryInbox, UpdateMessageID
 )
 from telethon.utils import get_display_name
+from twilio.rest import Client
+
+scriptStartTime = datetime.now()
 
 # File-based logging
-import sys
-from os.path import expanduser
-sys.stdout = open(expanduser("~") + '/.hidden/siege.log', 'w+', 1)
+logfile = expanduser("~") + '/.hidden/siege'
+logext = '.log'
+sys.stdout = open(logfile + logext, 'w+', 1)
 
 
 def load_config(path='settings'):
@@ -32,6 +38,31 @@ def load_config(path='settings'):
                 result[left] = right
 
     return result
+
+
+twilio = load_config('twilio')
+client = Client(twilio['sid'], twilio['token'])
+
+
+def text(message):
+    client.api.account.messages.create(body=message, from_=twilio['phone_from'], to=twilio['phone_to'])
+
+
+print(logfile + logext)
+
+
+def restart():
+    totalscripttime = (datetime.now() - scriptStartTime).total_seconds()
+    mins, secs = divmod(totalscripttime, 60)
+    hours, mins = divmod(mins, 60)
+    print('[Runtime] ' + str(hours) + ":" + str(mins) + ":" + str(secs))
+
+    text("Restarting after " + str(hours) + "hours, " + str(mins) + " minutes and " + str(secs) + " seconds of siege.")
+
+    dts = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    # sys.stdout = sys.__stdout__
+    os.renames(logfile + logext, logfile + dts + logext)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
 def sprint(string, *args, **kwargs):
@@ -195,8 +226,12 @@ class SiegeClient(TelegramClient):
 
     @staticmethod
     def log(msg):
-        dts = datetime.datetime.now().strftime("[%Y-%m-%d_%H:%M:%S] ")
+        dts = datetime.now().strftime("[%Y-%m-%d_%H:%M:%S] ")
         print(dts + msg)
+
+    @staticmethod
+    def restart():
+        restart()
 
 
 # TODO - foreach .cfg file in config folder (?)
@@ -219,8 +254,5 @@ except Exception as e:
         type(e), e, traceback.format_exc()))
 
 finally:
-    if hasattr(client.status, 'replyMarkup'):
-        print("printing replyMarkup for diagnostic purposes:")
-        Siege.pretty_print(getattr(client.status, 'replyMarkup'))
     client.disconnect()
-    print('\nThanks for using the bot! Exiting...')  # TODO - time running
+    restart()
