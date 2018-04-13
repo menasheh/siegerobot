@@ -57,7 +57,8 @@ def inplacerestart():
     hours, mins = divmod(mins, 60)
     print('[Runtime] ' + str(hours) + ":" + str(mins) + ":" + str(secs))
 
-    text("Restarting after " + str(hours) + "hours, " + str(mins) + " minutes and " + str(secs) + " seconds of siege.")
+    text("Restarting after " + str(round(hours)) + " hours, " + str(round(mins)) + " minutes and " + str(round(secs,2))
+         + " seconds of siege.")
 
     dts = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     # sys.stdout = sys.__stdout__
