@@ -41,17 +41,17 @@ def load_config(path='settings'):
 
 
 twilio = load_config('twilio')
-client = Client(twilio['sid'], twilio['token'])
+twilioclient = Client(twilio['sid'], twilio['token'])
 
 
 def text(message):
-    client.api.account.messages.create(body=message, from_=twilio['phone_from'], to=twilio['phone_to'])
+    twilioclient.api.account.messages.create(body=message, from_=twilio['phone_from'], to=twilio['phone_to'])
 
 
 print(logfile + logext)
 
 
-def restart():
+def inplacerestart():
     totalscripttime = (datetime.now() - scriptStartTime).total_seconds()
     mins, secs = divmod(totalscripttime, 60)
     hours, mins = divmod(mins, 60)
@@ -231,7 +231,7 @@ class SiegeClient(TelegramClient):
 
     @staticmethod
     def restart():
-        restart()
+        inplacerestart()
 
 
 # TODO - foreach .cfg file in config folder (?)
@@ -255,4 +255,4 @@ except Exception as e:
 
 finally:
     client.disconnect()
-    restart()
+    inplacerestart()
