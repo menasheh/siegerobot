@@ -152,6 +152,7 @@ def upgrade_while_possible(self, building):
             procrastinate()  # TODO - use waittime method, again (in case lost money to war, for example)
             send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
 
+        self.log(building + " upgraded to level " + str(oldlevel+1))
         index = -1
         for x in range(0, len(self.status.replyMarkup)):
             if "menu" in self.status.replyMarkup[x]:
@@ -163,7 +164,6 @@ def upgrade_while_possible(self, building):
         send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
         send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
         if building == "storage":
-            self.log("Upgrading of storage could continue forever. Breaking while loop.")
             break
 
 
