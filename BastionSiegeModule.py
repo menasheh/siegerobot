@@ -11,6 +11,7 @@ def clean_trim(string):
 
 def send_message_and_wait(self, message):
     start_time = time.time()
+    pretty_print(self.status)
     lastid = self.status.lastMsgID
     self.send_message(self.entity, message)
     while lastid == self.status.lastMsgID:
