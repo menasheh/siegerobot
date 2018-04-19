@@ -1,7 +1,7 @@
-from datetime import datetime
 import traceback
 import sys
 import BastionSiegeModule as Siege
+from datetime import datetime
 from getpass import getpass
 import os
 from os.path import expanduser
@@ -48,20 +48,19 @@ def text(message):
     twilioclient.api.account.messages.create(body=message, from_=twilio['phone_from'], to=twilio['phone_to'])
 
 
-print(logfile + logext)
-
-
 def inplacerestart():
     totalscripttime = (datetime.now() - scriptStartTime).total_seconds()
     mins, secs = divmod(totalscripttime, 60)
     hours, mins = divmod(mins, 60)
+    hours = int(hours)
+    mins = int(mins)
+    secs = int(secs)
     print('[Runtime] ' + str(hours) + ":" + str(mins) + ":" + str(secs))
 
-    text("Restarting after " + str(round(hours)) + " hours, " + str(round(mins)) + " minutes and " + str(round(secs,2))
+    text("Restarting after " + str(hours) + " hours, " + str(mins) + " minutes and " + str(int(secs))
          + " seconds of siege.")
 
     dts = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-    # sys.stdout = sys.__stdout__
     os.renames(logfile + logext, logfile + dts + logext)
     os.execv(sys.executable, [sys.executable] + sys.argv)
 
