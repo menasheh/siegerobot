@@ -136,10 +136,6 @@ class SiegeClient(TelegramClient):
 
         self.city.update_times = Object()
 
-        self.states = {'main', 'war', 'ranking', 'buildings', 'alliance', 'settings.cfg', 'workshop', 'trade',
-                  'help', 'war.patrol', 'war.patrol', 'war.recruit'
-                  }
-
     def run(self):
         self.add_update_handler(self.update_handler)
 
@@ -227,7 +223,7 @@ class SiegeClient(TelegramClient):
     @staticmethod
     def log(msg):
         dts = datetime.now().strftime("[%Y-%m-%d_%H:%M:%S] ")
-        print(dts + msg)
+        print(dts, msg)
 
     @staticmethod
     def restart():
@@ -243,8 +239,6 @@ client = SiegeClient(
     api_id=config['api_id'],
     api_hash=str(config['api_hash'])
 )
-
-print('Initialization done, but might need to hiccup over prime numbers for a couple seconds...')
 
 try:
     client.run()
