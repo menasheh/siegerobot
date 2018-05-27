@@ -56,6 +56,10 @@ def environment(self):
     self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # Assumes max pop
     self.city.dailyPeopleIncrease = self.city.houses
 
+    self.city.dailyWoodProduction = self.city.sawmill * 10
+    self.city.dailyStoneProduction = self.city.mine * 10
+    self.city.dailyFoodProduction = self.city.farm * 10
+
     structure_exists(self)
     #employ_at_capacity(self) for each building
     send_message_and_wait(self, self.status.replyMarkup[8])  # Back
@@ -678,7 +682,6 @@ def parse_building_mine(self, msg):
 
 
 def parse_building_sawmill(self, msg):
-    print(msg)
     reg = re.compile(r'(\d+)')
     m = re.findall(reg, msg)
 
