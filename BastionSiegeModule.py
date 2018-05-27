@@ -122,8 +122,8 @@ def employ_at_capacity(self, building):
         hirable = min(self.city.people, getattr(self.city, max) - getattr(self.city, workers))
         if hirable > 0:
             send_message_and_wait(self, str(hirable))
-        sleeptime = min(getattr(self.city, max) - getattr(self.city, workers),
-                        self.city.maxPeople) / self.city.dailyPeopleIncrease
+        sleeptime = math.ceil(min(getattr(self.city, max) - getattr(self.city, workers),
+                        self.city.maxPeople) / self.city.dailyPeopleIncrease)
         if sleeptime > 0:
             self.log("Sleeping " + str(sleeptime) + " minutes to get more workers for " + building + ".")
             time.sleep(60 * sleeptime)
