@@ -124,7 +124,7 @@ def employ_at_capacity(self, building):
     while getattr(self.city, max) > getattr(self.city, workers):
         hirable = min(self.city.people, getattr(self.city, max) - getattr(self.city, workers))
         if hirable > 0:
-            send_message_and_wait(self, hirable)
+            send_message_and_wait(self, str(hirable))
         else:
             self.log("No available workers. Will try sleeping.")  # Todo text notify if multiple times no workers
         sleeptime = min(getattr(self.city, max) - getattr(self.city, workers), self.city.maxPeople)
