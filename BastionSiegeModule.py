@@ -66,7 +66,8 @@ def environment(self):
     send_message_and_wait(self, self.status.replyMarkup[1])  # Back
 
     self.city.maxGold = 500000 * self.city.townhall
-    # self.city.dailyGoldProduction = +3 w/ 10 starving people
+    self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # Assumes max pop
+    self.city.dailyPeopleIncrease = self.city.houses
 
     self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
     self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
