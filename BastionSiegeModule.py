@@ -565,7 +565,8 @@ def parse_war_profile(self, msg):
 
             # TODO -
             if self.city.governor in m.group(
-                    29):  # TODO regardless if i'm attacking or defending, count attackers and defenders. More useful if other bot receives such messages and sends them on here, to aid in decision of attacking or not.
+                    29):  # TODO regardless if i'm attacking or defending, count attackers and defenders. More useful if
+                #  other bot receives such messages and sends them on here, to aid in decision of attacking or not.
                 self.city.warStatus = 'clanAttack'
                 self.city.currentClanWarEnemies = m.group(30)
                 self.city.currentClanWarFriends = m.group(29)
@@ -585,12 +586,12 @@ def parse_war_recruitment_info(self, msg):
     reg = re.compile(r'(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+', re.S)
     m = re.search(reg, msg)
 
-    self.city.soldiers = m.group(1)
-    self.city.maxSoldiers = m.group(2)
-    self.city.archers = m.group(3)
-    self.city.maxArchers = m.group(4)
-    self.city.trebuchetWorkers = m.group(5)
-    self.city.maxTrebuchetWorkers = m.group(6)
+    self.city.soldiers = int(m.group(1))
+    self.city.maxSoldiers = int(m.group(2))
+    self.city.archers = int(m.group(3))
+    self.city.maxArchers = int(m.group(4))
+    self.city.trebuchetWorkers = int(m.group(5))
+    self.city.maxTrebuchetWorkers = int(m.group(6))
 
     self.status.menuDepth = 2
 
