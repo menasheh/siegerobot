@@ -151,7 +151,6 @@ def calc_upgrade_costs(self, building):
     suffix = ['Cost', 'Wood', 'Stone']
 
     for x in range(0, 3):
-        print(building + suffix[x] + str(results[x]))
         setattr(self.city, building + 'Upgrade' + suffix[x], results[x])
 
 
