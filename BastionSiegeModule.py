@@ -150,7 +150,9 @@ def resource_hires(self):
         workers, max = x + 'Workers', x + 'MaxWorkers'
         if getattr(self.city, max) > getattr(self.city, workers):
             send_message_and_wait(self, x.capitalize())
+            send_message_and_wait(self, "Hire")
             employ_at_capacity(self, x)
+            send_message_and_wait(self, "Back")
             send_message_and_wait(self, "Back")
 
 
