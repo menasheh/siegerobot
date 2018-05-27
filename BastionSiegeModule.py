@@ -51,6 +51,11 @@ def procrastinate():
 
 def environment(self):
     send_message_and_wait(self, "Buildings")  # Buildings
+
+    self.city.maxGold = 500000 * self.city.townhall
+    self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # Assumes max pop
+    self.city.dailyPeopleIncrease = self.city.houses
+
     structure_exists(self)
     #employ_at_capacity(self) for each building
     send_message_and_wait(self, self.status.replyMarkup[8])  # Back
@@ -66,10 +71,6 @@ def environment(self):
     """
     send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
     send_message_and_wait(self, self.status.replyMarkup[1])  # Back
-
-    self.city.maxGold = 500000 * self.city.townhall
-    self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # Assumes max pop
-    self.city.dailyPeopleIncrease = self.city.houses
 
     self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
     self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
