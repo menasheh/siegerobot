@@ -148,7 +148,7 @@ def employ_at_capacity(self, building):
 def resource_hires(self):
     for x in ['storage', 'farm', 'sawmill', 'mine']:
         workers, max = x + 'Workers', x + 'MaxWorkers'
-        if getattr(self.city, max) > getattr(self.city, workers):
+        if getattr(self.city, workers) < getattr(self.city, max):
             send_message_and_wait(self, x.capitalize())
             send_message_and_wait(self, "Hire")
             employ_at_capacity(self, x)
@@ -157,8 +157,8 @@ def resource_hires(self):
 
 
 def war_prepare(self):
+    send_message_and_wait(self, "Walls")
     if self.city.wallDurability < self.city.wallMaxDurability:
-        send_message_and_wait(self, "Walls")
         if self.city.wallsCanUpgrade:
             send_message_and_wait(self, "Repair")
         else:
@@ -394,7 +394,7 @@ def parse_message(self, message):
         parse_building_storage(self, message)
     elif 'Barracks' in first_line:
         parse_building_barracks(self, message)
-    elif 'Walls' in first_line:
+    elif 'Walls' in first_line and '👥' in message:
         parse_building_walls(self, message)
     elif 'Sawmill' in first_line and '👥' in message:
         parse_building_sawmill(self, message)
@@ -467,10 +467,10 @@ def parse_profile(self, msg):
 def parse_buildings_profile(self, msg):
     msg = clean_trim(msg)
     match = re.match(
-        r'.+🏤([0-9]+)([⛔,✅]).?(?:🏚([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥)?🏘([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+'
-        r')👥(?:🌻([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥)?(?:⛏([0-9]+)([⛔,✅])'
-        r'.?([0-9]+)/([0-9]+)👥)?(?:🛡([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)⚔)?(?:🏰([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+))?(?:🏹'
-        r')?.+', msg)
+        r'.+🏤([0-9]+)([⛔,✅]).?(?:🏚([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?🏘([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+'
+        r')👥(?:🌻([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:⛏([0-9]+)([⛔,✅])'
+        r'\D?([0-9]+)/([0-9]+)👥)?(?:🛡([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)⚔)?(?:🏰([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+))'
+        r'?(?:🏹)?.+', msg)
     if match is None:
         self.log("Regex Error - Buildings Profile could not parse:\n" + msg + "\n===END=MSG===\n")
         exit(1)
