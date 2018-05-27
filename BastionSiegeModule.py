@@ -87,6 +87,7 @@ def structure_exists(self):
     if self.city.storage == 0:
         send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        self.city.storage = 1
         send_message_and_wait(self, self.status.replyMarkup[3])  # Hire
         employ_at_capacity(self, "storage")
         send_message_and_wait(self, self.status.replyMarkup[9])  # Back
@@ -94,6 +95,7 @@ def structure_exists(self):
     if self.city.farm == 0:
         send_message_and_wait(self, self.status.replyMarkup[5])  # Farm
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        self.city.farm = 1
         send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
         employ_at_capacity(self, "farm")  # todo technically could detect active building from message...
         send_message_and_wait(self, self.status.replyMarkup[9])  # Back
@@ -101,12 +103,14 @@ def structure_exists(self):
     if self.city.sawmill == 0:
         send_message_and_wait(self, self.status.replyMarkup[6])  # Sawmill
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        self.city.sawmill = 1
         send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
         employ_at_capacity(self, "sawmill")
         send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
     if self.city.mine == 0:
         send_message_and_wait(self, self.status.replyMarkup[7])  # Mine
+        self.city.mine = 1
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
         send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
         employ_at_capacity(self, "mine")
