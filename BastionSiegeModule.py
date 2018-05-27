@@ -66,18 +66,6 @@ def environment(self):
     resource_hires(self)
     war_prepare(self)
 
-    send_message_and_wait(self, self.status.replyMarkup[8])  # Back
-    """
-    # TODO - this is just to parse coinrate. Can calculate with math, given level
-    send_message_and_wait(self, self.status.replyMarkup[0])  # Town Hall
-    send_message_and_wait(self, self.status.replyMarkup[2])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
-    send_message_and_wait(self, self.status.replyMarkup[5])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[1])  # Houses
-    send_message_and_wait(self, self.status.replyMarkup[2])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[5])  # Up Menu
-    """
-
     self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
     self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
 
@@ -179,6 +167,8 @@ def war_prepare(self):
             send_message_and_wait(self, 'Barracks')
             employ_at_capacity(self, 'barracks')
             send_message_and_wait(self, 'Back')
+
+    send_message_and_wait(self, "Up menu")
 
 
 def calc_all_upgrade_costs(self):
