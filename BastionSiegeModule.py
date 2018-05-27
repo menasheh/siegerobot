@@ -509,47 +509,47 @@ def parse_scout_message(self, msg):
 
 
 def parse_building_barracks(self, msg):
-    self.log('parse barracks message')
+    if self.city.barracks != 0:
+        reg = re.compile(r'(\d+)')
+        m = re.findall(reg, msg)
 
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+        self.city.barracks = int(m[0])
+        self.city.soldiers = int(m[1])
+        self.city.maxSoldiers = int(m[2])
+        self.city.barracksRecruitCostGold = int(m[3])
+        self.city.barracksRecruitCostFood = int(m[4])
+        self.city.barracksRecruitCostPeople = int(m[5])
+        self.city.gold = int(m[6])
+        self.city.people = int(m[7])
+        self.city.barracksUpgradeCost = int(m[8])
+        self.city.barracksUpgradeWood = int(m[9])
+        self.city.barracksUpgradeStone = int(m[10])
+        self.log("Possibly deal with reading upgradability")
 
-    self.city.barracks = int(m[0])
-    self.city.soldiers = int(m[1])
-    self.city.maxSoldiers = int(m[2])
-    self.city.barracksRecruitCostGold = int(m[3])
-    self.city.barracksRecruitCostFood = int(m[4])
-    self.city.barracksRecruitCostPeople = int(m[5])
-    self.city.gold = int(m[6])
-    self.city.people = int(m[7])
-    self.city.barracksUpgradeCost = int(m[8])
-    self.city.barracksUpgradeWood = int(m[9])
-    self.city.barracksUpgradeStone = int(m[10])
-    self.log("Possibly deal with reading upgradability")
-
-    self.status.menuDepth = 2
+        self.status.menuDepth = 2
 
 
 def parse_building_farm(self, msg):
-    reg = re.compile(r'-?(\d+)')
-    m = re.findall(reg, msg)
+    if self.city.farm != 0:
+        reg = re.compile(r'-?(\d+)')
+        m = re.findall(reg, msg)
 
-    self.city.farm = int(m[0])
-    self.city.farmWorkers = int(m[1])
-    self.city.maxFarmWorkers = int(m[2])
-    self.city.farmLocalStorage = int(m[3])
-    #  farmMaxLocalStorage
-    self.city.dailyFoodProduction = int(m[5])
-    self.city.dailyFoodConsumption = int(m[6])
-    self.city.storageWorkers = int(m[7])
-    #  Hire cost and costPeople
-    self.city.gold = int(m[10])
-    self.city.people = int(m[11])
-    self.city.farmUpgradeCost = int(m[12])
-    self.city.farmUpgradeWood = int(m[13])
-    self.city.farmUpgradeStone = int(m[14])
+        self.city.farm = int(m[0])
+        self.city.farmWorkers = int(m[1])
+        self.city.maxFarmWorkers = int(m[2])
+        self.city.farmLocalStorage = int(m[3])
+        #  farmMaxLocalStorage
+        self.city.dailyFoodProduction = int(m[5])
+        self.city.dailyFoodConsumption = int(m[6])
+        self.city.storageWorkers = int(m[7])
+        #  Hire cost and costPeople
+        self.city.gold = int(m[10])
+        self.city.people = int(m[11])
+        self.city.farmUpgradeCost = int(m[12])
+        self.city.farmUpgradeWood = int(m[13])
+        self.city.farmUpgradeStone = int(m[14])
 
-    self.status.menuDepth = 2
+        self.status.menuDepth = 2
 
 
 def parse_building_houses(self, msg):
@@ -572,87 +572,90 @@ def parse_building_houses(self, msg):
 
 
 def parse_building_mine(self, msg):
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+    if self.city.mine != 0:
+        reg = re.compile(r'(\d+)')
+        m = re.findall(reg, msg)
 
-    self.city.mine = int(m[0])
-    self.city.mineWorkers = int(m[1])
-    self.city.mineMaxWorkers = int(m[2])
-    self.city.mineLocalStorage = int(m[3])
-    # mineMaxLocalStorage
-    self.city.dailyStoneProduction = int(m[5])
-    self.city.storageWorkers = int(m[6])
-    # Individual cost variable for hiring?
-    #
-    self.city.gold = int(m[9])
-    self.city.update_times.gold = time.time()
-    self.city.people = int(m[10])
-    self.city.update_times.people = time.time()
-    self.city.mineUpgradeCost = int(m[11])
-    self.city.mineUpgradeWood = int(m[12])
-    self.city.mineUpgradeStone = int(m[13])
+        self.city.mine = int(m[0])
+        self.city.mineWorkers = int(m[1])
+        self.city.mineMaxWorkers = int(m[2])
+        self.city.mineLocalStorage = int(m[3])
+        # mineMaxLocalStorage
+        self.city.dailyStoneProduction = int(m[5])
+        self.city.storageWorkers = int(m[6])
+        # Individual cost variable for hiring?
+        #
+        self.city.gold = int(m[9])
+        self.city.update_times.gold = time.time()
+        self.city.people = int(m[10])
+        self.city.update_times.people = time.time()
+        self.city.mineUpgradeCost = int(m[11])
+        self.city.mineUpgradeWood = int(m[12])
+        self.city.mineUpgradeStone = int(m[13])
 
-    self.status.menuDepth = 2
+        self.status.menuDepth = 2
 
 
 def parse_building_sawmill(self, msg):
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+    if self.city.sawmill != 0:
+        reg = re.compile(r'(\d+)')
+        m = re.findall(reg, msg)
 
-    self.city.sawmill = int(m[0])
-    self.city.sawmillWorkers = int(m[1])
-    self.city.sawmillMaxWorkers = int(m[2])
-    self.city.sawmillLocalStorage = int(m[3])
-    # sawmillMaxLocalStorage
-    self.city.dailyWoodProduction = int(m[5])
-    self.city.storageWorkers = int(m[6])
-    # Individual cost variable for hiring?
-    #
-    self.city.gold = int(m[9])
-    self.city.update_times.gold = time.time()
-    self.city.people = int(m[10])
-    self.city.update_times.people = time.time()
-    self.city.sawmillUpgradeCost = int(m[11])
-    self.city.sawmillUpgradeWood = int(m[12])
-    self.city.sawmillUpgradeStone = int(m[13])
+        self.city.sawmill = int(m[0])
+        self.city.sawmillWorkers = int(m[1])
+        self.city.sawmillMaxWorkers = int(m[2])
+        self.city.sawmillLocalStorage = int(m[3])
+        # sawmillMaxLocalStorage
+        self.city.dailyWoodProduction = int(m[5])
+        self.city.storageWorkers = int(m[6])
+        # Individual cost variable for hiring?
+        #
+        self.city.gold = int(m[9])
+        self.city.update_times.gold = time.time()
+        self.city.people = int(m[10])
+        self.city.update_times.people = time.time()
+        self.city.sawmillUpgradeCost = int(m[11])
+        self.city.sawmillUpgradeWood = int(m[12])
+        self.city.sawmillUpgradeStone = int(m[13])
 
-    self.status.menuDepth = 2
+        self.status.menuDepth = 2
 
 
 def parse_building_storage(self, msg):
-    storage_is_full = 1
+    if self.city.storage != 0:
+        storage_is_full = 1
 
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+        reg = re.compile(r'(\d+)')
+        m = re.findall(reg, msg)
 
-    self.city.storage = int(m[0])
-    self.city.storageWorkers = int(m[1])
-    self.city.storageMaxWorkers = int(m[2])
-    self.city.wood = int(m[3])
-    self.city.update_times.wood = time.time()
-    self.city.maxWood = int(m[4])
-    self.city.stone = int(m[5])
-    self.city.update_times.stone = time.time()
-    self.city.maxStone = int(m[6])
-    self.city.food = int(m[7])
-    self.city.update_times.food = time.time()
-    self.city.maxFood = int(m[8])
-    # Individual cost variable(s) for hiring?
-    #
-    self.city.gold = int(m[11])
-    self.city.update_times.gold = time.time()
-    self.city.people = int(m[12])
-    self.city.update_times.people = time.time()
-    if re.search(re.compile("Fill", re.M), msg):
-        self.city.storageFillCost = int(m[13])
-        storage_is_full = 0
-    else:
-        self.city.storageFillCost = 0
-    self.city.storageUpgradeCost = int(m[14 - storage_is_full])
-    self.city.storageUpgradeWood = int(m[15 - storage_is_full])
-    self.city.storageUpgradeStone = int(m[16 - storage_is_full])
+        self.city.storage = int(m[0])
+        self.city.storageWorkers = int(m[1])
+        self.city.storageMaxWorkers = int(m[2])
+        self.city.wood = int(m[3])
+        self.city.update_times.wood = time.time()
+        self.city.maxWood = int(m[4])
+        self.city.stone = int(m[5])
+        self.city.update_times.stone = time.time()
+        self.city.maxStone = int(m[6])
+        self.city.food = int(m[7])
+        self.city.update_times.food = time.time()
+        self.city.maxFood = int(m[8])
+        # Individual cost variable(s) for hiring?
+        #
+        self.city.gold = int(m[11])
+        self.city.update_times.gold = time.time()
+        self.city.people = int(m[12])
+        self.city.update_times.people = time.time()
+        if re.search(re.compile("Fill", re.M), msg):
+            self.city.storageFillCost = int(m[13])
+            storage_is_full = 0
+        else:
+            self.city.storageFillCost = 0
+        self.city.storageUpgradeCost = int(m[14 - storage_is_full])
+        self.city.storageUpgradeWood = int(m[15 - storage_is_full])
+        self.city.storageUpgradeStone = int(m[16 - storage_is_full])
 
-    self.status.menuDepth = 2
+        self.status.menuDepth = 2
 
 
 def parse_building_town_hall(self, msg):
@@ -673,59 +676,61 @@ def parse_building_town_hall(self, msg):
 
 
 def parse_building_walls(self, msg):
-    reg = re.compile(
-        r'(\d+)\D+(\d+)/(\d+)🏹\D+(\d+)💰(\d+)🍖/(\d+)👥\D+\+(\d+)\D+(\d+)/(\d+)\D+(\d+)\D+(\d+)👥.+(Repair|'
-        r'Upgrade)\D+(\d+)💰(⛔️|✅)\D+(\d+)🌲(⛔️|✅)\D+(\d+)⛏(⛔️|✅)', re.S)
-    m = re.search(reg, msg)
+    if self.city.wall != 0:
+        reg = re.compile(
+            r'(\d+)\D+(\d+)/(\d+)🏹\D+(\d+)💰(\d+)🍖/(\d+)👥\D+\+(\d+)\D+(\d+)/(\d+)\D+(\d+)\D+(\d+)👥.+(Repair|'
+            r'Upgrade)\D+(\d+)💰(⛔️|✅)\D+(\d+)🌲(⛔️|✅)\D+(\d+)⛏(⛔️|✅)', re.S)
+        m = re.search(reg, msg)
 
-    self.city.walls = int(m.group(1))
-    self.city.archers = int(m.group(2))
-    self.city.maxArchers = int(m.group(3))
-    # Individual Recruit cost? 10, 1, 1 are current values of 4, 5, 6
-    self.city.wallAttackBonus = int(m.group(7))
-    self.city.wallDurability = int(m.group(8))
-    self.city.wallMaxDurability = int(m.group(9))
-    self.city.gold = int(m.group(10))
-    self.city.update_times.gold = time.time()
-    self.city.people = int(m.group(11))
-    self.city.update_times.people = time.time()
-    self.city.wallStatus = m.group(12)
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Cost', int(m.group(13)))
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Wood', int(m.group(15)))
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Stone', int(m.group(17)))
-    self.city.wallsCanUpgrade = False if '⛔' in m.group(14) + m.group(16) + m.group(18) else True
+        self.city.walls = int(m.group(1))
+        self.city.archers = int(m.group(2))
+        self.city.maxArchers = int(m.group(3))
+        # Individual Recruit cost? 10, 1, 1 are current values of 4, 5, 6
+        self.city.wallAttackBonus = int(m.group(7))
+        self.city.wallDurability = int(m.group(8))
+        self.city.wallMaxDurability = int(m.group(9))
+        self.city.gold = int(m.group(10))
+        self.city.update_times.gold = time.time()
+        self.city.people = int(m.group(11))
+        self.city.update_times.people = time.time()
+        self.city.wallStatus = m.group(12)
+        setattr(self.city, 'walls' + self.city.wallStatus + 'Cost', int(m.group(13)))
+        setattr(self.city, 'walls' + self.city.wallStatus + 'Wood', int(m.group(15)))
+        setattr(self.city, 'walls' + self.city.wallStatus + 'Stone', int(m.group(17)))
+        self.city.wallsCanUpgrade = False if '⛔' in m.group(14) + m.group(16) + m.group(18) else True
 
-    self.status.menuDepth = 2
+        self.status.menuDepth = 2
 
 
 def parse_workshop(self, msg):
     reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+    m = re.findall(reg, msg) + [0, 0, 0]
 
-    self.city.trebuchet = int(m[0] or 0)
-    self.city.trebuchetWorkers = int(m[1] or 0)
-    self.city.trebuchetMaxWorkers = int(m[2] or 0)
+    self.city.trebuchet = int(m[0])
+    self.city.trebuchetWorkers = int(m[1])
+    self.city.trebuchetMaxWorkers = int(m[2])
 
     self.status.menuDepth = 1
 
 
 def parse_trebuchet(self, msg):
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+    if self.city.trebuchet != 0:
+        reg = re.compile(r'(\d+)')
+        m = re.findall(reg, msg)
 
-    self.city.trebuchet = int(m[0])
-    self.city.trebuchetWorkers = int(m[1])
-    self.city.trebuchetMaxWorkers = int(m[2])
-    # cost
-    self.city.trebuchetAttackBonus = int(m[5])
-    self.city.trebuchetAttack = int(m[6])
-    self.city.gold = int(m[7])
-    self.city.people = int(m[8])
-    self.city.trebuchetUpgradeCost = int(m[9])
-    self.city.trebuchetUpgradeWood = int(m[10])
-    self.city.trebuchetUpgradeStone = int(m[11])
+        self.city.trebuchet = int(m[0])
+        self.city.trebuchetWorkers = int(m[1])
+        self.city.trebuchetMaxWorkers = int(m[2])
+        # cost
+        self.city.trebuchetAttackBonus = int(m[5])
+        self.city.trebuchetAttack = int(m[6])
+        self.city.gold = int(m[7])
+        self.city.people = int(m[8])
+        self.city.trebuchetUpgradeCost = int(m[9])
+        self.city.trebuchetUpgradeWood = int(m[10])
+        self.city.trebuchetUpgradeStone = int(m[11])
 
-    self.status.menuDepth = 2
+        self.status.menuDepth = 2
 
 
 def parse_war_attacked(self, msg):
