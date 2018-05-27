@@ -50,16 +50,37 @@ def procrastinate():
 
 
 def environment(self):
-    send_message_and_wait(self, "Buildings")
+    send_message_and_wait(self, "Buildings")  # Buildings
+    send_message_and_wait(self, self.status.replyMarkup[8])  # Back
+    """
+    # TODO - this is just to parse coinrate. Can calculate with math, given level
+    send_message_and_wait(self, self.status.replyMarkup[0])  # Town Hall
+    send_message_and_wait(self, self.status.replyMarkup[2])  # Back
+    send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
+    send_message_and_wait(self, self.status.replyMarkup[5])  # Back
+    send_message_and_wait(self, self.status.replyMarkup[1])  # Houses
+    send_message_and_wait(self, self.status.replyMarkup[2])  # Back
+    send_message_and_wait(self, self.status.replyMarkup[5])  # Up Menu
+    """
+    send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
+    send_message_and_wait(self, self.status.replyMarkup[1])  # Back
 
     self.city.maxGold = 500000 * self.city.townhall
     # self.city.dailyGoldProduction = +3 w/ 10 starving people
 
-    calc_upgrade_costs(self, "houses")
+    calc_all_upgrade_costs(self)
 
-    pretty_print(self.city)
 
-    print("I should learn about this environment from that.")
+def calc_all_upgrade_costs(self):
+    calc_upgrade_costs(self, 'sawmill')
+    calc_upgrade_costs(self, 'mine')
+    calc_upgrade_costs(self, 'farm')
+    calc_upgrade_costs(self, 'houses')
+    calc_upgrade_costs(self, 'townhall')
+    calc_upgrade_costs(self, 'barracks')
+    calc_upgrade_costs(self, 'walls')
+    calc_upgrade_costs(self, 'trebuchet')
+    calc_upgrade_costs(self, 'storage')
 
 
 def calc_upgrade_costs(self, building):
@@ -101,21 +122,8 @@ def upgrade_costs(building, level_desired):
 
 
 def develop(self):
-    # send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
-    send_message_and_wait(self, "Buildings")  # Buildings
-    # TODO - this is just to parse coinrate and upgrade resources. Can calculate both of those with math, given level
-    send_message_and_wait(self, self.status.replyMarkup[0])  # Town Hall
-    send_message_and_wait(self, self.status.replyMarkup[2])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
-    send_message_and_wait(self, self.status.replyMarkup[5])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[1])  # Houses
-    send_message_and_wait(self, self.status.replyMarkup[2])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[5])  # Sawmill
-    send_message_and_wait(self, self.status.replyMarkup[4])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[6])  # Mine
-    send_message_and_wait(self, self.status.replyMarkup[4])  # Back
-    send_message_and_wait(self, self.status.replyMarkup[7])  # Farm
-    send_message_and_wait(self, self.status.replyMarkup[5])  # Up Menu
+    environment(self)
+
     send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
     send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
 
