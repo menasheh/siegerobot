@@ -82,7 +82,7 @@ def environment(self):
     self.city.dailyFoodConsumption = (self.city.houses - min(self.city.farm, self.city.storage)) * 10 \
         if self.city.houses > min(self.city.farm, self.city.storage) else 0
     self.city.foodReserveHours = 8
-    self.city.foodReserve = self.city.dailyFoodConsumption * self.city.foodReserveHours * 60
+    self.city.foodReserve = min(self.city.dailyFoodConsumption * self.city.foodReserveHours * 60, self.city.maxFood)
     self.city.foodReserveMin = self.city.foodReserve / 2
 
     calc_all_upgrade_costs(self)
@@ -226,6 +226,7 @@ def purchase_resources_toward_upgrade(self, resource, building):
 
 def check_food_reserve(self):
     if self.city.food < self.city.foodReserveMin:
+        self.log("Daily Food Consumption: " + str(self.city.dailyFoodConsumption))
         self.log("Buying food reserve up to " + str(self.city.foodReserve))
         send_message_and_wait(self, "Food")
         while self.city.food < self.city.foodReserve:
