@@ -115,12 +115,15 @@ def structure_exists(self):
 
 
 def employ_at_capacity(self, building):
-    while getattr(self.city, building.capitalize() + 'MaxWorkers') > getattr(self.city, building + 'Workers'):
-        hirable = min(self.city.people, getattr(self.city, building + 'MaxWorkers') -
-                      getattr(self.city, building + 'Workers'))
-        send_message_and_wait(self, hirable)
-        sleeptime = min(getattr(self.city, building + 'MaxWorkers') -
-                            getattr(self.city, building + 'Workers'), self.city.maxPeople)
+    workers, max = building.capitalize() + 'Workers', 'max' + building.capitalize() + 'Workers'
+
+    while getattr(self.city, max) > getattr(self.city, workers):
+        hirable = min(self.city.people, getattr(self.city, max) - getattr(self.city, workers))
+        if hirable > 0:
+            send_message_and_wait(self, hirable)
+        else:
+            self.log("No available workers. Will try sleeping.")  # Todo text notify if multiple times no workers
+        sleeptime = min(getattr(self.city, max) - getattr(self.city, workers), self.city.maxPeople)
         self.log("Sleeping " + str(sleeptime) + " minutes to get more workers for " + building + ".")
         time.sleep(60 * sleeptime)
 
