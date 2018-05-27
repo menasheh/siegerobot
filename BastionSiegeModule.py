@@ -50,6 +50,8 @@ def procrastinate():
 
 
 def environment(self):
+    send_message_and_wait(self, "Workshop")  # Workshop
+    send_message_and_wait(self, self.status.replyMarkup[1])  # Back
     send_message_and_wait(self, "Buildings")  # Buildings
 
     self.city.maxGold = 500000 * self.city.townhall
@@ -61,7 +63,9 @@ def environment(self):
     self.city.dailyFoodProduction = self.city.farm * 10
 
     structure_exists(self)
-    #employ_at_capacity(self) for each building
+    resource_hires(self)
+    war_prepare(self)
+
     send_message_and_wait(self, self.status.replyMarkup[8])  # Back
     """
     # TODO - this is just to parse coinrate. Can calculate with math, given level
@@ -73,8 +77,6 @@ def environment(self):
     send_message_and_wait(self, self.status.replyMarkup[2])  # Back
     send_message_and_wait(self, self.status.replyMarkup[5])  # Up Menu
     """
-    send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
-    send_message_and_wait(self, self.status.replyMarkup[1])  # Back
 
     self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
     self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
@@ -123,7 +125,7 @@ def employ_at_capacity(self, building):
     if building in ['storage', 'farm', 'sawmill', 'mine', 'trebuchet']:
         workers, max = building + 'Workers', building + 'MaxWorkers'
     else:
-        if building == 'wall':
+        if building == 'walls':
             workers, max = 'archers', 'maxArchers'
         else:
             if building == 'barracks':
@@ -141,6 +143,40 @@ def employ_at_capacity(self, building):
             self.log("Sleeping " + str(sleeptime) + " minutes to get more workers for " + building + ".")
             time.sleep(60 * sleeptime)
             send_message_and_wait(self, str(sleeptime))
+
+
+def resource_hires(self):
+    for x in ['storage', 'farm', 'sawmill', 'mine']:
+        workers, max = x + 'Workers', x + 'MaxWorkers'
+        if getattr(self.city, max) > getattr(self.city, workers):
+            send_message_and_wait(self, x.capitalize())
+            employ_at_capacity(self, x)
+            send_message_and_wait(self, "Back")
+
+
+def war_prepare(self):
+    if self.city.wallDurability < self.city.wallMaxDurability:
+        send_message_and_wait(self, "Walls")
+        if self.city.wallsCanUpgrade:
+            send_message_and_wait(self, "Repair")
+        else:
+            self.log("Can't repair walls.")  # Todo fix by wait
+    send_message_and_wait(self, "Up menu")
+    send_message_and_wait(self, "War")
+    send_message_and_wait(self, "Recruit")
+
+    if self.city.trebuchetWorkers < self.city.maxTrebuchetWorkers:
+            send_message_and_wait(self, 'Trebuchet')
+            employ_at_capacity(self, 'trebuchet')
+            send_message_and_wait(self, 'Back')
+    if self.city.archers < self.city.maxArchers:
+            send_message_and_wait(self, 'Walls')
+            employ_at_capacity(self, 'walls')
+            send_message_and_wait(self, 'Back')
+    if self.city.soldiers < self.city.maxSoldiers:
+            send_message_and_wait(self, 'Barracks')
+            employ_at_capacity(self, 'barracks')
+            send_message_and_wait(self, 'Back')
 
 
 def calc_all_upgrade_costs(self):
