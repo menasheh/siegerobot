@@ -164,11 +164,12 @@ def farm(self):
 
 
 def gold_time_to_upgrade(self, building):
-    return max(0, int(math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
+    return max(0, int(
+        math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
 
 
 def upgrade_while_possible(self, building):
-    while self.city.maxWood > getattr(self.city, building + 'UpgradeWood') and\
+    while self.city.maxWood > getattr(self.city, building + 'UpgradeWood') and \
             self.city.maxStone > getattr(self.city, building + 'UpgradeStone'):
 
         purchase_resources_toward_upgrade(self, 'wood', building)
@@ -203,7 +204,7 @@ def upgrade_while_possible(self, building):
             procrastinate()  # TODO - use waittime method, again (in case lost money to war, for example)
             send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
 
-        self.log(building + " upgraded to level " + str(oldlevel+1))
+        self.log(building + " upgraded to level " + str(oldlevel + 1))
         index = -1
         for x in range(0, len(self.status.replyMarkup)):
             if "menu" in self.status.replyMarkup[x]:
@@ -240,7 +241,7 @@ def parse_message(self, message):
         parse_war_profile(self, message)
     elif 'Town hall' in message:
         parse_building_town_hall(self, message)
-    elif '🏘Houses' in message:
+    elif '🏘Houses' in message.split()[0]:
         parse_building_houses(self, message)
     elif 'Resources' in first_line or 'no place in the storage' in message or 'find money.' in message:
         parse_resource_message(self, message)
@@ -290,7 +291,7 @@ def parse_profile(self, msg):
     match = re.match(r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓People(['
                      r'0-9]+)👥Army([0-9]+)⚔Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖', clean_trim(msg))
     if match is None:
-        self.log("Regex Error - Buildings Profile could not parse:\n" + clean_trim(msg) + "\n===END=MSG===\n")
+        self.log("Regex Error - Profile could not parse:\n" + msg + "\n===END=MSG===\n")
         exit(1)
     msg = msg.split()
     self.city.alliance = match.group(1) if len(match.group(1)) > 0 else "none"
@@ -320,46 +321,54 @@ def parse_profile(self, msg):
 
 def parse_buildings_profile(self, msg):
     msg = clean_trim(msg)
-    match = re.match(r'.+🏤([0-9]+)([⛔,✅]).?🏚([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥🏘([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+'
-                     r')👥🌻([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥🌲([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥⛏([0-9]+)([⛔,✅])'
-                     r'.?([0-9]+)/([0-9]+)👥🛡([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)⚔🏰([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)🏹'
-                     r'.+', msg)
+    match = re.match(
+        r'.+🏤([0-9]+)([⛔,✅]).?(?:🏚([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥)?🏘([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+'
+        r')👥(?:🌻([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)👥)?(?:⛏([0-9]+)([⛔,✅])'
+        r'.?([0-9]+)/([0-9]+)👥)?(?:🛡([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+)⚔)?(?:🏰([0-9]+)([⛔,✅]).?([0-9]+)/([0-9]+))?(?:🏹'
+        r')?.+', msg)
     if match is None:
         self.log("Regex Error - Buildings Profile could not parse:\n" + msg + "\n===END=MSG===\n")
         exit(1)
 
     self.city.townhall = int(match.group(1))
     self.city.townhallCanUpgrade = False if '⛔' in match.group(2) else True
-    self.city.storage = int(match.group(3))
-    self.city.storageCanUpgrade = False if '⛔' in match.group(4) else True
-    self.city.storageWorkers = int(match.group(5))
-    self.city.storageMaxWorkers = int(match.group(6))
+    self.city.storage = int(match.group(3) or 0)
+    if self.city.storage > 0:
+        self.city.storageCanUpgrade = False if '⛔' in match.group(4) else True
+        self.city.storageWorkers = int(match.group(5))
+        self.city.storageMaxWorkers = int(match.group(6))
     self.city.houses = int(match.group(7))
     self.city.housesCanUpgrade = False if '⛔' in match.group(8) else True
     self.city.people = int(match.group(9))
     self.city.maxPeople = int(match.group(10))
-    self.city.farm = int(match.group(11))
-    self.city.farmCanUpgrade = False if '⛔' in match.group(12) else True
-    self.city.farmWorkers = int(match.group(13))
-    self.city.maxFarmWorkers = int(match.group(14))
-    self.city.sawmill = int(match.group(15))
-    self.city.sawmillCanUpgrade = False if '⛔' in match.group(16) else True
-    self.city.sawmillWorkers = int(match.group(17))
-    self.city.sawmillMaxWorkers = int(match.group(18))
-    self.city.mine = int(match.group(19))
-    self.city.mineCanUpgrade = False if '⛔' in match.group(20) else True
-    self.city.mineWorkers = int(match.group(21))
-    self.city.mineMaxWorkers = int(match.group(22))
-    self.city.barracks = int(match.group(23))
-    self.city.barracksCanUpgrade = False if '⛔' in match.group(24) else True
-    self.city.soldiers = int(match.group(25))
-    self.city.maxSoldiers = int(match.group(26))
-    self.city.walls = int(match.group(27))
-    self.city.wallsCanUpgrade = False if '⛔' in match.group(28) else True
-    self.city.archers = int(match.group(29))
-    self.city.maxArchers = int(match.group(30))
+    self.city.farm = int(match.group(11) or 0)
+    if self.city.farm > 0:
+        self.city.farmCanUpgrade = False if '⛔' in match.group(12) else True
+        self.city.farmWorkers = int(match.group(13))
+        self.city.maxFarmWorkers = int(match.group(14))
+    self.city.sawmill = int(match.group(15) or 0)
+    if self.city.sawmill > 0:
+        self.city.sawmillCanUpgrade = False if '⛔' in match.group(16) else True
+        self.city.sawmillWorkers = int(match.group(17))
+        self.city.sawmillMaxWorkers = int(match.group(18))
+    self.city.mine = int(match.group(19) or 0)
+    if self.city.mine > 0:
+        self.city.mineCanUpgrade = False if '⛔' in match.group(20) else True
+        self.city.mineWorkers = int(match.group(21))
+        self.city.mineMaxWorkers = int(match.group(22))
+    self.city.barracks = int(match.group(23) or 0)
+    if self.city.barracks > 0:
+        self.city.barracksCanUpgrade = False if '⛔' in match.group(24) else True
+        self.city.soldiers = int(match.group(25))
+        self.city.maxSoldiers = int(match.group(26))
+    self.city.walls = int(match.group(27) or 0)
+    if self.city.walls > 0:
+        self.city.wallsCanUpgrade = False if '⛔' in match.group(28) else True
+        self.city.archers = int(match.group(29))
+        self.city.maxArchers = int(match.group(30))
 
     self.status.menuDepth = 1  # keeps track of back - up might be different
+    print(vars(self.city))
 
 
 def parse_war_profile(self, msg):
