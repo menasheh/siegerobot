@@ -702,9 +702,9 @@ def parse_workshop(self, msg):
     reg = re.compile(r'(\d+)')
     m = re.findall(reg, msg)
 
-    self.city.trebuchet = int(m[0])
-    self.city.trebuchetWorkers = int(m[1])
-    self.city.trebuchetMaxWorkers = int(m[2])
+    self.city.trebuchet = int(m[0] or 0)
+    self.city.trebuchetWorkers = int(m[1] or 0)
+    self.city.trebuchetMaxWorkers = int(m[2] or 0)
 
     self.status.menuDepth = 1
 
