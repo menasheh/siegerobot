@@ -512,7 +512,7 @@ def parse_scout_message(self, msg):
 
 
 def parse_building_barracks(self, msg):
-    if self.city.barracks != 0:
+    if hasattr(self.city, 'barracks') and self.city.barracks != 0:
         reg = re.compile(r'(\d+)')
         m = re.findall(reg, msg)
 
@@ -533,7 +533,7 @@ def parse_building_barracks(self, msg):
 
 
 def parse_building_farm(self, msg):
-    if self.city.farm != 0:
+    if hasattr(self.city, 'farm') and self.city.farm != 0:
         reg = re.compile(r'-?(\d+)')
         m = re.findall(reg, msg)
 
@@ -575,7 +575,7 @@ def parse_building_houses(self, msg):
 
 
 def parse_building_mine(self, msg):
-    if self.city.mine != 0:
+    if hasattr(self.city, 'mine') and self.city.mine != 0:
         reg = re.compile(r'(\d+)')
         m = re.findall(reg, msg)
 
@@ -600,7 +600,7 @@ def parse_building_mine(self, msg):
 
 
 def parse_building_sawmill(self, msg):
-    if self.city.sawmill != 0:
+    if hasattr(self.city, 'sawmill') and self.city.sawmill != 0:
         reg = re.compile(r'(\d+)')
         m = re.findall(reg, msg)
 
@@ -625,7 +625,7 @@ def parse_building_sawmill(self, msg):
 
 
 def parse_building_storage(self, msg):
-    if self.city.storage != 0:
+    if hasattr(self.city, 'storage') and self.city.storage != 0:
         storage_is_full = 1
 
         reg = re.compile(r'(\d+)')
@@ -679,7 +679,7 @@ def parse_building_town_hall(self, msg):
 
 
 def parse_building_walls(self, msg):
-    if self.city.wall != 0:
+    if hasattr(self.city, 'wall') and self.city.wall != 0:
         reg = re.compile(
             r'(\d+)\D+(\d+)/(\d+)🏹\D+(\d+)💰(\d+)🍖/(\d+)👥\D+\+(\d+)\D+(\d+)/(\d+)\D+(\d+)\D+(\d+)👥.+(Repair|'
             r'Upgrade)\D+(\d+)💰(⛔️|✅)\D+(\d+)🌲(⛔️|✅)\D+(\d+)⛏(⛔️|✅)', re.S)
@@ -717,7 +717,7 @@ def parse_workshop(self, msg):
 
 
 def parse_trebuchet(self, msg):
-    if self.city.trebuchet != 0:
+    if hasattr(self.city, 'trebuchet') and self.city.trebuchet != 0:
         reg = re.compile(r'(\d+)')
         m = re.findall(reg, msg)
 
