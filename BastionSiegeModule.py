@@ -72,6 +72,12 @@ def environment(self):
     self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
     self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
 
+    self.city.dailyFoodConsumption = (self.city.houses - min(self.city.farm, self.city.storage)) * 10 \
+        if self.city.houses > min(self.city.farm, self.city.storage) else 0
+    self.city.foodReserveHours = 8
+    self.city.foodReserve = self.city.dailyFoodConsumption * self.city.foodReserveHours * 60
+    self.city.foodReserveMin = self.city.foodReserve / 2
+
     calc_all_upgrade_costs(self)
 
 
