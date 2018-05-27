@@ -77,9 +77,12 @@ def calc_all_upgrade_costs(self):
     calc_upgrade_costs(self, 'farm')
     calc_upgrade_costs(self, 'houses')
     calc_upgrade_costs(self, 'townhall')
-    calc_upgrade_costs(self, 'barracks')
-    calc_upgrade_costs(self, 'walls')
-    calc_upgrade_costs(self, 'trebuchet')
+    if hasattr(self.city, "barracks") and self.city.barracks != 0:
+        calc_upgrade_costs(self, 'barracks')
+    if hasattr(self.city, "wall") and self.city.wall != 0:
+        calc_upgrade_costs(self, 'walls')
+    if hasattr(self.city, "trebuchet") and self.city.trebuchet != 0:
+        calc_upgrade_costs(self, 'trebuchet')
     calc_upgrade_costs(self, 'storage')
 
 
