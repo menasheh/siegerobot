@@ -88,34 +88,34 @@ def structure_exists(self):
         send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
         send_message_and_wait(self, self.status.replyMarkup[3])  # Hire
-        employ_at_capacity(self, "Storage")
+        employ_at_capacity(self, "storage")
         send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[5])  # Back
     if self.city.farm == 0:
         send_message_and_wait(self, self.status.replyMarkup[5])  # Farm
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
         send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
-        employ_at_capacity(self, "Farm")  # todo technically could detect active building from message...
+        employ_at_capacity(self, "farm")  # todo technically could detect active building from message...
         send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
     if self.city.sawmill == 0:
         send_message_and_wait(self, self.status.replyMarkup[6])  # Sawmill
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
         send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
-        employ_at_capacity(self, "Sawmill")
+        employ_at_capacity(self, "sawmill")
         send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
     if self.city.mine == 0:
         send_message_and_wait(self, self.status.replyMarkup[7])  # Mine
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
         send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
-        employ_at_capacity(self, "Mine")
+        employ_at_capacity(self, "mine")
         send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
 
 
 def employ_at_capacity(self, building):
-    workers, max = building.capitalize() + 'Workers', 'max' + building.capitalize() + 'Workers'
+    workers, max = building + 'Workers', building + 'MaxWorkers'
 
     while getattr(self.city, max) > getattr(self.city, workers):
         hirable = min(self.city.people, getattr(self.city, max) - getattr(self.city, workers))
@@ -437,7 +437,7 @@ def parse_buildings_profile(self, msg):
     if self.city.farm > 0:
         self.city.farmCanUpgrade = False if '⛔' in match.group(12) else True
         self.city.farmWorkers = int(match.group(13))
-        self.city.maxFarmWorkers = int(match.group(14))
+        self.city.farmMaxWorkers = int(match.group(14))
     self.city.sawmill = int(match.group(15) or 0)
     if self.city.sawmill > 0:
         self.city.sawmillCanUpgrade = False if '⛔' in match.group(16) else True
@@ -619,7 +619,7 @@ def parse_building_farm(self, msg):
 
         self.city.farm = int(m[0])
         self.city.farmWorkers = int(m[1])
-        self.city.maxFarmWorkers = int(m[2])
+        self.city.farmMaxWorkers = int(m[2])
         self.city.farmLocalStorage = int(m[3])
         #  farmMaxLocalStorage
         self.city.dailyFoodProduction = int(m[5])
