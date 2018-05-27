@@ -167,6 +167,8 @@ class SiegeClient(TelegramClient):
         
         """
 
+        Siege.environment(self)
+
         # upgradePriorities = {0, 1, 3, 4, 2}
 
         Siege.develop(self)

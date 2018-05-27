@@ -11,7 +11,6 @@ def clean_trim(string):
 
 def send_message_and_wait(self, message):
     start_time = time.time()
-    pretty_print(self.status)
     lastid = self.status.lastMsgID
     self.send_message(self.entity, message)
     while lastid == self.status.lastMsgID:
@@ -48,6 +47,57 @@ def procrastinate():
     print("snoozing for " + str(rand_time) + " seconds")
     # TODO URGENT TODO - use /refresh and continue when breaks, but save line for a debug breakpoint too somewhere...
     time.sleep(rand_time)
+
+
+def environment(self):
+    send_message_and_wait(self, "Buildings")
+
+    self.city.maxGold = 500000 * self.city.townhall
+    # self.city.dailyGoldProduction = +3 w/ 10 starving people
+
+    calc_upgrade_costs(self, "houses")
+
+    pretty_print(self.city)
+
+    print("I should learn about this environment from that.")
+
+
+def calc_upgrade_costs(self, building):
+    results = upgrade_costs(building, getattr(self.city, building))
+
+    suffix = ['Cost', 'Wood', 'Stone']
+
+    for x in range(0, 3):
+        print(building + suffix[x] + str(results[x]))
+        setattr(self.city, building + 'Upgrade' + suffix[x], results[x])
+
+
+def upgrade_costs(building, level_desired):
+    coeff = {
+        'sawmill': [100, 50, 50],
+        'mine': [100, 50, 50],
+        'farm': [100, 50, 50],
+        'houses': [200, 100, 100],
+        'townhall': [500, 200, 200],
+        'barracks': [200, 100, 100],
+        'walls': [5000, 500, 1500],
+        'trebuchet': [8000, 1000, 300],
+        'storage': [200, 100, 100]
+    }
+
+    level_current = level_desired - 1
+    level_previous = level_desired - 2
+
+    resources_sunk = -2
+    if level_current > 0:
+        resources_sunk = level_current * level_previous * ((2 * level_current + 8) / 6 + 2 / level_current)
+
+    result = [0, 0, 0]
+
+    for x in range(0, 3):
+        result[x] = int((coeff[building][x] * (level_desired * level_current * ((2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
+
+    return result
 
 
 def develop(self):
