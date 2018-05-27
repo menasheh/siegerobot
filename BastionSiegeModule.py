@@ -169,6 +169,7 @@ def develop(self):
 
 
 def purchase_resources_toward_upgrade(self, resource, building):
+    check_food_reserve(self)
     # Assumes in the trade menu. Bad assumption TODO fix
     send_message_and_wait(self, resource.capitalize())
     goal_quantity_attribute_name = building + 'Upgrade' + resource.capitalize()
@@ -189,6 +190,21 @@ def purchase_resources_toward_upgrade(self, resource, building):
 
     # send_message_and_wait(self, self.status.replyMarkup[9])  # Back # Markup wasn't working b/c clan attacks perhaps
     send_message_and_wait(self, "⬅️ Back")  # Back
+
+
+def check_food_reserve(self):
+    if self.city.food < self.city.foodReserveMin:
+        self.log("Buying food reserve up to " + str(self.city.foodReserve))
+        send_message_and_wait(self, "Food")
+        while self.city.food < self.city.foodReserve:
+            purchase_quantity = min(self.city.foodReserve - self.city.food,
+                                    math.floor(self.city.gold / 2))
+            send_message_and_wait(self, str(purchase_quantity))  # Not future-proof if price changes
+            if self.city.gold < 2:
+                procrastinate()
+                update_gold(self)  # update gold
+                update_resources(self)
+        send_message_and_wait(self, "⬅️ Back")  # Back
 
 
 def farm(self):
