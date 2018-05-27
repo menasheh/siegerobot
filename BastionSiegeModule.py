@@ -97,7 +97,7 @@ def calc_all_upgrade_costs(self):
 
 
 def calc_upgrade_costs(self, building):
-    results = upgrade_costs(building, getattr(self.city, building))
+    results = upgrade_costs(building, getattr(self.city, building) + 1)
 
     suffix = ['Cost', 'Wood', 'Stone']
 
