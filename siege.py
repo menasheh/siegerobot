@@ -20,7 +20,7 @@ scriptStartTime = datetime.now()
 # File-based logging
 logfile = expanduser("~") + '/.hidden/siege'
 logext = '.log'
-# sys.stdout = open(logfile + logext, 'w+', 1)
+sys.stdout = open(logfile + logext, 'w+', 1)
 
 
 def load_config(path='settings'):
@@ -249,4 +249,4 @@ except Exception as e:
 
 finally:
     client.disconnect()
-    # inplacerestart()
+    inplacerestart()
