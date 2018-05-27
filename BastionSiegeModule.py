@@ -37,8 +37,8 @@ def update_resources(self):
 
 def update_resource(self, resource):
     timediff = math.floor((time.time() - getattr(self.city.update_times, resource)) / 60)
-    setattr(self.city, resource, getattr(self.city, resource) + timediff * getattr(self.city,
-                                                                                   'daily' + resource.capitalize() + 'Production'))
+    setattr(self.city, resource, getattr(self.city, resource) + timediff *
+            getattr(self.city, 'daily' + resource.capitalize() + 'Production'))
     setattr(self.city.update_times, resource, time.time())
 
 
@@ -52,6 +52,7 @@ def procrastinate():
 def environment(self):
     send_message_and_wait(self, "Buildings")  # Buildings
     structure_exists(self)
+    #employ_at_capacity(self) for each building
     send_message_and_wait(self, self.status.replyMarkup[8])  # Back
     """
     # TODO - this is just to parse coinrate. Can calculate with math, given level
@@ -86,19 +87,42 @@ def structure_exists(self):
     if self.city.storage == 0:
         send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[3])  # Hire
+        employ_at_capacity(self, "Storage")
+        send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[5])  # Back
     if self.city.farm == 0:
         send_message_and_wait(self, self.status.replyMarkup[5])  # Farm
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
+        employ_at_capacity(self, "Farm")  # todo technically could detect active building from message...
+        send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
     if self.city.sawmill == 0:
         send_message_and_wait(self, self.status.replyMarkup[6])  # Sawmill
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
+        employ_at_capacity(self, "Sawmill")
+        send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
     if self.city.mine == 0:
         send_message_and_wait(self, self.status.replyMarkup[7])  # Mine
         send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[2])  # Hire
+        employ_at_capacity(self, "Mine")
+        send_message_and_wait(self, self.status.replyMarkup[9])  # Back
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
+
+
+def employ_at_capacity(self, building):
+    while getattr(self.city, building.capitalize() + 'MaxWorkers') > getattr(self.city, building + 'Workers'):
+        hirable = min(self.city.people, getattr(self.city, building + 'MaxWorkers') -
+                      getattr(self.city, building + 'Workers'))
+        send_message_and_wait(self, hirable)
+        sleeptime = min(getattr(self.city, building + 'MaxWorkers') -
+                            getattr(self.city, building + 'Workers'), self.city.maxPeople)
+        self.log("Sleeping " + str(sleeptime) + " minutes to get more workers for " + building + ".")
+        time.sleep(60 * sleeptime)
 
 
 def calc_all_upgrade_costs(self):
@@ -150,7 +174,7 @@ def upgrade_costs(building, level_desired):
 
     for x in range(0, 3):
         result[x] = int((coeff[building][x] * (level_desired * level_current * (
-                    (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
+                (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
 
     return result
 
@@ -270,6 +294,13 @@ def upgrade_while_possible(self, building):
                 break
         if index == -1:
             sys.exit("ReplyMarkup appears to miss a menu button.")
+        for x in range(0, len(self.status.replyMarkup)):
+            if "Hire" in self.status.replyMarkup[x]:
+                send_message_and_wait(self, "Hire")
+                employ_at_capacity(self, building)
+                send_message_and_wait(self, "Back")
+                break
+
         send_message_and_wait(self, self.status.replyMarkup[index])  # Up Menu
         send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
         send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
@@ -426,7 +457,6 @@ def parse_buildings_profile(self, msg):
         self.city.maxArchers = int(match.group(30))
 
     self.status.menuDepth = 1  # keeps track of back - up might be different
-    print(vars(self.city))
 
 
 def parse_war_profile(self, msg):
