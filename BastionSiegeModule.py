@@ -120,7 +120,16 @@ def structure_exists(self):
 
 
 def employ_at_capacity(self, building):
-    workers, max = building + 'Workers', building + 'MaxWorkers'
+    if building in ['storage', 'farm', 'sawmill', 'mine', 'trebuchet']:
+        workers, max = building + 'Workers', building + 'MaxWorkers'
+    else:
+        if building == 'wall':
+            workers, max = 'archers', 'maxArchers'
+        else:
+            if building == 'barracks':
+                workers, max = 'soldiers', 'maxSoldiers'
+            else:
+                sys.exit("I don't know how to employ at " + building + ".")
 
     while getattr(self.city, max) > getattr(self.city, workers):
         hirable = min(self.city.people, getattr(self.city, max) - getattr(self.city, workers))
