@@ -68,6 +68,9 @@ def environment(self):
     self.city.maxGold = 500000 * self.city.townhall
     # self.city.dailyGoldProduction = +3 w/ 10 starving people
 
+    self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
+    self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
+
     calc_all_upgrade_costs(self)
 
 
@@ -119,7 +122,8 @@ def upgrade_costs(building, level_desired):
     result = [0, 0, 0]
 
     for x in range(0, 3):
-        result[x] = int((coeff[building][x] * (level_desired * level_current * ((2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
+        result[x] = int((coeff[building][x] * (level_desired * level_current * (
+                    (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
 
     return result
 
