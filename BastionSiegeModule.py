@@ -51,6 +51,7 @@ def procrastinate():
 
 def environment(self):
     send_message_and_wait(self, "Buildings")  # Buildings
+    structure_exists(self)
     send_message_and_wait(self, self.status.replyMarkup[8])  # Back
     """
     # TODO - this is just to parse coinrate. Can calculate with math, given level
@@ -79,6 +80,25 @@ def environment(self):
     self.city.foodReserveMin = self.city.foodReserve / 2
 
     calc_all_upgrade_costs(self)
+
+
+def structure_exists(self):
+    if self.city.storage == 0:
+        send_message_and_wait(self, self.status.replyMarkup[2])  # Storage
+        send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[5])  # Back
+    if self.city.farm == 0:
+        send_message_and_wait(self, self.status.replyMarkup[5])  # Farm
+        send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[4])  # Back
+    if self.city.sawmill == 0:
+        send_message_and_wait(self, self.status.replyMarkup[6])  # Sawmill
+        send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[4])  # Back
+    if self.city.mine == 0:
+        send_message_and_wait(self, self.status.replyMarkup[7])  # Mine
+        send_message_and_wait(self, self.status.replyMarkup[0])  # Build
+        send_message_and_wait(self, self.status.replyMarkup[4])  # Back
 
 
 def calc_all_upgrade_costs(self):
