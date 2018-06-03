@@ -424,7 +424,7 @@ def parse_message(self, message):
 
 def parse_profile(self, msg):
     match = re.match(r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓People(['
-                     r'0-9]+)👥Army([0-9]+)⚔Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖', clean_trim(msg))
+                     r'0-9]+)👥Army([0-9]+)⚔Gold([0-9]+)💰Gems([0-9]+)💎Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖', clean_trim(msg))
     if match is None:
         self.log("Regex Error - Profile could not parse:\n" + msg + "\n===END=MSG===\n")
         exit(1)
