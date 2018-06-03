@@ -603,17 +603,19 @@ def parse_resource_message(self, msg):
 
         self.city.gold = int(m[0])
         self.city.update_times.gold = time.time()
-        self.city.wood = int(m[1])
+        self.city.gems = int(m[1])
+        self.city.update_times.gems = time.time()
+        self.city.wood = int(m[2])
         self.city.update_times.wood = time.time()
-        self.city.stone = int(m[2])
+        self.city.stone = int(m[3])
         self.city.update_times.stone = time.time()
-        self.city.food = int(m[3])
+        self.city.food = int(m[4])
         self.city.update_times.food = time.time()
         if len(m) > 4:
             #  Technically speaking I could just hardcode 2 or use a resourcePrice variable...
-            self.city.woodPrice = int(m2[0]) / int(m[4])
-            self.city.stonePrice = int(m2[1]) / int(m[5])
-            self.city.foodPrice = int(m2[2]) / int(m[6])
+            self.city.woodPrice = int(m2[0]) / int(m[5])
+            self.city.stonePrice = int(m2[2]) / int(m[6])
+            self.city.foodPrice = int(m2[3]) / int(m[7])
     self.status.menuDepth = 1
 
 
