@@ -40,12 +40,13 @@ def load_config(path='settings'):
     return result
 
 
-twilio = load_config('twilio')
-twilioclient = Client(twilio['sid'], twilio['token'])
+# twilio = load_config('twilio')
+# twilioclient = Client(twilio['sid'], twilio['token'])
 
 
 def text(message):
-    twilioclient.api.account.messages.create(body=message, from_=twilio['phone_from'], to=twilio['phone_to'])
+    # twilioclient.api.account.messages.create(body=message, from_=twilio['phone_from'], to=twilio['phone_to'])
+    pass
 
 
 def inplacerestart():
