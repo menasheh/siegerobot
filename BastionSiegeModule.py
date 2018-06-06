@@ -601,10 +601,10 @@ def parse_resource_message(self, msg):
         m = re.findall(regex, msg)
         m2 = re.findall(regex2, msg)
 
-        self.city.gold = int(m[0])
-        self.city.update_times.gold = time.time()
-        self.city.gems = int(m[1])
+        self.city.gems = int(m[0])
         self.city.update_times.gems = time.time()
+        self.city.gold = int(m[1])
+        self.city.update_times.gold = time.time()
         self.city.wood = int(m[2])
         self.city.update_times.wood = time.time()
         self.city.stone = int(m[3])
