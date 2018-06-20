@@ -126,7 +126,7 @@ def employ_at_capacity(self, building):
         if hirable > 0:
             send_message_and_wait(self, str(hirable))
         sleeptime = math.ceil(min(getattr(self.city, max) - getattr(self.city, workers),
-                        self.city.maxPeople) / self.city.dailyPeopleIncrease)
+                                  self.city.maxPeople) / self.city.dailyPeopleIncrease)
         if sleeptime > 0:
             self.log("Sleeping " + str(sleeptime) + " minutes to get more workers for " + building + ".")
             time.sleep(60 * sleeptime)
@@ -156,17 +156,17 @@ def war_prepare(self):
     send_message_and_wait(self, "Recruit")
 
     if self.city.trebuchetWorkers < self.city.maxTrebuchetWorkers:
-            send_message_and_wait(self, 'Trebuchet')
-            employ_at_capacity(self, 'trebuchet')
-            send_message_and_wait(self, 'Back')
+        send_message_and_wait(self, 'Trebuchet')
+        employ_at_capacity(self, 'trebuchet')
+        send_message_and_wait(self, 'Back')
     if self.city.archers < self.city.maxArchers:
-            send_message_and_wait(self, 'Walls')
-            employ_at_capacity(self, 'walls')
-            send_message_and_wait(self, 'Back')
+        send_message_and_wait(self, 'Walls')
+        employ_at_capacity(self, 'walls')
+        send_message_and_wait(self, 'Back')
     if self.city.soldiers < self.city.maxSoldiers:
-            send_message_and_wait(self, 'Barracks')
-            employ_at_capacity(self, 'barracks')
-            send_message_and_wait(self, 'Back')
+        send_message_and_wait(self, 'Barracks')
+        employ_at_capacity(self, 'barracks')
+        send_message_and_wait(self, 'Back')
 
     send_message_and_wait(self, "Up menu")
 
@@ -424,7 +424,8 @@ def parse_message(self, message):
 
 def parse_profile(self, msg):
     match = re.match(r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓People(['
-                     r'0-9]+)👥Army([0-9]+)⚔Gems([0-9]+)💎Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖', clean_trim(msg))
+                     r'0-9]+)👥Army([0-9]+)⚔Gems([0-9]+)💎Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖',
+                     clean_trim(msg))
     if match is None:
         self.log("Regex Error - Profile could not parse:\n" + msg + "\n===END=MSG===\n")
         exit(1)
@@ -506,66 +507,67 @@ def parse_buildings_profile(self, msg):
 
 
 def parse_war_profile(self, msg):
-    self.log('Parsing war profile')
+    numbers = [
+        'wins', 'karma', 'territory', 'time.hour', 'time.minute', 'time.second', 'wall', 'maxWall', 'archers',
+        'maxArchers', 'food',
+    ]
 
-    reg = re.compile(r'(\d+)🎖\D+(\d+)\D+(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)⚔(⛔️|✅)\D+(\d+)🍖'
-                     r'(⛔️|✅)(.+Next attack - (\d+) (min|sec)\.)?(.+Next ally attack - (\d+) (min|sec)\.)?(.+No attacks'
-                     r' - (\d+) (min|sec)\.)?(.+Continues the battle with( alliance)? \[?(\W?)]?([\w ]+)(\nAttack: (.+)'
-                     r'Defence: (.+))?)?', re.S)
+    t = re.findall(r'(\d+)', msg)
+
+    for i in range(0, len(numbers) - 1):
+        setattr(self.city, numbers[i], int(t.pop(0)))
+        # self.log(numbers[i] + ": " + t.pop(0))
+
+    reg = re.compile(r'(⛔️|✅).+?(⛔️|✅)(?:.+Next attack - (\d+) (min|sec)\.)?(?:.+Next ally attack - (\d+) (min|sec)\.)?'
+                     #   1         2                        3       4                                 5       6
+                     r'(?:.+No attacks - (\d+) (min|sec)\.)?(.+Continues the battle with( alliance)? \[?(\W?)]?([\w ]'
+                     #                     7       8          9                             10            11     12
+                     #                 13           14
+                     r'+)(?:\nAttack: (.+)Defence: (.+))?)?', re.S)
     m = re.search(reg, msg)
 
-    self.city.wins = int(m.group(1))
-    self.city.karma = int(m.group(2))
-    self.city.territory = int(m.group(3))
-    self.city.wall = int(m.group(4))
-    self.city.maxWall = int(m.group(5))
-    self.city.archers = int(m.group(6))
-    self.city.maxArchers = int(m.group(7))
-    self.city.trebuchetWorkers = int(m.group(8))
-    self.city.maxTrebuchetWorkers = int(m.group(9))
-    self.city.soldiers = int(m.group(10))
-    self.city.maxSoldiers = int(m.group(11))
-    self.city.food = int(m.group(13))
-    self.city.canAttack = False if '⛔' in m.group(12) + m.group(14) else True
-    if m.group(15) is None:
+    self.city.canAttack = False if '⛔' in m.group(1) + m.group(2) else True
+    if m.group(3) is None:
         self.city.cooldownAttack = 0
     else:
-        self.city.cooldownAttack = m.group(16) * (1 if m.group(17) is "sec" else 60)
-    if m.group(18) is None:
+        self.city.cooldownAttack = m.group(3) * (1 if m.group(4) is "sec" else 60)
+    if m.group(5) is None:
         self.city.cooldownAttackClan = 0
     else:
-        self.city.cooldownAttackClan = m.group(19) * (1 if m.group(20) is "sec" else 60)
-    if m.group(21) is None:
+        self.city.cooldownAttackClan = m.group(5) * (1 if m.group(6) is "sec" else 60)
+    if m.group(7) is None:
         self.city.cooldownDefense = 0
     else:
-        self.city.cooldownDefense = m.group(22) * (1 if m.group(23) is "sec" else 60)
+        self.city.cooldownDefense = m.group(7) * (1 if m.group(8) is "sec" else 60)
     self.city.update_times.cooldowns = time.time()
-    if m.group(24) is None:
+    if m.group(9) is None:
         self.city.warStatus = 'peace'
         self.city.currentEnemyClan = ''
         self.city.currentEnemyClanName = ''
         self.city.currentEnemyName = ''
     else:
-        if m.group(25) is None:
-            self.city.currentEnemyClan = m.group(26)
-            self.city.currentEnemyName = m.group(27)
+        if m.group(10) is None:
+            self.city.currentEnemyClan = m.group(11)
+            self.city.currentEnemyName = m.group(12)
         else:
-            self.city.currentEnemyClan = m.group(26)
-            self.city.currentEnemyClanName = m.group(27)
-
-            # TODO -
+            self.city.currentEnemyClan = m.group(11)
+            self.city.currentEnemyClanName = m.group(12)
             if self.city.governor in m.group(
-                    29):  # TODO regardless if i'm attacking or defending, count attackers and defenders. More useful if
-                #  other bot receives such messages and sends them on here, to aid in decision of attacking or not.
+                    13):
                 self.city.warStatus = 'clanAttack'
                 self.city.currentClanWarEnemies = m.group(30)
                 self.city.currentClanWarFriends = m.group(29)
+                self.log("split by commas and count attackers!")
+                self.log("check if first => attacking")
             elif self.city.governor in m.group(
-                    30):  # defending # TODO check if I'm first, which would mean I'm the one defending
+                    14):  # defending
                 self.city.warStatus = 'clanDefence'
                 self.city.currentClanWarEnemies = m.group(29)
                 self.city.currentClanWarFriends = m.group(30)
-
+                self.log("split by commas and count defenders!")
+                self.log("check if first => defending")
+                # TODO More useful if other bot receives such messages and sends them on here, to aid in decision of
+                #  attacking or not.
             else:
                 self.log('Could not find self in current clan battle!')
 
