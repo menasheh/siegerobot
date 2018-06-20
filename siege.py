@@ -13,7 +13,7 @@ from telethon.tl.types import (
     UpdateReadHistoryInbox, UpdateMessageID
 )
 from telethon.utils import get_display_name
-from twilio.rest import Client
+# from twilio.rest import Client
 
 scriptStartTime = datetime.now()
 
@@ -63,7 +63,9 @@ def inplacerestart():
 
     dts = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     os.renames(logfile + logext, logfile + dts + logext)
-    os.execv(sys.executable, [sys.executable] + sys.argv)
+
+    if totalscripttime > 100:
+        os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
 def sprint(string, *args, **kwargs):
