@@ -421,6 +421,8 @@ def parse_message(self, message):
         parse_war_clan_defend(self, message)
     # elif 'The' in message.split()[0]:  # This was probably NOT intended as a catch all...
     #    parse_war_clan_join(self, message)
+    elif 'your alliance lose' in message:
+        parse_war_clan_defeat(self, message)
     else:
         self.log('ERROR: unknown message type!!!')
         print(message)
@@ -911,6 +913,11 @@ def parse_war_defeat(self, msg):
     self.city.soldiersInPreviousBattle = int(m.group(6))
     update_gold(self)
     self.city.gold = self.city.gold - int(m.group(7))
+
+
+def parse_war_clan_defeat(self, msg):
+    self.log(msg)
+    self.log('ERR: not implemented for above message')
 
 
 def parse_war_clan_join(self, msg):
