@@ -428,13 +428,20 @@ def parse_message(self, message):
         print(message)
 
 
-def parse_profile(self, msg):
-    match = re.match(r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓People(['
-                     r'0-9]+)👥Army([0-9]+)⚔Gems([0-9]+)💎Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food([0-9]+)🍖',
-                     clean_trim(msg))
+def try_regex(self, regex, msg, method): # todo get method from call stack
+    match = re.match(regex, msg)
     if match is None:
-        self.log("Regex Error - Profile could not parse:\n" + msg + "\n===END=MSG===\n")
+        self.log("REGEX ERROR:")
+        self.log("\t" + method + " could not parse:\n" + msg + "\n</msg>\n")
         exit(1)
+    return match
+
+
+def parse_profile(self, msg):
+    match = try_regex(self, r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓'
+                            r'People([0-9]+)👥Army([0-9]+)⚔Gems([0-9]+)💎Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food(['
+                            r'0-9]+)🍖', clean_trim(msg), "parse_profile")
+
     msg = msg.split()
     self.city.alliance = match.group(1) if len(match.group(1)) > 0 else "none"
     self.city.governor = msg[0] if self.city.alliance is "none" else msg[0][3:]
@@ -463,14 +470,11 @@ def parse_profile(self, msg):
 
 def parse_buildings_profile(self, msg):
     msg = clean_trim(msg)
-    match = re.match(
-        r'.+🏤([0-9]+)([⛔,✅]).?(?:🏚([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?🏘([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+'
-        r')👥(?:🌻([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:⛏([0-9]+)([⛔,✅])'
-        r'\D?([0-9]+)/([0-9]+)👥)?(?:🛡([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)⚔)?(?:🏰([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+))'
-        r'?(?:🏹)?.+', msg)
-    if match is None:
-        self.log("Regex Error - Buildings Profile could not parse:\n" + msg + "\n===END=MSG===\n")
-        exit(1)
+    match = try_regex(self,
+                      r'.+🏤([0-9]+)([⛔,✅]).?(?:🏚([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?🏘([0-9]+)([⛔,✅])\D?([0-9]+)/'
+                      r'([0-9]+)👥(?:🌻([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)'
+                      r'?(?:⛏([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🛡([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)⚔)?(?:🏰(['
+                      r'0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+))?(?:🏹)?.+', msg, "parse_buildings_profile")
 
     self.city.townhall = int(match.group(1))
     self.city.townhallCanUpgrade = False if '⛔' in match.group(2) else True
@@ -867,7 +871,7 @@ def parse_trebuchet(self, msg):
 
 
 def parse_war_attacked(self, msg):
-    match = re.match(r'.+! \[?(\W?)]?(.+) approaches t.+', msg)
+    match = try_regex(self, r'.+! \[?(\W?)]?(.+) approaches t.+', msg, 'parse_war_attacked')
     self.city.attackingClan = match.group(1)
     self.city.attackingPlayer = match.group(2)
     self.city.warStatus = "defend"
@@ -929,10 +933,8 @@ def parse_war_clan_defend(self, msg):
     self.log('parsing clan defend - needs inline')
     self.log(msg)
 
-    match = re.match(r'Your ally (?:{(.+)})? (\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg)
-    if match is None:
-        self.log("Regex Error - Clan Defense could not parse:\n" + msg + "\n")
-        return
+    match = try_regex(self, r'Your ally (?:{(.+)})? (\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg,
+                      'parse_war_clan_defend')
 
     self.city.alliance = match.group(2)
     self.city.clanAllyUnderAttack = match.group(3)
