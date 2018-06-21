@@ -428,6 +428,22 @@ def parse_message(self, message):
         print(message)
 
 
+def parse_numbers_from_message(self, msg, numbers):
+    t = re.findall(r'(\d+)', msg)
+
+    for i in range(0, len(numbers) - 1):
+        setattr(self.city, numbers[i], int(t.pop(0)))
+
+
+def debug_numbers_from_message(self, msg):
+    self.log('DEBUG_MSG:')
+    t = re.findall(r'(\d+)', msg)
+    i = 0
+    for j in t:
+        self.log(str(i) + ": " + j)
+        i += 1
+
+
 def try_regex(self, regex, msg, method): # todo get method from call stack
     match = re.match(regex, msg)
     if match is None:
@@ -441,6 +457,8 @@ def parse_profile(self, msg):
     match = try_regex(self, r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓'
                             r'People([0-9]+)👥Army([0-9]+)⚔Gems([0-9]+)💎Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food(['
                             r'0-9]+)🍖', clean_trim(msg), "parse_profile")
+
+    debug_numbers_from_message(self, msg)
 
     msg = msg.split()
     self.city.alliance = match.group(1) if len(match.group(1)) > 0 else "none"
@@ -475,6 +493,8 @@ def parse_buildings_profile(self, msg):
                       r'([0-9]+)👥(?:🌻([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)'
                       r'?(?:⛏([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🛡([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)⚔)?(?:🏰(['
                       r'0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+))?(?:🏹)?.+', msg, "parse_buildings_profile")
+
+    debug_numbers_from_message(self, msg)
 
     self.city.townhall = int(match.group(1))
     self.city.townhallCanUpgrade = False if '⛔' in match.group(2) else True
@@ -514,13 +534,6 @@ def parse_buildings_profile(self, msg):
         self.city.maxArchers = int(match.group(30))
 
     self.status.menuDepth = 1  # keeps track of back - up might be different
-
-
-def parse_numbers_from_message(self, msg, numbers):
-    t = re.findall(r'(\d+)', msg)
-
-    for i in range(0, len(numbers) - 1):
-        setattr(self.city, numbers[i], int(t.pop(0)))
 
 
 def parse_war_profile(self, msg):
@@ -591,6 +604,8 @@ def parse_war_recruitment_info(self, msg):
     reg = re.compile(r'(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+', re.S)
     m = re.search(reg, msg)
 
+    debug_numbers_from_message(self, msg)
+
     self.city.soldiers = int(m.group(1))
     self.city.maxSoldiers = int(m.group(2))
     self.city.archers = int(m.group(3))
@@ -610,6 +625,7 @@ def parse_resource_message(self, msg):
     if 'no place' in msg:
         self.log('no room for resources we attempted to purchase')  # TODO do something about this to ruin trade loop
     else:
+        debug_numbers_from_message(self, msg)
         regex = re.compile(r'(\d+).$', re.M)
         regex2 = re.compile(r'(\d+)./')
 
@@ -638,6 +654,7 @@ def parse_scout_message(self, msg):
     self.log('Parsing scout - needs inline chap')
     msg = msg.split()
 
+    debug_numbers_from_message(self, msg)
     #  m = re.search(r'^Our scouts found (\w+) in his domain (\w+) with')
 
     tmp = msg.index('domain') + 1
@@ -654,6 +671,9 @@ def parse_scout_message(self, msg):
 
 def parse_building_barracks(self, msg):
     reg = re.compile(r'(\d+)')
+
+    debug_numbers_from_message(self, msg)
+
     m = re.findall(reg, msg)
 
     self.city.barracks = int(m[0])
@@ -674,6 +694,9 @@ def parse_building_barracks(self, msg):
 
 def parse_building_farm(self, msg):
     reg = re.compile(r'-?(\d+)')
+
+    debug_numbers_from_message(self, msg)
+
     m = re.findall(reg, msg)
 
     self.city.farm = int(m[0])
@@ -698,6 +721,8 @@ def parse_building_houses(self, msg):
     reg = re.compile(r'(\d+)')
     m = re.findall(reg, msg)
 
+    debug_numbers_from_message(self, msg)
+
     self.city.houses = int(m[0])
     self.city.people = int(m[1])
     self.city.update_times.people = time.time()
@@ -716,6 +741,8 @@ def parse_building_houses(self, msg):
 def parse_building_mine(self, msg):
     reg = re.compile(r'(\d+)')
     m = re.findall(reg, msg)
+
+    debug_numbers_from_message(self, msg)
 
     self.city.mine = int(m[0])
     self.city.mineWorkers = int(m[1])
@@ -741,6 +768,8 @@ def parse_building_sawmill(self, msg):
     reg = re.compile(r'(\d+)')
     m = re.findall(reg, msg)
 
+    debug_numbers_from_message(self, msg)
+
     self.city.sawmill = int(m[0])
     self.city.sawmillWorkers = int(m[1])
     self.city.sawmillMaxWorkers = int(m[2])
@@ -765,6 +794,9 @@ def parse_building_storage(self, msg):
     storage_is_full = 1
 
     reg = re.compile(r'(\d+)')
+
+    debug_numbers_from_message(self, msg)
+
     m = re.findall(reg, msg)
 
     self.city.storage = int(m[0])
@@ -800,6 +832,8 @@ def parse_building_storage(self, msg):
 def parse_building_town_hall(self, msg):
     reg = re.compile(r'(\d+)')
     m = re.findall(reg, msg)
+
+    debug_numbers_from_message(self, msg)
 
     self.city.townhall = int(m[0])
     self.city.gold = int(m[1])
@@ -923,10 +957,14 @@ def parse_war_clan_defeat(self, msg):
     self.log(msg)
     self.log('ERR: not implemented for above message')
 
+    debug_numbers_from_message(self, msg)
+
 
 def parse_war_clan_join(self, msg):
     self.log('parsing join - needs reg and inline')
     human_readable_indexes(msg)
+    
+    debug_numbers_from_message(self, msg)
 
 
 def parse_war_clan_defend(self, msg):
