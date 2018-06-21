@@ -506,17 +506,20 @@ def parse_buildings_profile(self, msg):
     self.status.menuDepth = 1  # keeps track of back - up might be different
 
 
+def parse_numbers_from_message(self, msg, numbers):
+    t = re.findall(r'(\d+)', msg)
+
+    for i in range(0, len(numbers) - 1):
+        setattr(self.city, numbers[i], int(t.pop(0)))
+
+
 def parse_war_profile(self, msg):
     numbers = [
         'wins', 'karma', 'territory', 'time.hour', 'time.minute', 'time.second', 'wall', 'maxWall', 'archers',
         'maxArchers', 'food',
     ]
 
-    t = re.findall(r'(\d+)', msg)
-
-    for i in range(0, len(numbers) - 1):
-        setattr(self.city, numbers[i], int(t.pop(0)))
-        # self.log(numbers[i] + ": " + t.pop(0))
+    parse_numbers_from_message(self, msg, numbers)
 
     reg = re.compile(r'(⛔️|✅).+?(⛔️|✅)(?:.+Next attack - (\d+) (min|sec)\.)?(?:.+Next ally attack - (\d+) (min|sec)\.)?'
                      #   1         2                        3       4                                 5       6
