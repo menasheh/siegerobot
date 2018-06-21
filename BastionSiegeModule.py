@@ -444,7 +444,7 @@ def debug_numbers_from_message(self, msg):
         i += 1
 
 
-def try_regex(self, regex, msg, method): # todo get method from call stack
+def try_regex(self, regex, msg, method):  # todo get method from call stack
     match = re.match(regex, msg)
     if match is None:
         self.log("REGEX ERROR:")
@@ -670,24 +670,13 @@ def parse_scout_message(self, msg):
 
 
 def parse_building_barracks(self, msg):
-    reg = re.compile(r'(\d+)')
+    parse_numbers_from_message(self, msg, [
+        'barracks', 'soldiers', 'maxSoldiers', 'barracksRecruitCostGold', 'barracksRecruitCostFood',
+        'barracksRecruitCostPeople', 'gold', 'people', 'barracksUpgradeCost', 'barracksUpgradeWood',
+        'barracksUpgradeStone'
+    ])
 
-    debug_numbers_from_message(self, msg)
-
-    m = re.findall(reg, msg)
-
-    self.city.barracks = int(m[0])
-    self.city.soldiers = int(m[1])
-    self.city.maxSoldiers = int(m[2])
-    self.city.barracksRecruitCostGold = int(m[3])
-    self.city.barracksRecruitCostFood = int(m[4])
-    self.city.barracksRecruitCostPeople = int(m[5])
-    self.city.gold = int(m[6])
-    self.city.people = int(m[7])
-    self.city.barracksUpgradeCost = int(m[8])
-    self.city.barracksUpgradeWood = int(m[9])
-    self.city.barracksUpgradeStone = int(m[10])
-    self.log("Possibly deal with reading upgradability")
+    self.log("dbg-need to parse barracks upgradability")
 
     self.status.menuDepth = 2
 
@@ -963,7 +952,7 @@ def parse_war_clan_defeat(self, msg):
 def parse_war_clan_join(self, msg):
     self.log('parsing join - needs reg and inline')
     human_readable_indexes(msg)
-    
+
     debug_numbers_from_message(self, msg)
 
 
