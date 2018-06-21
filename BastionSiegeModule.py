@@ -911,9 +911,11 @@ def parse_war_clan_join(self, msg):
 def parse_war_clan_defend(self, msg):
     self.log('parsing clan defend - needs inline')
 
-    match = re.match(r'Your ally (\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg)
+    self.log(msg)
+
+    match = re.match(r'Your ally (?:{(.+)})? (\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg)
     if match is None:
-        self.log("Regex Error - Clan Defense could not parse:\n" + clean_trim(msg) + "\n===END=MSG===\n")
+        self.log("Regex Error - Clan Defense could not parse:\n" + clean_trim(msg) + "\n")
         return
 
     self.city.alliance = match.group(2)
