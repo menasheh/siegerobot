@@ -412,6 +412,10 @@ def parse_message(self, message):
         parse_war_victory(self, message)
         # elif 'alliance' in message:
         #   parse_war_clan_victory(self, message)
+    elif 'Your domain attacked!' in message:
+        parse_war_attacked(self, message)
+    elif 'your army lose' in message:
+        parse_war_defeat(self, message)
     # Clan War
     elif 'help defend' in message:
         parse_war_clan_defend(self, message)
@@ -865,6 +869,8 @@ def parse_war_attacked(self, msg):
     self.city.attackingClan = match.group(1)
     self.city.attackingPlayer = match.group(2)
     self.city.warStatus = "defend"
+    self.log(msg)
+    self.log('is clan attack different?')
 
 
 def parse_war_victory(self, msg):
@@ -903,6 +909,7 @@ def parse_war_defeat(self, msg):
     if m.group(5) is not None:
         self.city.soldiers = self.city.soldiers + int(m.group(5))
     self.city.soldiersInPreviousBattle = int(m.group(6))
+    update_gold(self)
     self.city.gold = self.city.gold - int(m.group(7))
 
 
@@ -913,12 +920,11 @@ def parse_war_clan_join(self, msg):
 
 def parse_war_clan_defend(self, msg):
     self.log('parsing clan defend - needs inline')
-
     self.log(msg)
 
     match = re.match(r'Your ally (?:{(.+)})? (\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg)
     if match is None:
-        self.log("Regex Error - Clan Defense could not parse:\n" + clean_trim(msg) + "\n")
+        self.log("Regex Error - Clan Defense could not parse:\n" + msg + "\n")
         return
 
     self.city.alliance = match.group(2)
