@@ -20,7 +20,7 @@ scriptStartTime = datetime.now()
 # File-based logging
 logfile = expanduser("~") + '/.hidden/siege'
 logext = '.log'
-sys.stdout = open(logfile + logext, 'w+', 1)
+sys.stdout = open(logfile + logext, 'a+', 1)
 
 
 def load_config(path='settings'):
@@ -62,7 +62,7 @@ def inplacerestart():
          + " seconds of siege.")
 
     dts = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-    os.renames(logfile + logext, logfile + dts + logext)
+    # os.renames(logfile + logext, logfile + dts + logext)
 
     if totalscripttime > 100:
         os.execv(sys.executable, [sys.executable] + sys.argv)
