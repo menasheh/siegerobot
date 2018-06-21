@@ -626,28 +626,19 @@ def parse_resource_message(self, msg):
     if 'no place' in msg:
         self.log('no room for resources we attempted to purchase')  # TODO do something about this to ruin trade loop
     else:
-        debug_numbers_from_message(self, msg)
-        regex = re.compile(r'(\d+).$', re.M)
-        regex2 = re.compile(r'(\d+)./')
+        parse_numbers_from_message(self, msg, ['gems', 'gold', 'wood', 'stone', 'food'])
 
-        m = re.findall(regex, msg)
-        m2 = re.findall(regex2, msg)
-
-        self.city.gems = int(m[0])
         self.city.update_times.gems = time.time()
-        self.city.gold = int(m[1])
         self.city.update_times.gold = time.time()
-        self.city.wood = int(m[2])
         self.city.update_times.wood = time.time()
-        self.city.stone = int(m[3])
         self.city.update_times.stone = time.time()
-        self.city.food = int(m[4])
         self.city.update_times.food = time.time()
-        if len(m) > 4:
-            #  Technically speaking I could just hardcode 2 or use a resourcePrice variable...
-            self.city.woodPrice = 2
-            self.city.stonePrice = 2
-            self.city.foodPrice = 2
+
+        #  Technically speaking I could just hardcode 2 or use a resourcePrice variable...
+        self.city.woodPrice = 2
+        self.city.stonePrice = 2
+        self.city.foodPrice = 2
+
     self.status.menuDepth = 1
 
 
