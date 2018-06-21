@@ -437,6 +437,7 @@ def parse_numbers_from_message(self, msg, numbers):
 
 def debug_numbers_from_message(self, msg):
     self.log('DEBUG_MSG:')
+    self.log(msg)
     t = re.findall(r'(\d+)', msg)
     i = 0
     for j in t:
