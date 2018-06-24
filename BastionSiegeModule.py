@@ -669,22 +669,10 @@ def parse_building_farm(self, msg):
 
 
 def parse_building_houses(self, msg):
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
-
-    debug_numbers_from_message(self, msg)
-
-    self.city.houses = int(m[0])
-    self.city.people = int(m[1])
+    parse_numbers_from_message(self, msg, ['houses', 'people', 'maxPeople', 'dailyPeopleIncrease',
+                                           'dailyFoodConsumption', 'dailyFoodProduction', 'storageWorkers',
+                                           'housesUpgradeCost', 'housesUpgradeWood', 'housesUpgradeStone'])
     self.city.update_times.people = time.time()
-    self.city.maxPeople = int(m[2])
-    self.city.dailyPeopleIncrease = int(m[3])
-    self.city.dailyFoodConsumption = int(m[4])
-    self.city.dailyFoodProduction = int(m[5])
-    self.city.storageWorkers = int(m[6])
-    self.city.housesUpgradeCost = int(m[7])
-    self.city.housesUpgradeWood = int(m[8])
-    self.city.housesUpgradeStone = int(m[9])
 
     self.status.menuDepth = 2
 
