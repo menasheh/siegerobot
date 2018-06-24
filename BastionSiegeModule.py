@@ -429,7 +429,7 @@ def parse_message(self, message):
 
 
 def parse_numbers_from_message(self, msg, numbers):
-    t = re.findall(r'(\d+)', msg)
+    t = re.findall(r'(-?\d+)', msg)
 
     for i in range(0, len(numbers) - 1):
         setattr(self.city, numbers[i], int(t.pop(0)))
@@ -660,26 +660,10 @@ def parse_building_barracks(self, msg):
 
 
 def parse_building_farm(self, msg):
-    reg = re.compile(r'-?(\d+)')
-
-    debug_numbers_from_message(self, msg)
-
-    m = re.findall(reg, msg)
-
-    self.city.farm = int(m[0])
-    self.city.farmWorkers = int(m[1])
-    self.city.farmMaxWorkers = int(m[2])
-    self.city.farmLocalStorage = int(m[3])
-    #  farmMaxLocalStorage
-    self.city.dailyFoodProduction = int(m[5])
-    self.city.dailyFoodConsumption = int(m[6])
-    self.city.storageWorkers = int(m[7])
-    #  Hire cost and costPeople
-    self.city.gold = int(m[10])
-    self.city.people = int(m[11])
-    self.city.farmUpgradeCost = int(m[12])
-    self.city.farmUpgradeWood = int(m[13])
-    self.city.farmUpgradeStone = int(m[14])
+    parse_numbers_from_message(self, msg, ['farm', 'farmWorkers', 'farmMaxWorkers', 'farmLocalStorage',
+                                           'farmMaxLocalStorage', 'dailyFoodProduction', 'dailyFoodConsumption',
+                                           'storageWorkers', 'farmUpgradeGold', 'farmUpgradePeople', 'gold', 'people',
+                                           'farmUpgradeCost', 'farmUpgradeWood', 'farmUpgradeStone'])
 
     self.status.menuDepth = 2
 
