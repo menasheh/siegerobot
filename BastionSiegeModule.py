@@ -598,18 +598,8 @@ def parse_war_profile(self, msg):
 
 
 def parse_war_recruitment_info(self, msg):
-    reg = re.compile(r'(\d+)/(\d+)\D+(\d+)/(\d+)\D+(\d+)/(\d+)\D+', re.S)
-    m = re.search(reg, msg)
-
-    debug_numbers_from_message(self, msg)
-
-    self.city.soldiers = int(m.group(1))
-    self.city.maxSoldiers = int(m.group(2))
-    self.city.archers = int(m.group(3))
-    self.city.maxArchers = int(m.group(4))
-    self.city.trebuchetWorkers = int(m.group(5))
-    self.city.maxTrebuchetWorkers = int(m.group(6))
-
+    parse_numbers_from_message(self, msg, ['soliders', 'maxSoldiers', 'archers', 'maxArchers', 'trebuchetWorkers',
+                                           'maxTrebuchetWorkers'])
     self.status.menuDepth = 2
 
 
