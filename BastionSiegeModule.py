@@ -914,11 +914,11 @@ def parse_war_clan_defend(self, msg):
     match = try_regex(self, r'Your ally (?:{(.+)} )?(\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg,
                       'parse_war_clan_defend')
 
-    self.city.alliance = match.group(2)
-    self.city.clanAllyUnderAttack = match.group(3)
-    self.city.clanAttackingAllianceSymbol = match.group(4)
-    self.city.clanAttackingPlayer = match.group(5)
-    self.city.clanAttackingAllianceName = match.group(6)
+    self.city.alliance = match.group(3)
+    self.city.clanAllyUnderAttack = match.group(4)
+    self.city.clanAttackingAllianceSymbol = match.group(5)
+    self.city.clanAttackingPlayer = match.group(6)
+    self.city.clanAttackingAllianceName = match.group(7)
 
     # todo get way to attack (inline keyboard)
 
