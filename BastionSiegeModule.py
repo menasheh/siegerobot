@@ -438,7 +438,7 @@ def parse_numbers_from_message(self, msg, numbers):
 def debug_numbers_from_message(self, msg):
     self.log('DEBUG_MSG:')
     self.log(msg)
-    t = re.findall(r'(\d+)', msg)
+    t = re.findall(r'(-?\d+)', msg)
     i = 0
     for j in t:
         self.log(str(i) + ": " + j)
@@ -598,6 +598,7 @@ def parse_war_profile(self, msg):
 
 
 def parse_war_recruitment_info(self, msg):
+    debug_numbers_from_message(self, msg)
     parse_numbers_from_message(self, msg, ['soliders', 'maxSoldiers', 'archers', 'maxArchers', 'trebuchetWorkers',
                                            'maxTrebuchetWorkers'])
     self.status.menuDepth = 2
@@ -744,7 +745,7 @@ def parse_building_storage(self, msg):
     self.city.update_times.food = time.time()
     self.city.update_times.gold = time.time()
     self.city.update_times.people = time.time()
-    
+
     self.status.menuDepth = 2
 
 
