@@ -730,41 +730,21 @@ def parse_building_sawmill(self, msg):
 
 
 def parse_building_storage(self, msg):
-    storage_is_full = 1
+    numbers = ['storage', 'storageWorkers', 'maxStorageWorkers', 'wood', 'maxWood', 'stone', 'maxStone', 'food',
+               'maxFood', 'storageHireCost', 'storageHirePeople', 'gold', 'people']
+    if "Fill" in msg:
+        numbers.append('storageFillCost')
+    for each in ['storageUpgradeCost', 'storageUpgradeWood', 'storageUpgradeStone']:
+        numbers.append(each)
 
-    reg = re.compile(r'(\d+)')
+    parse_numbers_from_message(self, msg, numbers)
 
-    debug_numbers_from_message(self, msg)
-
-    m = re.findall(reg, msg)
-
-    self.city.storage = int(m[0])
-    self.city.storageWorkers = int(m[1])
-    self.city.storageMaxWorkers = int(m[2])
-    self.city.wood = int(m[3])
     self.city.update_times.wood = time.time()
-    self.city.maxWood = int(m[4])
-    self.city.stone = int(m[5])
     self.city.update_times.stone = time.time()
-    self.city.maxStone = int(m[6])
-    self.city.food = int(m[7])
     self.city.update_times.food = time.time()
-    self.city.maxFood = int(m[8])
-    # Individual cost variable(s) for hiring?
-    #
-    self.city.gold = int(m[11])
     self.city.update_times.gold = time.time()
-    self.city.people = int(m[12])
     self.city.update_times.people = time.time()
-    if re.search(re.compile("Fill", re.M), msg):
-        self.city.storageFillCost = int(m[13])
-        storage_is_full = 0
-    else:
-        self.city.storageFillCost = 0
-    self.city.storageUpgradeCost = int(m[14 - storage_is_full])
-    self.city.storageUpgradeWood = int(m[15 - storage_is_full])
-    self.city.storageUpgradeStone = int(m[16 - storage_is_full])
-
+    
     self.status.menuDepth = 2
 
 
