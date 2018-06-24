@@ -455,33 +455,23 @@ def try_regex(self, regex, msg, method):  # todo get method from call stack
 
 
 def parse_profile(self, msg):
-    match = try_regex(self, r'\[?(\W?)]?.+y([0-9]+)🗺Season(\w+.+)Weather(\w+.+)Time([0-9]{2}):([0-9]{2}):([0-9]{2})🕓'
-                            r'People([0-9]+)👥Army([0-9]+)⚔Gems([0-9]+)💎Gold([0-9]+)💰Wood([0-9]+)🌲Stone([0-9]+)⛏Food(['
-                            r'0-9]+)🍖', clean_trim(msg), "parse_profile")
+    match = try_regex(self, r'\[?(\W?)]?.+y[0-9]+🗺Season(\w+.+)Weather(\w+.+)', clean_trim(msg), "parse_profile")
 
-    debug_numbers_from_message(self, msg)
+    parse_numbers_from_message(self, msg, ['territory', 'time.hour', 'time.minute', 'time.second', 'people', 'soldiers',
+                                           'gems', 'gold', 'wood', 'stone', 'food'])
 
     msg = msg.split()
     self.city.alliance = match.group(1) if len(match.group(1)) > 0 else "none"
     self.city.governor = msg[0] if self.city.alliance is "none" else msg[0][3:]
     self.city.name = msg[1]
     self.city.status = msg[3]
-    self.city.territory = int(match.group(2))
-    self.city.season = match.group(3)
-    self.city.weather = match.group(4)
-    self.city.timeHour = match.group(5)
-    self.city.timeMinute = match.group(6)
-    self.city.timeSecond = match.group(7)
-    self.city.people = int(match.group(8))
+    self.city.season = match.group(2)
+    self.city.weather = match.group(3)
+
     self.city.update_times.people = time.time()
-    self.city.soldiers = int(match.group(9))
-    self.city.gold = int(match.group(10))
     self.city.update_times.gold = time.time()
-    self.city.wood = int(match.group(11))
     self.city.update_times.wood = time.time()
-    self.city.stone = int(match.group(12))
     self.city.update_times.stone = time.time()
-    self.city.food = int(match.group(13))
     self.city.update_times.food = time.time()
 
     self.status.menuDepth = 0
