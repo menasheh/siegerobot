@@ -431,7 +431,7 @@ def parse_message(self, message):
 def parse_numbers_from_message(self, msg, numbers):
     t = re.findall(r'(-?\d+)', msg)
 
-    for i in range(0, len(numbers) - 1):
+    for i in range(0, len(numbers)):
         setattr(self.city, numbers[i], int(t.pop(0)))
 
 
@@ -598,7 +598,6 @@ def parse_war_profile(self, msg):
 
 
 def parse_war_recruitment_info(self, msg):
-    debug_numbers_from_message(self, msg)
     parse_numbers_from_message(self, msg, ['soliders', 'maxSoldiers', 'archers', 'maxArchers', 'trebuchetWorkers',
                                            'maxTrebuchetWorkers'])
     self.status.menuDepth = 2
