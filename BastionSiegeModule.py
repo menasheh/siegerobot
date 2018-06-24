@@ -877,19 +877,20 @@ def parse_war_victory(self, msg):
 
 
 def parse_war_defeat(self, msg):
-    reg = re.compile(
-        r'with \[?(\W)?]?([\w, ]+) complete. Unfortunately, (.+),.+ lose\. (None|Only (\d+)⚔) of the (\d+)⚔\D+(\d+)💰'
-        r'\D+(\d+)🗺')
+    self.log(msg)
+    reg = re.compile(r'with (?:{(.+)} )?\[?(\W)?]?([\w, ]+) complete. Unfortunately, (.+),.+ lose\. (None|Only (\d+)⚔) '
+                     r'of the (\d+)⚔\D+(\d+)💰\D+(\d+)🗺')
     m = re.search(reg, msg)
 
-    self.city.lastEnemyClan = m.group(1)
-    self.city.lastEnemyName = m.group(2)
-    self.city.governor = m.group(3)
-    if m.group(5) is not None:
-        self.city.soldiers = self.city.soldiers + int(m.group(5))
-    self.city.soldiersInPreviousBattle = int(m.group(6))
+    self.city.lastEnemyStatuses = m.group(1)
+    self.city.lastEnemyClan = m.group(2)
+    self.city.lastEnemyName = m.group(3)
+    self.city.governor = m.group(4)
+    if m.group(6) is not None:
+        self.city.soldiers = self.city.soldiers + int(m.group(6))
+    self.city.soldiersInPreviousBattle = int(m.group(7))
     update_gold(self)
-    self.city.gold = self.city.gold - int(m.group(7))
+    self.city.gold = self.city.gold - int(m.group(8))
 
 
 def parse_war_clan_defeat(self, msg):
@@ -901,7 +902,7 @@ def parse_war_clan_defeat(self, msg):
 
 def parse_war_clan_join(self, msg):
     self.log('parsing join - needs reg and inline')
-    human_readable_indexes(msg)
+    human_readable_indexes(self, msg)
 
     debug_numbers_from_message(self, msg)
 
@@ -910,7 +911,7 @@ def parse_war_clan_defend(self, msg):
     self.log('parsing clan defend - needs inline')
     self.log(msg)
 
-    match = try_regex(self, r'Your ally (?:{(.+)})? (\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg,
+    match = try_regex(self, r'Your ally (?:{(.+)} )?(\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg,
                       'parse_war_clan_defend')
 
     self.city.alliance = match.group(2)
