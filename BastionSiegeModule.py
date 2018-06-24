@@ -478,14 +478,20 @@ def parse_profile(self, msg):
 
 
 def parse_buildings_profile(self, msg):
-    msg = clean_trim(msg)
+
     match = try_regex(self,
                       r'.+🏤([0-9]+)([⛔,✅]).?(?:🏚([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?🏘([0-9]+)([⛔,✅])\D?([0-9]+)/'
                       r'([0-9]+)👥(?:🌻([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)'
                       r'?(?:⛏([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🛡([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)⚔)?(?:🏰(['
-                      r'0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+))?(?:🏹)?.+', msg, "parse_buildings_profile")
+                      r'0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+))?(?:🏹)?.+', clean_trim(msg), "parse_buildings_profile")
 
-    debug_numbers_from_message(self, msg)
+    # debug_numbers_from_message(self, msg)
+    # TODO - make a method for upgradability, then use numbers too. But for now, it works anyway this way.
+
+    upgrades = ['townhall', 'storage', 'houses', 'farm', 'sawmill', 'mine', 'barracks', 'walls']
+    numbers = ['townhall', 'storage', 'storageWorkers', 'storageMaxWorkers', 'houses', 'people', 'maxPeople', 'farm',
+               'farmWorkers', 'farmMaxWorkers', 'sawmill', 'sawmillWorkers', 'sawmillMaxWorkers', 'mine', 'mineWorkers',
+               'mineMaxWorkers', 'barracks', 'soldiers', 'maxSoldiers', 'walls', 'archers', 'maxArchers']
 
     self.city.townhall = int(match.group(1))
     self.city.townhallCanUpgrade = False if '⛔' in match.group(2) else True
