@@ -878,7 +878,7 @@ def parse_war_victory(self, msg):
 
 def parse_war_defeat(self, msg):
     self.log(msg)
-    reg = re.compile(r'with (?:{(.+)} )?\[?(\W)?]?([\w, ]+) complete. Unfortunately, (.+),.+ lose\. (None|Only (\d+)⚔) '
+    reg = re.compile(r'with (?:{(.+)})?\[?(\W)?]?([\w, ]+) complete. Unfortunately, (.+),.+ lose\. (None|Only (\d+)⚔) '
                      r'of the (\d+)⚔\D+(\d+)💰\D+(\d+)🗺')
     m = re.search(reg, msg)
 
@@ -911,7 +911,7 @@ def parse_war_clan_defend(self, msg):
     self.log('parsing clan defend - needs inline')
     self.log(msg)
 
-    match = try_regex(self, r'Your ally (?:{(.+)} )?(\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg,
+    match = try_regex(self, r'Your ally (?:{(.+)})?(\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg,
                       'parse_war_clan_defend')
 
     self.city.alliance = match.group(3)
