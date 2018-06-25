@@ -16,9 +16,9 @@ def send_message_and_wait(self, message):
     while lastid == self.status.lastMsgID:
         time.sleep(random.randint(1000, 4000) / 1000)
         sleeptime = int(time.time() - start_time)
-        if sleeptime > 18:
+        if sleeptime > 1800:
             self.log("WARN - sleeping " + str(int(sleeptime / 60)) + str(sleeptime % 60) + " minutes.  Relaunching...")
-            self.restart()
+            self.restart(self)
         pass
 
 
