@@ -50,8 +50,7 @@ def text(message):
     pass
 
 
-def inplacerestart(self):
-    Siege.pretty_print(self.city)
+def inplacerestart():
     totalscripttime = (datetime.now() - scriptStartTime).total_seconds()
     mins, secs = divmod(totalscripttime, 60)
     hours, mins = divmod(mins, 60)
@@ -232,7 +231,8 @@ class SiegeClient(TelegramClient):
 
     @staticmethod
     def restart(self):
-        inplacerestart(self)
+        Siege.pretty_print(self.city)
+        inplacerestart()
 
 
 # TODO - foreach .cfg file in config folder (?)
