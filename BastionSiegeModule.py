@@ -630,10 +630,11 @@ def parse_resource_message(self, msg):
 
 def parse_scout_message(self, msg):
     self.log('Parsing scout - needs inline chap')
-    msg = msg.split()
 
     debug_numbers_from_message(self, msg)
     #  m = re.search(r'^Our scouts found (\w+) in his domain (\w+) with')
+
+    msg = msg.split()
 
     tmp = msg.index('domain') + 1
     tmp2 = msg.index('with') - 1
