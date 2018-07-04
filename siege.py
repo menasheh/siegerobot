@@ -20,8 +20,9 @@ scriptStartTime = datetime.now()
 # File-based logging
 logfile = expanduser("~") + '/.hidden/siege'
 logext = '.log'
-sys.stdout = open(logfile + logext, 'a+', 1)
-
+output = open(logfile + logext, 'a+', 1)
+sys.stdout = output
+sys.stderr = output
 
 def load_config(path='settings'):
     path = 'config/' + path + '.cfg'
