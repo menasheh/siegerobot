@@ -230,8 +230,9 @@ class SiegeClient(TelegramClient):
         print(dts, msg)
 
     @staticmethod
-    def restart(self):
-        Siege.pretty_print(self.city)
+    def restart(city):
+        for attr, value in city.__dict__.iteritems():
+            print(attr, value)
         inplacerestart()
 
 
