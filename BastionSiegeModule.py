@@ -804,9 +804,9 @@ def build(self):
         i += 1
 
     requiredfood = purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
-    requiredwood = purchase_resource(self, "wood", get_required_resource_quantity_for_upgrade(self, buildings[i], "wood"))
+    requiredwood = purchase_resource(self, "wood", get_upgrade_required_resource_quantity(self, buildings[i], "wood"))
     requiredstone = purchase_resource(self, "stone",
-                                      get_required_resource_quantity_for_upgrade(self, buildings[i], "stone"))
+                                      get_upgrade_required_resource_quantity(self, buildings[i], "stone"))
     requiredgold = getattr(self.city, buildings[i] + 'UpgradeCost') - self.city.gold
 
     estimatedtime = max(0, int(math.ceil((requiredgold + 2 * (requiredfood + requiredwood + requiredstone))
@@ -831,11 +831,12 @@ def build(self):
 
 
 def get_purchasable_resource_quantity(self, quantity):
-    return min(max(quantity, 0), int(math.floor(self.city.gold / 2)))
+    return min(quantity, int(math.floor(self.city.gold / 2)))
 
 
-def get_required_resource_quantity_for_upgrade(self, building, resource):
-    return math.ceil(getattr(self.city, building + 'Upgrade' + resource.capitalize()) - getattr(self.city, resource))
+def get_upgrade_required_resource_quantity(self, building, resource):
+    return min(math.ceil(getattr(self.city, building + 'Upgrade' + resource.capitalize()) - getattr(self.city, resource)
+                         ), 0)
 
 
 def get_food_purchase_quantity_for_reserve(self):
