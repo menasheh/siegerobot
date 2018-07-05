@@ -417,7 +417,6 @@ def parse_buildings_profile(self, msg):
 
 
 def parse_war_profile(self, msg):
-    self.log(msg)
     numbers = [
         'wins', 'karma', 'territory', 'time.hour', 'time.minute', 'time.second', 'wall', 'maxWall', 'archers',
         'maxArchers', 'food',
@@ -813,10 +812,10 @@ def build(self):
     estimatedtime = max(0, int(math.ceil((requiredgold + 2 * (requiredfood + requiredwood + requiredstone))
                                          / self.city.dailyGoldProduction)))
 
-    self.log("required food " + requiredfood)
-    self.log("required wood " + requiredwood)
-    self.log("required stone " + requiredstone)
-    self.log("required gold " + requiredgold)
+    self.log("required food " + str(requiredfood))
+    self.log("required wood " + str(requiredwood))
+    self.log("required stone " + str(requiredstone))
+    self.log("required gold " + str(requiredgold))
 
     if estimatedtime > 0:
         self.log("Upgrade of " + buildings[i] + " possible in approximately " + str(estimatedtime) + " minutes.")
