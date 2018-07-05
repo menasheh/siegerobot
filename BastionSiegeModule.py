@@ -534,6 +534,7 @@ def parse_buildings_profile(self, msg):
 
 
 def parse_war_profile(self, msg):
+    self.log(msg)
     numbers = [
         'wins', 'karma', 'territory', 'time.hour', 'time.minute', 'time.second', 'wall', 'maxWall', 'archers',
         'maxArchers', 'food',
@@ -838,18 +839,19 @@ def parse_war_victory(self, msg):
     print(msg)
 
     reg = re.compile(
-        r'with (?:\[(\W)])?([\w ]+) complete.+winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
+        r'with (?:{(.+)})(?:\[(\W)])?([\w ]+) complete.+winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
         r' (\d+)🗺 joined)')
     m = re.search(reg, msg)
 
     self.city.warStatus = 'peace'
 
-    self.city.lastEnemyClan = m.group(1) or ''
-    self.city.lastEnemyName = m.group(2)
-    self.city.lastBattleReturnedSoldiers = int(m.group(3))
-    self.city.lastBattleSentSoldiers = int(m.group(4) or m.group(3))
-    self.city.lastBattleGold = int(m.group(5) or 0)
-    self.city.lastBattleTerritory = int(m.group(6) or 0)
+    self.city.lastEnemyStatuses = m.group(1) or ''
+    self.city.lastEnemyClan = m.group(2) or ''
+    self.city.lastEnemyName = m.group(3)
+    self.city.lastBattleReturnedSoldiers = int(m.group(4))
+    self.city.lastBattleSentSoldiers = int(m.group(4) or m.group(5))
+    self.city.lastBattleGold = int(m.group(6) or 0)
+    self.city.lastBattleTerritory = int(m.group(7) or 0)
 
     update_gold(self)
     if not hasattr(self.city, "soldiers"):
