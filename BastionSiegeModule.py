@@ -882,10 +882,10 @@ def upgrade_building(self, building):
 
 def purchase_resource(self, resource, desired_quantity):
     if desired_quantity < 1:
-        return
+        return desired_quantity
     quantity = get_purchasable_resource_quantity(self, desired_quantity)
     if quantity < 1:
-        return
+        return desired_quantity
     send_message_and_wait(self, "Trade")
     send_message_and_wait(self, "💰 Buy")
     send_message_and_wait(self, resource.capitalize())
