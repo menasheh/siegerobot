@@ -806,12 +806,18 @@ def build(self):
 
     requiredfood = purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
     requiredwood = purchase_resource(self, "wood", get_required_resource_quantity_for_upgrade(self, buildings[i], "wood"))
-    requiredstone = purchase_resource(self, "stone", get_required_resource_quantity_for_upgrade(self, buildings[i], "stone"))
+    requiredstone = purchase_resource(self, "stone",
+                                      get_required_resource_quantity_for_upgrade(self, buildings[i], "stone"))
+    requiredgold = getattr(self.city, buildings[i] + 'UpgradeCost') - self.city.gold
 
-    estimatedtime = max(0, int(
-        math.ceil((getattr(self.city, buildings[i] + 'UpgradeCost')
-                   - self.city.gold + 2 * (requiredfood + requiredwood
-                                           + requiredstone)) / self.city.dailyGoldProduction)))
+    estimatedtime = max(0, int(math.ceil((requiredgold + 2 * (requiredfood + requiredwood + requiredstone))
+                                         / self.city.dailyGoldProduction)))
+
+    self.log("required food " + requiredfood)
+    self.log("required wood " + requiredwood)
+    self.log("required stone " + requiredstone)
+    self.log("required gold " + requiredgold)
+
     if estimatedtime > 0:
         self.log("Upgrade of " + buildings[i] + " possible in approximately " + str(estimatedtime) + " minutes.")
     else:
