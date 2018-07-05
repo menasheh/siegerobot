@@ -729,7 +729,7 @@ def parse_war_victory(self, msg):
     self.city.lastEnemyClan = m.group(2) or ''
     self.city.lastEnemyName = m.group(3)
 
-    m2 = re.search(r'winners (\d+)⚔ (?:of (\d+)⚔)', msg)
+    m2 = re.search(r'winners (\d+)⚔ (?:of (\d+)⚔)?', msg)
     self.city.lastBattleReturnedSoldiers = int(m2.group(1))
     self.city.lastBattleSentSoldiers = int(m2.group(2) or m.group(1))
 
