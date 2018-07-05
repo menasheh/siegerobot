@@ -717,12 +717,10 @@ def parse_war_attacked(self, msg):
 
 
 def parse_war_victory(self, msg):
-    self.log('parsing victory, but need better regex (if no terr or coins gained, works?')
+    self.log('parsing victory, likely fails')
     print(msg)
 
-    reg = re.compile(
-        r'with (?:{(.+)})(?:\[(\W)])?([\w ]+) complete.+?winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
-        r' (\d+)🗺 joined)')
+    reg = re.compile(r'with (?:{(.+)})(?:\[(\W)])?([\w ]+) complete')
     m = re.search(reg, msg)
 
     self.city.warStatus = 'peace'
@@ -730,10 +728,16 @@ def parse_war_victory(self, msg):
     self.city.lastEnemyStatuses = m.group(1) or ''
     self.city.lastEnemyClan = m.group(2) or ''
     self.city.lastEnemyName = m.group(3)
-    self.city.lastBattleReturnedSoldiers = int(m.group(4))
-    self.city.lastBattleSentSoldiers = int(m.group(4) or m.group(5))
-    self.city.lastBattleGold = int(m.group(6) or 0)
-    self.city.lastBattleTerritory = int(m.group(7) or 0)
+
+    m2 = re.search(r'winners (\d+)⚔ (?:of (\d+)⚔)', msg)
+    self.city.lastBattleReturnedSoldiers = int(m2.group(1))
+    self.city.lastBattleSentSoldiers = int(m2.group(2) or m.group(1))
+
+    m3 = re.search(r'(\d+)💰', msg)
+    self.city.lastBattleGold = int(m3.group(1) or 0)
+
+    m4 = re.search('(\d+)🗺', msg)
+    self.city.lastBattleTerritory = int(m4.group(1) or 0)
 
     update_gold(self)
     if not hasattr(self.city, "soldiers"):
