@@ -231,9 +231,10 @@ def develop(self):
     send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
 
     while True:
+        upgrade_while_possible(self, 'walls')
+        upgrade_while_possible(self, 'trebuchet')
         upgrade_while_possible(self, 'houses')
         upgrade_while_possible(self, 'townhall')
-        # upgrade_while_possible(self, 'walls')
         upgrade_while_possible(self, 'storage')
 
 
