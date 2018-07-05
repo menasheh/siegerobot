@@ -887,6 +887,7 @@ def purchase_resource(self, resource, desired_quantity):
     if quantity < 1:
         return
     send_message_and_wait(self, "Trade")
+    send_message_and_wait(self, "💰 Buy")
     send_message_and_wait(self, resource.capitalize())
     send_message_and_wait(self, str(quantity))
     send_message_and_wait(self, "Up menu")
