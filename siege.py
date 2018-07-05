@@ -24,6 +24,7 @@ output = open(logfile + logext, 'a+', 1)
 sys.stdout = output
 sys.stderr = output
 
+
 def load_config(path='settings'):
     path = 'config/' + path + '.cfg'
     # Loads the user settings.cfg located under `config/` TODO multiple phone numbers
@@ -171,9 +172,10 @@ class SiegeClient(TelegramClient):
         
         """
 
-        # upgradePriorities = {0, 1, 3, 4, 2}
+        self.city.upgradePriorities = ['walls', 'trebuchet', 'barracks', 'houses', 'townhall', 'storage']
 
-        Siege.develop(self)
+        Siege.environment(self)
+        Siege.build(self)
 
     def update_handler(self, update_object):
         if type(update_object) is UpdatesTg:

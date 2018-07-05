@@ -23,7 +23,7 @@ def send_message_and_wait(self, message):
 
 
 def update_gold(self):
-    # todo - if population wasn't maximum when gold last updated, need to use some sort of summation...
+    # todo - if population wasn't maximum when gold last updated, need to either wait for it or use rate & summation...
     timediff = math.floor((time.time() - getattr(self.city.update_times, 'gold', time.time())) / 60)
     self.city.gold += timediff * getattr(self.city, 'dailyGoldProduction', 0)
     self.city.update_times.gold = time.time()
@@ -224,60 +224,6 @@ def upgrade_costs(building, level_desired):
     return result
 
 
-def develop(self):
-    environment(self)
-
-    send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
-    send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
-
-    while True:
-        upgrade_while_possible(self, 'walls')
-        upgrade_while_possible(self, 'trebuchet')
-        upgrade_while_possible(self, 'houses')
-        upgrade_while_possible(self, 'townhall')
-        upgrade_while_possible(self, 'storage')
-
-
-def purchase_resources_toward_upgrade(self, resource, building):
-    check_food_reserve(self)
-    # Assumes in the trade menu. Bad assumption TODO fix
-    send_message_and_wait(self, resource.capitalize())
-    goal_quantity_attribute_name = building + 'Upgrade' + resource.capitalize()
-    if getattr(self.city, goal_quantity_attribute_name) > getattr(self.city, 'max' + resource.capitalize()):
-        self.log("Will attempt to purchase " + str(getattr(self.city, goal_quantity_attribute_name)) + " " + resource +
-                 " to upgrade " + building + " but max" + resource.capitalize() + " is " + str(
-            getattr(self.city, 'max' +
-                    resource.capitalize())))
-    while getattr(self.city, resource) < getattr(self.city, goal_quantity_attribute_name):
-        purchase_quantity = min(getattr(self.city, goal_quantity_attribute_name) - getattr(self.city, resource),
-                                math.floor(self.city.gold / 2))
-        send_message_and_wait(self, str(purchase_quantity))  # Not future-proof if price changes
-        # TODO forecast finish time
-        if self.city.gold < 2:
-            procrastinate()
-            update_gold(self)  # update gold
-            update_resources(self)
-
-    # send_message_and_wait(self, self.status.replyMarkup[9])  # Back # Markup wasn't working b/c clan attacks perhaps
-    send_message_and_wait(self, "⬅️ Back")  # Back
-
-
-def check_food_reserve(self):
-    if self.city.food < self.city.foodReserveMin:
-        self.log("Daily Food Consumption: " + str(self.city.dailyFoodConsumption))
-        self.log("Buying food reserve up to " + str(self.city.foodReserve))
-        send_message_and_wait(self, "Food")
-        while self.city.food < self.city.foodReserve:
-            purchase_quantity = min(self.city.foodReserve - self.city.food,
-                                    math.floor(self.city.gold / 2))
-            send_message_and_wait(self, str(purchase_quantity))  # Not future-proof if price changes
-            if self.city.gold < 2:
-                procrastinate()
-                update_gold(self)  # update gold
-                update_resources(self)
-        send_message_and_wait(self, "⬅️ Back")  # Back
-
-
 def farm(self):
     return_to_main(self)
     send_message_and_wait(self, "Buildings")  # Buildings
@@ -290,69 +236,6 @@ def farm(self):
     # Find someone to kill
     # Kill them
     # Wait until army returns - then buy resources toward upgrade
-
-
-def gold_time_to_upgrade(self, building):
-    return max(0, int(
-        math.ceil((getattr(self.city, building + 'UpgradeCost') - self.city.gold) / self.city.dailyGoldProduction)))
-
-
-def upgrade_while_possible(self, building):
-    while self.city.maxWood > getattr(self.city, building + 'UpgradeWood') and \
-            self.city.maxStone > getattr(self.city, building + 'UpgradeStone'):
-
-        purchase_resources_toward_upgrade(self, 'wood', building)
-        purchase_resources_toward_upgrade(self, 'stone', building)
-        send_message_and_wait(self, self.status.replyMarkup[4])  # Up Menu
-
-        waittime = gold_time_to_upgrade(self, building)
-
-        if waittime > 0:
-            self.log("Upgrade of " + building + " will require gold income from " + str(waittime) + " minutes.")
-            time.sleep(60 * (waittime + 1))
-
-        if building == "trebuchet":
-            send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
-        else:
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
-
-        building_index = -1
-        for x in range(0, len(self.status.replyMarkup)):
-            if building.replace("townhall", "town hall").capitalize() in self.status.replyMarkup[x]:
-                building_index = x
-                break
-        if building_index == -1:
-            sys.exit("Building " + building + " seems not to exist.")
-
-        send_message_and_wait(self, self.status.replyMarkup[building_index])
-
-        oldlevel = getattr(self.city, building)
-        send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-        while getattr(self.city, building) == oldlevel:
-            self.log("Something went wrong with " + building + " upgrade, please investigate.")
-            procrastinate()  # TODO - use waittime method, again (in case lost money to war, for example)
-            send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-
-        self.log(building + " upgraded to level " + str(oldlevel + 1))
-        index = -1
-        for x in range(0, len(self.status.replyMarkup)):
-            if "menu" in self.status.replyMarkup[x]:
-                index = x
-                break
-        if index == -1:
-            sys.exit("ReplyMarkup appears to miss a menu button.")
-        for x in range(0, len(self.status.replyMarkup)):
-            if "Hire" in self.status.replyMarkup[x]:
-                send_message_and_wait(self, "Hire")
-                employ_at_capacity(self, building)
-                send_message_and_wait(self, "Back")
-                break
-
-        send_message_and_wait(self, self.status.replyMarkup[index])  # Up Menu
-        send_message_and_wait(self, self.status.replyMarkup[5])  # Trade
-        send_message_and_wait(self, self.status.replyMarkup[1])  # Buy
-        if building == "storage":
-            break
 
 
 def return_to_main(self):
@@ -479,7 +362,6 @@ def parse_profile(self, msg):
 
 
 def parse_buildings_profile(self, msg):
-
     match = try_regex(self,
                       r'.+🏤([0-9]+)([⛔,✅]).?(?:🏚([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?🏘([0-9]+)([⛔,✅])\D?([0-9]+)/'
                       r'([0-9]+)👥(?:🌻([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)?(?:🌲([0-9]+)([⛔,✅])\D?([0-9]+)/([0-9]+)👥)'
@@ -912,3 +794,100 @@ def parse_war_clan_defend(self, msg):
 def pretty_print(objecty):
     for i in range(0, len(objecty)):
         print(i, objecty[i])
+
+
+def build(self):
+    buildings = self.city.upgradePriorities
+    i = 0
+    while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
+            self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or \
+            self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
+        i += 1
+
+    requiredfood = purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
+    requiredwood = purchase_resource(self, "wood", get_required_resource_quantity_for_upgrade(self, buildings[i], "wood"))
+    requiredstone = purchase_resource(self, "stone", get_required_resource_quantity_for_upgrade(self, buildings[i], "stone"))
+
+    estimatedtime = max(0, int(
+        math.ceil((getattr(self.city, buildings[i] + 'UpgradeCost')
+                   - self.city.gold + 2 * (requiredfood + requiredwood
+                                           + requiredstone)) / self.city.dailyGoldProduction)))
+    if estimatedtime > 0:
+        self.log("Upgrade of " + buildings[i] + " possible in approximately " + str(estimatedtime) + " minutes.")
+    else:
+        upgrade_building(self, buildings[i])
+
+    procrastinate()
+    update_gold(self)
+    update_resources(self)
+    build(self)  # todo pause for attacks
+
+    # todo manage state better. Keep track of what room we're in and best path between rooms through the menus
+
+
+def get_purchasable_resource_quantity(self, quantity):
+    return min(max(quantity, 0), int(math.floor(self.city.gold / 2)))
+
+
+def get_required_resource_quantity_for_upgrade(self, building, resource):
+    return math.ceil(getattr(self.city, building + 'Upgrade' + resource.capitalize()) - getattr(self.city, resource))
+
+
+def get_food_purchase_quantity_for_reserve(self):
+    if self.city.food < self.city.foodReserveMin:
+        return min(self.city.foodReserve - self.city.food, math.floor(self.city.gold / 2))
+    return 0
+
+
+def upgrade_building(self, building):
+    if building == "trebuchet":
+        send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
+    else:
+        send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
+
+    building_index = -1
+    for x in range(0, len(self.status.replyMarkup)):
+        if building.replace("townhall", "town hall").capitalize() in self.status.replyMarkup[x]:
+            building_index = x
+            break
+    if building_index == -1:
+        sys.exit("Building " + building + " seems not to exist.")
+
+    send_message_and_wait(self, self.status.replyMarkup[building_index])
+
+    oldlevel = getattr(self.city, building)
+    send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
+    while getattr(self.city, building) == oldlevel:
+        self.log("Something went wrong with " + building + " upgrade, please investigate.")
+        procrastinate()  # TODO - use waittime method, again (in case lost money to war, for example)
+        send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
+
+    self.log(building + " upgraded to level " + str(oldlevel + 1))
+    index = -1
+    for x in range(0, len(self.status.replyMarkup)):
+        if "menu" in self.status.replyMarkup[x]:
+            index = x
+            break
+    if index == -1:
+        sys.exit("ReplyMarkup appears to miss a menu button.")
+    for x in range(0, len(self.status.replyMarkup)):
+        if "Hire" in self.status.replyMarkup[x]:
+            send_message_and_wait(self, "Hire")
+            employ_at_capacity(self, building)
+            send_message_and_wait(self, "Back")
+            break
+
+    send_message_and_wait(self, self.status.replyMarkup[index])  # Up Menu
+
+
+def purchase_resource(self, resource, desired_quantity):
+    if desired_quantity < 1:
+        return
+    quantity = get_purchasable_resource_quantity(self, desired_quantity)
+    if quantity < 1:
+        return
+    send_message_and_wait(self, "Trade")
+    send_message_and_wait(self, resource.capitalize())
+    send_message_and_wait(self, str(quantity))
+    send_message_and_wait(self, "Up menu")
+    return desired_quantity - quantity
