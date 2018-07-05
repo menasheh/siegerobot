@@ -720,7 +720,7 @@ def parse_war_victory(self, msg):
     self.log('parsing victory, likely fails')
     print(msg)
 
-    reg = re.compile(r'with (?:{(.+)})(?:\[(\W)])?([\w ]+) complete')
+    reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w ]+) complete')
     m = re.search(reg, msg)
 
     self.city.warStatus = 'peace'
