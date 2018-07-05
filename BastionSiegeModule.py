@@ -835,8 +835,7 @@ def get_purchasable_resource_quantity(self, quantity):
 
 
 def get_upgrade_required_resource_quantity(self, building, resource):
-    return min(math.ceil(getattr(self.city, building + 'Upgrade' + resource.capitalize()) - getattr(self.city, resource)
-                         ), 0)
+    return math.ceil(getattr(self.city, building + 'Upgrade' + resource.capitalize()) - getattr(self.city, resource))
 
 
 def get_food_purchase_quantity_for_reserve(self):
@@ -888,10 +887,10 @@ def upgrade_building(self, building):
 
 def purchase_resource(self, resource, desired_quantity):
     if desired_quantity < 1:
-        return desired_quantity
+        return 0
     quantity = get_purchasable_resource_quantity(self, desired_quantity)
     if quantity < 1:
-        return desired_quantity
+        return 0
     send_message_and_wait(self, "Trade")
     send_message_and_wait(self, "💰 Buy")
     send_message_and_wait(self, resource.capitalize())
