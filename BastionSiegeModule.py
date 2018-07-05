@@ -814,12 +814,12 @@ def build(self):
 
     if estimatedtime > 0:
         self.log("Upgrade of " + buildings[i] + " possible in approximately " + str(estimatedtime) + " minutes.")
+        procrastinate()
+        update_gold(self)
+        update_resources(self)
     else:
         upgrade_building(self, buildings[i])
 
-    procrastinate()
-    update_gold(self)
-    update_resources(self)
     build(self)  # todo pause for attacks
 
     # todo manage state better. Keep track of what room we're in and best path between rooms through the menus
