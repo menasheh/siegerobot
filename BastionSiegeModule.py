@@ -812,11 +812,6 @@ def build(self):
     estimatedtime = max(0, int(math.ceil((requiredgold + 2 * (requiredfood + requiredwood + requiredstone))
                                          / self.city.dailyGoldProduction)))
 
-    self.log("required food " + str(requiredfood))
-    self.log("required wood " + str(requiredwood))
-    self.log("required stone " + str(requiredstone))
-    self.log("required gold " + str(requiredgold))
-
     if estimatedtime > 0:
         self.log("Upgrade of " + buildings[i] + " possible in approximately " + str(estimatedtime) + " minutes.")
     else:
