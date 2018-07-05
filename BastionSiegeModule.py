@@ -256,7 +256,7 @@ def parse_message(self, message):
         parse_profile(self, message)
     elif 'Buildings' in message:
         parse_buildings_profile(self, message)
-    elif 'Wins' in message:
+    elif 'Wins' in message and 'rating' not in message:
         parse_war_profile(self, message)
     elif 'Town hall' in message:
         parse_building_town_hall(self, message)
