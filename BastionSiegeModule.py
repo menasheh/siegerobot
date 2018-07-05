@@ -723,8 +723,6 @@ def parse_war_victory(self, msg):
     reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w ]+) complete')
     m = re.search(reg, msg)
 
-    self.city.warStatus = 'peace'
-
     self.city.lastEnemyStatuses = m.group(1) or ''
     self.city.lastEnemyClan = m.group(2) or ''
     self.city.lastEnemyName = m.group(3)
@@ -746,6 +744,8 @@ def parse_war_victory(self, msg):
     self.city.gold += self.city.lastBattleGold
     self.city.territory += self.city.lastBattleTerritory
 
+    self.city.warStatus = 'peace'
+
 
 def parse_war_defeat(self, msg):
     self.log(msg)
@@ -762,6 +762,11 @@ def parse_war_defeat(self, msg):
     self.city.soldiersInPreviousBattle = int(m.group(7))
     update_gold(self)
     self.city.gold = self.city.gold - int(m.group(8))
+
+    return_to_main(self)
+    send_message_and_wait(self, "Buildings")
+    war_prepare(self)
+    self.city.warStatus = "peace"
 
 
 def parse_war_clan_defeat(self, msg):
@@ -807,6 +812,7 @@ def build(self):
             self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
         i += 1
 
+    return_to_main(self)
     requiredfood = purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
     requiredwood = purchase_resource(self, "wood", get_upgrade_required_resource_quantity(self, buildings[i], "wood"))
     requiredstone = purchase_resource(self, "stone",
@@ -824,6 +830,8 @@ def build(self):
     else:
         upgrade_building(self, buildings[i])
 
+    while self.city.warStatus != "peace":
+        pass
     build(self)  # todo pause for attacks
 
     # todo manage state better. Keep track of what room we're in and best path between rooms through the menus
