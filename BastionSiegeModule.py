@@ -722,7 +722,7 @@ def parse_war_victory(self, msg):
     print(msg)
 
     reg = re.compile(
-        r'with (?:{(.+)})(?:\[(\W)])?([\w ]+) complete.+winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
+        r'with (?:{(.+)})(?:\[(\W)])?([\w ]+) complete.+?winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and'
         r' (\d+)🗺 joined)')
     m = re.search(reg, msg)
 
