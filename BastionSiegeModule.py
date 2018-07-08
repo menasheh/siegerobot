@@ -732,10 +732,16 @@ def parse_war_victory(self, msg):
     self.city.lastBattleSentSoldiers = int(m2.group(2) or m.group(1))
 
     m3 = re.search(r'(\d+)💰', msg)
-    self.city.lastBattleGold = int(m3.group(1) or 0)
+    if m3 is None:
+        self.city.lastBattleGold = 0
+    else:
+        self.city.lastBattleGold = int(m3.group(1))
 
     m4 = re.search('(\d+)🗺', msg)
-    self.city.lastBattleTerritory = int(m4.group(1) or 0)
+    if m4 is None:
+        self.city.lastBattleTerritory = 0
+    else:
+        self.city.lastBattleTerritory = int(m4.group(1))
 
     update_gold(self)
     if not hasattr(self.city, "soldiers"):
