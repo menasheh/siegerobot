@@ -183,7 +183,11 @@ class SiegeClient(TelegramClient):
                 if type(update) is UpdateNewMessage:
                     if update.message.from_id == self.BOT_ID:
                         message = update.message.message
-                        Siege.parse_message(self, message)
+                        try:
+                            Siege.parse_message(self, message)
+                        except Exception as err:
+                            print('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
+
                         markup = []
 
                         class Object:
@@ -252,8 +256,7 @@ try:
     client.run()
 
 except Exception as e:
-    print('Unexpected error ({}): {} at\n{}'.format(
-        type(e), e, traceback.format_exc()))
+    print('Unexpected error ({}): {} at\n{}'.format(type(e), e, traceback.format_exc()))
 
 finally:
     client.disconnect()
