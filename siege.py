@@ -237,7 +237,7 @@ class SiegeClient(TelegramClient):
 
     @staticmethod
     def restart(city):
-        for attr, value in city.__dict__.iteritems():
+        for attr, value in city:
             print(attr, value)
         inplacerestart()
 
