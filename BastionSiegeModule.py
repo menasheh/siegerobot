@@ -729,7 +729,7 @@ def parse_war_victory(self, msg):
 
     m2 = re.search(r'winners (\d+)⚔ (?:of (\d+)⚔)?', msg)
     self.city.lastBattleReturnedSoldiers = int(m2.group(1))
-    self.city.lastBattleSentSoldiers = int(m2.group(2) or m.group(1))
+    self.city.lastBattleSentSoldiers = int(m2.group(2) or m2.group(1))
 
     m3 = re.search(r'(\d+)💰', msg)
     if m3 is None:
