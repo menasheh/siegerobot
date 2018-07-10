@@ -150,24 +150,9 @@ class SiegeClient(TelegramClient):
         if get_display_name(self.entity) != "Bastion Siege":
             exit("Wrong Entity!")
 
-        """
-        # total_count, messages, senders = self.get_message_history(self.entity, limit=2)
-
-        for msg in messages:
-            if msg.from_id == self.BOT_ID:
-                self.status.lastMsgID = msg.id
-                if hasattr(self.status, 'menuDepth'):
-                    continue
-        """
+        self.status.lastMsgID = 0
 
         Siege.return_to_main(self)
-
-        """
-        From Start to finish Bastion Siege logic...
-        
-        Or is there a way to put it somewhere else, outside the Client?
-        
-        """
 
         self.city.upgradePriorities = ['walls', 'trebuchet', 'barracks', 'houses', 'townhall', 'storage']
 
