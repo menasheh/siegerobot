@@ -631,21 +631,9 @@ def parse_building_storage(self, msg):
 
 
 def parse_building_town_hall(self, msg):
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
-
-    debug_numbers_from_message(self, msg)
-
-    self.city.townhall = int(m[0])
-    self.city.gold = int(m[1])
+    parse_numbers_from_message(self, msg, ['townhall', 'gold', 'maxGold', 'dailyGoldProduction', 'townhallUpgradeCost',
+                                           'townhallUpgradeWood', 'townhallUpgradeStone'])
     self.city.update_times.gold = time.time()
-    self.city.maxGold = int(m[2])
-    self.city.dailyGoldProduction = int(m[3])
-    self.city.townhallUpgradeCost = int(m[4])
-    self.city.townhallUpgradeWood = int(m[5])
-    self.city.townhallUpgradeStone = int(m[6])
-    # Should deal with upgradeability...
-
     self.status.menuDepth = 2
 
 
