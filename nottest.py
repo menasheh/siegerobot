@@ -11,16 +11,11 @@ def print_matches(m):
         print("No Match!")
 
 
-reg = re.compile(r'with (?:\[(\W)])?([\w ]+) complete.+winners (\d+)⚔ (?:of (\d+)⚔)?.+(?:reward is (\d+)💰)(?:\.|, and (\d+)🗺 joined)')
+reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w, ]+) complete. Unfortunately, ([\w ]+),.+ lose\. (?:None|Only (\d+)⚔) of (\d+)⚔\D+(\d+)💰\D+(\d+)🗺')
 # [⛏,🌲]
 
-str1 = """️Your domain attacked! []Darksoul approaches the border! Your whole Army will be sent to the defense!
-ERROR: unknown message type!!!
-The battle with []Darksoul complete. Unfortunately, Liquid, your army lose. Only 3 of 9392 returned from the battlefield... You lose 4181089, and 713 joined to []Darksoul."""
+str1 = """️‼️The battle with [🌲]Serst complete. Unfortunately, Liquid, your army lose. Only 4⚔ of 17400⚔ returned from the battlefield... You lose 2327814💰, and 3962🗺 joined to [🌲]Serst."""
 
-m = re.findall(reg, str1)
-
-print(m)
 print_matches(re.search(reg, str1))
 
 
