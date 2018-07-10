@@ -514,8 +514,7 @@ def parse_resource_message(self, msg):
 def parse_scout_message(self, msg):
     self.log('Parsing scout - needs inline chap')
 
-    debug_numbers_from_message(self, msg)
-    #  m = re.search(r'^Our scouts found (\w+) in his domain (\w+) with')
+    parse_numbers_from_message(self, msg, ['enemyTerritory', 'enemyKarma'])
 
     msg = msg.split()
 
@@ -525,8 +524,6 @@ def parse_scout_message(self, msg):
     if tmp2 != tmp:
         for i in range(1, tmp2 - tmp):
             self.city.enemyDomain += " " + msg[tmp + i]
-    self.city.enemyTerritory = msg[tmp2 + 2][:-1]
-    self.city.enemyKarma = msg[tmp2 + 9][:-1]
 
     self.status.menuDepth = 1
 
