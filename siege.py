@@ -137,7 +137,8 @@ class SiegeClient(TelegramClient):
         self.city.food = 0
 
         self.status = Object()
-        self.status.menuDepth = 3
+        self.status.lastMsgID = 0
+        self.status.menudepth = 0
 
         self.city.update_times = Object()
 
@@ -149,8 +150,6 @@ class SiegeClient(TelegramClient):
 
         if get_display_name(self.entity) != "Bastion Siege":
             exit("Wrong Entity!")
-
-        self.status.lastMsgID = 0
 
         Siege.return_to_main(self)
 
