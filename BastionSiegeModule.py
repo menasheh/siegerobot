@@ -538,8 +538,6 @@ def parse_building_barracks(self, msg):
         'barracksUpgradeStone'
     ])
 
-    self.log("dbg-need to parse barracks upgradability")
-
     self.status.menuDepth = 2
 
 
