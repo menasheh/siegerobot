@@ -736,7 +736,7 @@ def parse_war_victory(self, msg):
     self.city.gold += self.city.lastBattleGold
     self.city.territory += self.city.lastBattleTerritory
 
-    self.city.warStatus = 'peace'
+    self.city.warStatus = 'check'
 
 
 def parse_war_defeat(self, msg):
@@ -758,7 +758,7 @@ def parse_war_defeat(self, msg):
     return_to_main(self)
     send_message_and_wait(self, "Buildings")
     war_prepare(self)
-    self.city.warStatus = "peace"
+    self.city.warStatus = 'check'
 
 
 def parse_war_clan_defeat(self, msg):
@@ -797,6 +797,34 @@ def pretty_print(objecty):
 
 
 def build(self):
+    if self.city.warStatus == "check":
+        check_again = False
+        send_message_and_wait(self, "Buildings")
+        send_message_and_wait(self, "Walls")
+        if self.city.wallDurability < self.city.wallMaxDurability:
+            if self.city.wallsCanUpgrade:
+                send_message_and_wait(self, "Repair")
+            else:
+                self.log("Can't repair walls.")
+                check_again = True
+        send_message_and_wait(self, "War")
+        send_message_and_wait(self, "Recruit")
+        if self.city.trebuchetWorkers < self.city.maxTrebuchetWorkers:
+            send_message_and_wait(self, 'Trebuchet')
+            employ_at_capacity(self, 'trebuchet')
+            send_message_and_wait(self, 'Back')
+        if self.city.archers < self.city.maxArchers:
+            send_message_and_wait(self, 'Walls')
+            employ_at_capacity(self, 'walls')
+            send_message_and_wait(self, 'Back')
+        if self.city.soldiers < self.city.maxSoldiers:
+            send_message_and_wait(self, 'Barracks')
+            employ_at_capacity(self, 'barracks')
+            send_message_and_wait(self, 'Back')
+        send_message_and_wait(self, "Up menu")
+        if not check_again:
+            self.city.warStatus = 'peace'
+
     buildings = self.city.upgradePriorities
     i = 0
     while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
@@ -822,7 +850,7 @@ def build(self):
     else:
         upgrade_building(self, buildings[i])
 
-    while self.city.warStatus != "peace":
+    while self.city.warStatus != "peace" and self.city.warStatus != "check":
         pass
     build(self)  # todo pause for attacks
 

@@ -138,7 +138,7 @@ class SiegeClient(TelegramClient):
 
         self.status = Object()
         self.status.lastMsgID = 0
-        self.status.menudepth = 0
+        self.status.menudepth = 1
 
         self.city.update_times = Object()
 
