@@ -150,18 +150,15 @@ class SiegeClient(TelegramClient):
         if get_display_name(self.entity) != "Bastion Siege":
             exit("Wrong Entity!")
 
-        self.log("Loading messages...")
-        # TODO 10 in production
-        total_count, messages, senders = self.get_message_history(self.entity, limit=2)
+        """
+        # total_count, messages, senders = self.get_message_history(self.entity, limit=2)
 
         for msg in messages:
             if msg.from_id == self.BOT_ID:
-                Siege.parse_message(self, msg.message)
                 self.status.lastMsgID = msg.id
                 if hasattr(self.status, 'menuDepth'):
                     continue
-
-        self.log("Done.")
+        """
 
         Siege.return_to_main(self)
 
