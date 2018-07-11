@@ -795,32 +795,32 @@ def pretty_print(objecty):
 
 def build(self):
     if self.city.warStatus == "check":
-        check_again = False
         send_message_and_wait(self, "Buildings")
         send_message_and_wait(self, "Walls")
         if self.city.wallDurability < self.city.wallMaxDurability:
             if self.city.wallsCanUpgrade:
                 send_message_and_wait(self, "Repair")
+                self.city.warStatus = 'peace'
             else:
-                self.log("Can't repair walls.")
-                check_again = True
-        send_message_and_wait(self, "War")
-        send_message_and_wait(self, "Recruit")
-        if self.city.trebuchetWorkers < self.city.maxTrebuchetWorkers:
-            send_message_and_wait(self, 'Trebuchet')
-            employ_at_capacity(self, 'trebuchet')
-            send_message_and_wait(self, 'Back')
-        if self.city.archers < self.city.maxArchers:
-            send_message_and_wait(self, 'Walls')
-            employ_at_capacity(self, 'walls')
-            send_message_and_wait(self, 'Back')
-        if self.city.soldiers < self.city.maxSoldiers:
-            send_message_and_wait(self, 'Barracks')
-            employ_at_capacity(self, 'barracks')
-            send_message_and_wait(self, 'Back')
+                self.log("Can't repair walls.")  # todo - buy items for it
+    already = False
+    if self.city.trebuchetWorkers < self.city.maxTrebuchetWorkers:
+        already = go_to_recruit(self, already)
+        send_message_and_wait(self, 'Trebuchet')
+        employ_at_capacity(self, 'trebuchet')
+        send_message_and_wait(self, 'Back')
+    if self.city.archers < self.city.maxArchers:
+        already = go_to_recruit(self, already)
+        send_message_and_wait(self, 'Walls')
+        employ_at_capacity(self, 'walls')
+        send_message_and_wait(self, 'Back')
+    if self.city.soldiers < self.city.maxSoldiers:
+        already = go_to_recruit(self, already)
+        send_message_and_wait(self, 'Barracks')
+        employ_at_capacity(self, 'barracks')
+        send_message_and_wait(self, 'Back')
+    if already:
         send_message_and_wait(self, "Up menu")
-        if not check_again:
-            self.city.warStatus = 'peace'
 
     buildings = self.city.upgradePriorities
     i = 0
@@ -921,3 +921,10 @@ def purchase_resource(self, resource, desired_quantity):
     send_message_and_wait(self, str(quantity))
     send_message_and_wait(self, "Up menu")
     return desired_quantity - quantity
+
+
+def go_to_recruit(self, already):
+    if not already:
+        send_message_and_wait(self, "War")
+        send_message_and_wait(self, "Recruit")
+    return True
