@@ -300,6 +300,8 @@ def parse_message(self, message):
     elif 'your army lose' in message:
         parse_war_defeat(self, message)
     # Clan War
+    elif 'help him in the attack' in message:
+        parse_war_clan_attack(self, message)
     elif 'help defend' in message:
         parse_war_clan_defend(self, message)
     # elif 'The' in message.split()[0]:  # This was probably NOT intended as a catch all...
@@ -771,20 +773,32 @@ def parse_war_clan_join(self, msg):
     debug_numbers_from_message(self, msg)
 
 
-def parse_war_clan_defend(self, msg):
-    self.log('parsing clan defend - needs inline')
+def parse_war_clan_attack(self, msg):
     self.log(msg)
 
-    match = try_regex(self, r'Your ally (?:{(.+)})?(\W?)\[(.)](.+) was attacked by \[(.)](.+) from \[.](.+)! Y.+', msg,
-                      'parse_war_clan_defend')
+    match = try_regex(self, r'Your ally \W?(?:{.+})?\[(.)](.+) attacked \W?(?:{.+})?\[(.)](.+) from the alliance '
+                            r'\[.](.+)! Y.+', msg, 'parse_war_clan_attack')
 
-    self.city.alliance = match.group(3)
-    self.city.clanAllyUnderAttack = match.group(4)
-    self.city.clanAttackingAllianceSymbol = match.group(5)
-    self.city.clanAttackingPlayer = match.group(6)
-    self.city.clanAttackingAllianceName = match.group(7)
-
+    self.city.alliance = match.group(1)
+    self.city.clanAllyAttacking = match.group(2)
+    self.city.clanDefendingAllianceSymbol = match.group(3)
+    self.city.clanDefendingPlayer = match.group(4)
+    self.city.clanDefendingAllianceName = match.group(5)
     # todo get way to attack (inline keyboard)
+
+
+def parse_war_clan_defend(self, msg):
+    self.log(msg)
+
+    match = try_regex(self, r'Your ally \W?(?:{.+})?\[(.)](.+) was attacked by \W?(?:{.+})?\[(.)](.+) from \[.](.+)! '
+                            r'Y.+', msg, 'parse_war_clan_defend')
+
+    self.city.alliance = match.group(1)
+    self.city.clanAllyUnderAttack = match.group(2)
+    self.city.clanAttackingAllianceSymbol = match.group(3)
+    self.city.clanAttackingPlayer = match.group(4)
+    self.city.clanAttackingAllianceName = match.group(5)
+    # todo get way to defend (inline keyboard)
 
 
 def pretty_print(objecty):
