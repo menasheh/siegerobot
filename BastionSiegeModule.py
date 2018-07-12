@@ -882,7 +882,7 @@ def build(self):
         requiredstone -= stonereq
 
         estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood, requiredstone)
-        self.log("With %d storage, %s maxes out at %d and will take ~%s" % (self.city.storage, buildings[i],
+        self.log("With %d storage, %s maxes out at %d and will take ~%s to complete." % (self.city.storage, buildings[i],
                                                                             leveldesired,
                                                                             pretty_seconds(60 * estimatedtime)))
         procrastinate()
