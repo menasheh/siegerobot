@@ -342,7 +342,8 @@ def try_regex(self, regex, msg, method):  # todo get method from call stack
 
 
 def parse_profile(self, msg):
-    match = try_regex(self, r'(\W+)?(?:{(.+)})?(?:\[(\W)])?([\w ]+).+ory\d+🗺Season(\w+.+)Weather(\w+.+)', clean_trim(msg), "parse_profile")
+    match = try_regex(self, r'(\W+)?(?:{(.+)})?(?:\[(\W)])?([\w ]+).+ory\d+🗺Season(\w+.+)Weather(\w+.+)',
+                      clean_trim(msg), "parse_profile")
 
     parse_numbers_from_message(self, msg, ['territory', 'time.hour', 'time.minute', 'time.second', 'people', 'soldiers',
                                            'gems', 'gold', 'wood', 'stone', 'food'])
@@ -857,7 +858,8 @@ def build(self):
                                          / self.city.dailyGoldProduction)))
 
     if estimatedtime > 0:
-        self.log("Upgrade of " + buildings[i] + " possible in approximately " + str(estimatedtime) + " minutes.")
+        self.log(
+            "Upgrade of " + buildings[i] + " possible in approximately " + pretty_seconds(60 * estimatedtime) + ".")
         procrastinate()
         update_gold(self)
         update_resources(self)
