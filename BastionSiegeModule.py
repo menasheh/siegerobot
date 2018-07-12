@@ -486,7 +486,7 @@ def parse_war_profile(self, msg):
                 # TODO More useful if other bot receives such messages and sends them on here, to aid in decision of
                 #  attacking or not.
             else:
-                self.log(f'Could not find self {self.city.governor} in current clan battle!')
+                self.log("Could not find self %s in current clan battle!" % self.city.governor)
 
     self.status.menuDepth = 1
 
