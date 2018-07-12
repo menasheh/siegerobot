@@ -304,12 +304,17 @@ def parse_message(self, message):
         parse_war_clan_attack(self, message)
     elif 'help defend' in message:
         parse_war_clan_defend(self, message)
-    elif 'joined the attack' in message:
-        pass
     # elif 'The' in message.split()[0]:  # This was probably NOT intended as a catch all...
     #    parse_war_clan_join(self, message)
     elif 'your alliance lose' in message:
         parse_war_clan_defeat(self, message)
+    # skip some message types
+    elif 'joined the attack' in message:
+        pass
+    elif 'Welcome to the alliance' in message:
+        pass
+    elif 'statistic' in message:
+        pass
     else:
         self.log('ERROR: unknown message type!!!')
         print(message)
@@ -709,7 +714,6 @@ def parse_war_attacked(self, msg):
 
 
 def parse_war_victory(self, msg):
-    self.log('parsing victory, likely fails')
     print(msg)
 
     reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w ]+) complete')
