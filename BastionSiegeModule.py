@@ -861,8 +861,7 @@ def build(self):
                                       get_upgrade_required_resource_quantity(self, buildings[i], "stone"))
     requiredgold = getattr(self.city, buildings[i] + 'UpgradeCost') - self.city.gold
 
-    estimatedtime = max(0, int(math.ceil((requiredgold + 2 * (requiredfood + requiredwood + requiredstone))
-                                         / self.city.dailyGoldProduction)))
+    estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood, requiredstone)
 
     if estimatedtime > 0:
         self.log(
@@ -878,6 +877,10 @@ def build(self):
     build(self)  # todo pause for attacks
 
     # todo manage state better. Keep track of what room we're in and best path between rooms through the menus
+
+
+def get_estimated_time_to_resources(self, gold, food, wood, stone):
+    return max(0, int(math.ceil((gold + 2 * (food + wood + stone)) / self.city.dailyGoldProduction)))
 
 
 def get_purchasable_resource_quantity(self, quantity):
