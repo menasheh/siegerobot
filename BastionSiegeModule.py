@@ -304,6 +304,8 @@ def parse_message(self, message):
         parse_war_clan_attack(self, message)
     elif 'help defend' in message:
         parse_war_clan_defend(self, message)
+    elif 'joined the attack' in message:
+        pass
     # elif 'The' in message.split()[0]:  # This was probably NOT intended as a catch all...
     #    parse_war_clan_join(self, message)
     elif 'your alliance lose' in message:
