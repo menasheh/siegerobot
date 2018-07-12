@@ -1,3 +1,5 @@
+import random
+import time
 import traceback
 import sys
 import BastionSiegeModule as Siege
@@ -53,21 +55,15 @@ def text(message):
 
 def inplacerestart():
     totalscripttime = (datetime.now() - scriptStartTime).total_seconds()
-    mins, secs = divmod(totalscripttime, 60)
-    hours, mins = divmod(mins, 60)
-    hours = int(hours)
-    mins = int(mins)
-    secs = int(secs)
-    print('[Runtime] ' + str(hours) + ":" + str(mins) + ":" + str(secs))
+    inwords = Siege.pretty_seconds(totalscripttime)
+    print('[Runtime] ' + inwords)
+    text("Restarting after " + inwords + "of siege.")
 
-    text("Restarting after " + str(hours) + " hours, " + str(mins) + " minutes and " + str(int(secs))
-         + " seconds of siege.")
-
-    dts = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-    # os.renames(logfile + logext, logfile + dts + logext)
-
-    if totalscripttime > 100:
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+    if totalscripttime < 100:
+        rand = random.randint(1000, 4000)
+        SiegeClient.log("Very short runtime; Hope " + Siege.pretty_seconds(rand) + " of sleep make it go away.")
+        time.sleep(rand)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
 def sprint(string, *args, **kwargs):

@@ -17,7 +17,7 @@ def send_message_and_wait(self, message):
         time.sleep(random.randint(1000, 4000) / 1000)
         sleeptime = int(time.time() - start_time)
         if sleeptime > 1800:
-            self.log("WARN - sleeping " + str(int(sleeptime / 60)) + str(sleeptime % 60) + " minutes.  Relaunching...")
+            self.log("WARN - sleeping " + pretty_seconds(sleeptime) + ".  Relaunching...")
             self.restart(self.city)
         pass
 
@@ -44,8 +44,7 @@ def update_resource(self, resource):
 
 def procrastinate():
     rand_time = random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300))
-    print("snoozing for " + str(rand_time) + " seconds")
-    # TODO URGENT TODO - use /refresh and continue when breaks, but save line for a debug breakpoint too somewhere...
+    print("snoozing for " + pretty_seconds(rand_time) + ".")
     time.sleep(rand_time)
 
 
@@ -128,7 +127,7 @@ def employ_at_capacity(self, building):
         sleeptime = math.ceil(min(getattr(self.city, max) - getattr(self.city, workers),
                                   self.city.maxPeople) / self.city.dailyPeopleIncrease)
         if sleeptime > 0:
-            self.log("Sleeping " + str(sleeptime) + " minutes to get more workers for " + building + ".")
+            self.log("Sleeping " + pretty_seconds(60 * sleeptime) + " to get more workers for " + building + ".")
             time.sleep(60 * sleeptime)
             send_message_and_wait(self, str(sleeptime))
 
@@ -928,3 +927,27 @@ def go_to_recruit(self, already):
         send_message_and_wait(self, "War")
         send_message_and_wait(self, "Recruit")
     return True
+
+
+def pretty_seconds(number):
+    mins, secs = divmod(number, 60)
+    hours, mins = divmod(mins, 60)
+    days, hours = divmod(hours, 24)
+    weeks, days = divmod(days, 7)
+    weeks = int(weeks)
+    days = int(days)
+    hours = int(hours)
+    mins = int(mins)
+    secs = int(secs)
+    result = []
+    if weeks:
+        result.append(f'{weeks:d} weeks')
+    if days:
+        result.append(f'{days:d} days')
+    if hours:
+        result.append(f'{hours:d} hours')
+    if mins:
+        result.append(f'{mins:d} minutes')
+    if secs:
+        result.append(f'{secs:d} seconds')
+    return ", ".join(result)
