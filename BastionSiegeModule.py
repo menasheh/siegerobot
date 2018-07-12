@@ -751,8 +751,8 @@ def parse_war_victory(self, msg):
 
 def parse_war_defeat(self, msg):
     self.log(msg)
-    reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w, ]+) complete. Unfortunately, ([\w ]+),.+ lose\. (None|Only (\d'
-                     r'+)⚔) of (\d+)⚔\D+(\d+)💰\D+(\d+)🗺')
+    reg = re.compile(r'with \W?(?:{(.+)})?(?:\[(\W)])?([\w, ]+) complete. Unfortunately, ([\w ]+),.+ lose\. (None|Only'
+                     r' (\d+)⚔) of (\d+)⚔\D+(\d+)💰\D+(\d+)🗺')
     m = re.search(reg, msg)
 
     self.city.lastEnemyStatuses = m.group(1)
