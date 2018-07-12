@@ -149,7 +149,7 @@ class SiegeClient(TelegramClient):
 
         Siege.return_to_main(self)
 
-        self.city.upgradePriorities = ['trebuchet', 'barracks', 'walls', 'houses', 'townhall', 'storage']
+        self.city.upgradePriorities = ['barracks', 'trebuchet', 'walls', 'houses', 'townhall', 'storage']
 
         Siege.environment(self)
         Siege.build(self)
