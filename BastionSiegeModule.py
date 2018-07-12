@@ -342,18 +342,20 @@ def try_regex(self, regex, msg, method):  # todo get method from call stack
 
 
 def parse_profile(self, msg):
-    match = try_regex(self, r'\[?(\W?)]?.+y[0-9]+🗺Season(\w+.+)Weather(\w+.+)', clean_trim(msg), "parse_profile")
+    match = try_regex(self, r'(\W+)?(?:{(.+)})?(?:\[(\W)])?([\w ]+).+ory\d+🗺Season(\w+.+)Weather(\w+.+)', clean_trim(msg), "parse_profile")
 
     parse_numbers_from_message(self, msg, ['territory', 'time.hour', 'time.minute', 'time.second', 'people', 'soldiers',
                                            'gems', 'gold', 'wood', 'stone', 'food'])
 
     msg = msg.split()
-    self.city.alliance = match.group(1) if len(match.group(1)) > 0 else "none"
-    self.city.governor = msg[0] if self.city.alliance is "none" else msg[0][3:]
+    self.city.statuses = match.group(1) or ""
+    self.city.achievements = match.group(2) or ""
+    self.city.alliance = match.group(3) or ""
+    self.city.governor = match.group(4)
     self.city.name = msg[1]
     self.city.status = msg[3]
-    self.city.season = match.group(2)
-    self.city.weather = match.group(3)
+    self.city.season = match.group(5)
+    self.city.weather = match.group(6)
 
     self.city.update_times.people = time.time()
     self.city.update_times.gold = time.time()
@@ -478,7 +480,7 @@ def parse_war_profile(self, msg):
                 # TODO More useful if other bot receives such messages and sends them on here, to aid in decision of
                 #  attacking or not.
             else:
-                self.log('Could not find self in current clan battle!')
+                self.log(f'Could not find self {self.city.governor:s} in current clan battle!')
 
     self.status.menuDepth = 1
 
