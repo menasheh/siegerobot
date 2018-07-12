@@ -968,13 +968,13 @@ def pretty_seconds(number):
     secs = int(secs)
     result = []
     if weeks:
-        result.append(f'{weeks:d} weeks')
+        result.append("%d weeks" % weeks)
     if days:
-        result.append(f'{days:d} days')
+        result.append("%d days" % days)
     if hours:
-        result.append(f'{hours:d} hours')
+        result.append("%d hours" % hours)
     if mins:
-        result.append(f'{mins:d} minutes')
+        result.append("%d minutes" % mins)
     if secs:
-        result.append(f'{secs:d} seconds')
+        result.append("%d seconds" % secs)
     return ", ".join(result)
