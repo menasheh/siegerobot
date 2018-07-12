@@ -866,6 +866,25 @@ def build(self):
     if estimatedtime > 0:
         self.log(
             "Upgrade of " + buildings[i] + " possible in approximately " + pretty_seconds(60 * estimatedtime) + ".")
+        goldreq = 0
+        woodreq = 0
+        stonereq = 0
+        leveldesired = getattr(self.city, buildings[i])
+        while self.city.maxWood > woodreq and self.city.maxStone > stonereq and self.city.maxGold > goldreq:
+            leveldesired += 1
+            goldreq, woodreq, stonereq = upgrade_costs(buildings[i], leveldesired)
+            requiredgold += goldreq
+            requiredwood += woodreq
+            requiredstone += stonereq
+        leveldesired -= 1
+        requiredgold -= goldreq
+        requiredwood -= woodreq
+        requiredstone -= stonereq
+
+        estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood, requiredstone)
+        self.log("With %d storage, %s maxes out at %d and will take ~%s" % (self.city.storage, buildings[i],
+                                                                            leveldesired,
+                                                                            pretty_seconds(60 * estimatedtime)))
         procrastinate()
         update_gold(self)
         update_resources(self)
