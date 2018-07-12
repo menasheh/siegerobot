@@ -311,6 +311,8 @@ def parse_message(self, message):
     # skip some message types
     elif 'joined the attack' in message:
         pass
+    elif 'not yet recovered' in message:
+        pass
     elif 'Welcome to the alliance' in message:
         pass
     elif 'statistic' in message:
