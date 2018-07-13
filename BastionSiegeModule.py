@@ -195,9 +195,7 @@ def calc_all_upgrade_costs(self):
     calc_upgrade_costs(self, 'townhall')
     if hasattr(self.city, "barracks") and (self.city.barracks != 0):
         calc_upgrade_costs(self, 'barracks')
-    self.log("calcing upgrade costs")
-    if hasattr(self.city, "wall") and (self.city.wall != 0):
-        self.log("for walls")
+    if hasattr(self.city, "walls") and (self.city.walls != 0):
         calc_upgrade_costs(self, 'walls')
     if hasattr(self.city, "trebuchet") and (self.city.trebuchet != 0):
         calc_upgrade_costs(self, 'trebuchet')
@@ -206,7 +204,6 @@ def calc_all_upgrade_costs(self):
 
 def calc_upgrade_costs(self, building):
     results = upgrade_costs(building, getattr(self.city, building) + 1)
-
     suffix = ['Cost', 'Wood', 'Stone']
 
     for x in range(0, 3):
