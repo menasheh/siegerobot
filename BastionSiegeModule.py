@@ -63,7 +63,6 @@ def environment(self):
 
     structure_exists(self)
     resource_hires(self)
-    war_prepare(self)
 
     self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
     self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
@@ -108,17 +107,31 @@ def structure_exists(self):
         send_message_and_wait(self, self.status.replyMarkup[4])  # Back
 
 
-def employ_at_capacity(self, building):
+def employ_up_to_capacity(self, building, already):
+    workers, max = get_building_employment_vars(self, building)
+    if getattr(self.city, workers) < getattr(self.city, max):
+        already = go_to_recruit(self, already)
+        send_message_and_wait(self, building.capitalize())
+        missing = employ_at_capacity(self, building, False)
+        send_message_and_wait(self, 'Back')
+        return already, missing
+
+
+def get_building_employment_vars(self, building):
     if building in ['storage', 'farm', 'sawmill', 'mine', 'trebuchet']:
-        workers, max = building + 'Workers', building + 'MaxWorkers'
+        return building + 'Workers', building + 'MaxWorkers'
     else:
         if building == 'walls':
-            workers, max = 'archers', 'maxArchers'
+            return 'archers', 'maxArchers'
         else:
             if building == 'barracks':
-                workers, max = 'soldiers', 'maxSoldiers'
+                return 'soldiers', 'maxSoldiers'
             else:
-                sys.exit("I don't know how to employ at " + building + ".")
+                self.log("ERR: I don't know how to employ at " + building + ".")
+
+
+def employ_at_capacity(self, building, wait=True):
+    workers, max = get_building_employment_vars(self, building)
 
     while getattr(self.city, max) > getattr(self.city, workers):
         hirable = min(self.city.people, getattr(self.city, max) - getattr(self.city, workers))
@@ -126,10 +139,12 @@ def employ_at_capacity(self, building):
             send_message_and_wait(self, str(hirable))
         sleeptime = math.ceil(min(getattr(self.city, max) - getattr(self.city, workers),
                                   self.city.maxPeople) / self.city.dailyPeopleIncrease)
-        if sleeptime > 0:
+        if sleeptime > 0 and wait:
             self.log("Sleeping " + pretty_seconds(60 * sleeptime) + " to get more workers for " + building + ".")
             time.sleep(60 * sleeptime)
             send_message_and_wait(self, str(sleeptime))
+        else:
+            return getattr(self.city, max) - getattr(self.city, workers)
 
 
 def resource_hires(self):
@@ -832,21 +847,10 @@ def build(self):
             else:
                 self.log("Can't repair walls.")  # todo - buy items for it
     already = False
-    if self.city.trebuchetWorkers < self.city.maxTrebuchetWorkers:
-        already = go_to_recruit(self, already)
-        send_message_and_wait(self, 'Trebuchet')
-        employ_at_capacity(self, 'trebuchet')
-        send_message_and_wait(self, 'Back')
-    if self.city.archers < self.city.maxArchers:
-        already = go_to_recruit(self, already)
-        send_message_and_wait(self, 'Walls')
-        employ_at_capacity(self, 'walls')
-        send_message_and_wait(self, 'Back')
-    if self.city.soldiers < self.city.maxSoldiers:
-        already = go_to_recruit(self, already)
-        send_message_and_wait(self, 'Barracks')
-        employ_at_capacity(self, 'barracks')
-        send_message_and_wait(self, 'Back')
+    missing = 0
+    i = 0
+    while missing == 0:
+        already, missing = employ_up_to_capacity(self, self.city.warbuildings[i], already)
     if already:
         send_message_and_wait(self, "Up menu")
 
@@ -885,9 +889,9 @@ def build(self):
         requiredstone -= stonereq
 
         estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood, requiredstone)
-        self.log("With %d storage, %s maxes out at %d and will take ~%s to complete." % (self.city.storage, buildings[i],
-                                                                            leveldesired,
-                                                                            pretty_seconds(60 * estimatedtime)))
+        self.log("With %d storage, %s maxes out at %d and will take ~%s to complete." % (
+            self.city.storage, buildings[i], leveldesired, pretty_seconds(60 * estimatedtime)
+        ))
         procrastinate()
         update_gold(self)
         update_resources(self)
