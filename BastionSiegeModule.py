@@ -212,20 +212,6 @@ def upgrade_costs(building, level_desired):
     return result
 
 
-def farm(self):
-    return_to_main(self)
-    send_message_and_wait(self, "Buildings")  # Buildings
-    send_message_and_wait(self, self.status.replyMarkup[3])  # Barracks
-    send_message_and_wait(self, self.status.replyMarkup[4])  # War
-
-    # If walls need repairing, do it
-
-    # If anyone needs recruiting - barracks, wall, trebuchet, do it
-    # Find someone to kill
-    # Kill them
-    # Wait until army returns - then buy resources toward upgrade
-
-
 def return_to_main(self):
     if self.status.menuDepth > 0:
         send_message_and_wait(self, 'Up menu')
