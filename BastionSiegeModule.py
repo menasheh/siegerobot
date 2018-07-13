@@ -821,6 +821,7 @@ def pretty_print(objecty):
 
 
 def build(self):
+    return_to_main(self)
     if self.city.warStatus == "check":
         send_message_and_wait(self, "Buildings")
         send_message_and_wait(self, "Walls")
