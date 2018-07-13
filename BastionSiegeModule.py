@@ -49,6 +49,7 @@ def procrastinate():
 
 
 def environment(self):
+    return_to_main(self)
     send_message_and_wait(self, "Workshop")  # Workshop
     send_message_and_wait(self, self.status.replyMarkup[1])  # Back
     send_message_and_wait(self, "Buildings")  # Buildings

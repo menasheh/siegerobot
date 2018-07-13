@@ -140,8 +140,6 @@ class SiegeClient(TelegramClient):
         if get_display_name(self.entity) != "Bastion Siege":
             exit("Wrong Entity!")
 
-        Siege.return_to_main(self)
-
         self.city.warbuildings = ["trebuchet", "walls", "barracks"]
         self.city.upgradePriorities = ['walls', 'barracks', 'trebuchet', 'houses', 'townhall', 'storage']
 
