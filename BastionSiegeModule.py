@@ -110,12 +110,13 @@ def structure_exists(self):
 
 def employ_up_to_capacity(self, building, already):
     workers, max = get_building_employment_vars(self, building)
+    missing = 0
     if getattr(self.city, workers) < getattr(self.city, max):
         already = go_to_recruit(self, already)
         send_message_and_wait(self, building.capitalize())
         missing = employ_at_capacity(self, building, False)
         send_message_and_wait(self, 'Back')
-        return already, missing
+    return already, missing
 
 
 def get_building_employment_vars(self, building):
