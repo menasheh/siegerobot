@@ -160,33 +160,6 @@ def resource_hires(self):
             send_message_and_wait(self, "Back")
 
 
-def war_prepare(self):
-    send_message_and_wait(self, "Walls")
-    if self.city.wallDurability < self.city.wallMaxDurability:
-        if self.city.wallsCanUpgrade:
-            send_message_and_wait(self, "Repair")
-        else:
-            self.log("Can't repair walls.")  # Todo fix by wait
-    send_message_and_wait(self, "Up menu")
-    send_message_and_wait(self, "War")
-    send_message_and_wait(self, "Recruit")
-
-    if self.city.trebuchetWorkers < self.city.maxTrebuchetWorkers:
-        send_message_and_wait(self, 'Trebuchet')
-        employ_at_capacity(self, 'trebuchet')
-        send_message_and_wait(self, 'Back')
-    if self.city.archers < self.city.maxArchers:
-        send_message_and_wait(self, 'Walls')
-        employ_at_capacity(self, 'walls')
-        send_message_and_wait(self, 'Back')
-    if self.city.soldiers < self.city.maxSoldiers:
-        send_message_and_wait(self, 'Barracks')
-        employ_at_capacity(self, 'barracks')
-        send_message_and_wait(self, 'Back')
-
-    send_message_and_wait(self, "Up menu")
-
-
 def calc_all_upgrade_costs(self):
     calc_upgrade_costs(self, 'sawmill')
     calc_upgrade_costs(self, 'mine')
