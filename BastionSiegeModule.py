@@ -195,7 +195,9 @@ def calc_all_upgrade_costs(self):
     calc_upgrade_costs(self, 'townhall')
     if hasattr(self.city, "barracks") and (self.city.barracks != 0):
         calc_upgrade_costs(self, 'barracks')
+    self.log("calcing upgrade costs")
     if hasattr(self.city, "wall") and (self.city.wall != 0):
+        self.log("for walls")
         calc_upgrade_costs(self, 'walls')
     if hasattr(self.city, "trebuchet") and (self.city.trebuchet != 0):
         calc_upgrade_costs(self, 'trebuchet')
@@ -236,6 +238,9 @@ def upgrade_costs(building, level_desired):
     for x in range(0, 3):
         result[x] = int((coeff[building][x] * (level_desired * level_current * (
                 (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
+
+    if building in 'walls':
+        print(result)
 
     return result
 
@@ -443,7 +448,10 @@ def parse_buildings_profile(self, msg):
         self.city.archers = int(match.group(29))
         self.city.maxArchers = int(match.group(30))
 
-    self.status.menuDepth = 1  # keeps track of back - up might be different
+    self.status.menuDepth = 1
+
+    self.log(self.city.walls)
+    self.log(self.city.walls)
 
 
 def parse_war_profile(self, msg):
