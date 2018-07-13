@@ -754,6 +754,7 @@ def parse_war_victory(self, msg):
     m4 = re.search('(\d+)🗺', msg)
     if m4 is None:
         self.city.lastBattleTerritory = 0
+        self.city.wallNeedsCheck = True
     else:
         self.city.lastBattleTerritory = int(m4.group(1))
 
@@ -764,13 +765,13 @@ def parse_war_victory(self, msg):
     self.city.gold += self.city.lastBattleGold
     self.city.territory += self.city.lastBattleTerritory
 
-    self.city.warStatus = 'check'
+    self.city.warStatus = 'peace'
 
 
 def parse_war_defeat(self, msg):
     self.log(msg)
     reg = re.compile(r'with 🗡?(?:{(.+)})?(?:\[(\W)])?([\w, ]+) complete. Unfortunately, ([\w ]+),.+ lose\. (None|Only'
-                     r' (\d+)⚔) of (\d+)⚔\D+(\d+)💰\D+(\d+)🗺')
+                     r' (\d+)⚔) of (\d+)⚔')
     m = re.search(reg, msg)
 
     self.city.lastEnemyStatuses = m.group(1)
@@ -781,12 +782,22 @@ def parse_war_defeat(self, msg):
         self.city.soldiers = self.city.soldiers + int(m.group(6))
     self.city.soldiersInPreviousBattle = int(m.group(7))
     update_gold(self)
-    self.city.gold = self.city.gold - int(m.group(8))
 
-    return_to_main(self)
-    send_message_and_wait(self, "Buildings")
-    war_prepare(self)
-    self.city.warStatus = 'check'
+    m2 = re.search(r'(\d+)💰', msg)
+    if m2 is None:
+        self.city.lastBattleGold = 0
+    else:
+        self.city.lastBattleGold = int(m2.group(1))
+        self.city.gold = self.city.gold - self.city.lastBattleGold
+
+    m3 = re.search('(\d+)🗺', msg)
+    if m3 is None:
+        self.city.lastBattleTerritory = 0
+    else:
+        self.city.wallNeedsCheck = True
+        self.city.lastBattleTerritory = int(m3.group(1))
+
+    self.city.warStatus = 'peace'
 
 
 def parse_war_clan_defeat(self, msg):
@@ -838,15 +849,15 @@ def pretty_print(objecty):
 
 def build(self):
     return_to_main(self)
-    if self.city.warStatus == "check":
+    if wallneedsrepair(self) or self.city.wallNeedsCheck:
         send_message_and_wait(self, "Buildings")
         send_message_and_wait(self, "Walls")
-        if self.city.wallDurability < self.city.wallMaxDurability:
+        if wallneedsrepair(self):
             if self.city.wallsCanUpgrade:
                 send_message_and_wait(self, "Repair")
-                self.city.warStatus = 'peace'
             else:
                 self.log("Can't repair walls.")  # todo - buy items for it
+        self.city.wallNeedsCheck = False
     already = False
     missing = 0
     i = 0
@@ -900,7 +911,7 @@ def build(self):
     else:
         upgrade_building(self, buildings[i])
 
-    while self.city.warStatus != "peace" and self.city.warStatus != "check":
+    while self.city.warStatus != "peace":
         pass
     build(self)  # todo pause for attacks
 
@@ -985,6 +996,10 @@ def go_to_recruit(self, already):
         send_message_and_wait(self, "War")
         send_message_and_wait(self, "Recruit")
     return True
+
+
+def wallneedsrepair(self):
+    return self.city.wallDurability < self.city.wallMaxDurability
 
 
 def pretty_seconds(number):
