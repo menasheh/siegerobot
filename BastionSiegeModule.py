@@ -228,7 +228,7 @@ def farm(self):
 
 def return_to_main(self):
     if self.status.menuDepth > 0:
-        send_message_and_wait(self, '/refresh')
+        send_message_and_wait(self, 'Up menu')
 
 
 def human_readable_indexes(self, message):

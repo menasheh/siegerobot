@@ -130,6 +130,7 @@ class SiegeClient(TelegramClient):
         self.city = Object(['gold', 'wood', 'stone', 'food', 'warStatus'])
         self.city.wallNeedsCheck = True
         self.status = Object(['lastMsgID', 'menuDepth'])
+        self.status.menuDepth = 1
         self.city.update_times = Object([])
 
     def run(self):
