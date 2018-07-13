@@ -705,7 +705,7 @@ def parse_war_attacked(self, msg):
 
 
 def parse_war_victory(self, msg):
-    print(msg)
+    self.log(msg)
 
     reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w ]+) complete')
     m = re.search(reg, msg)
