@@ -123,20 +123,13 @@ class SiegeClient(TelegramClient):
         self.entity = ""
 
         class Object:
-            pass
+            def __init__(self, array):
+                for each in array:
+                    setattr(self, each, 0)
 
-        self.city = Object()
-        self.city.gold = 0
-        self.city.goldLastUpdated = 0
-        self.city.wood = 0
-        self.city.stone = 0
-        self.city.food = 0
-
-        self.status = Object()
-        self.status.lastMsgID = 0
-        self.status.menuDepth = 1
-
-        self.city.update_times = Object()
+        self.city = Object(['gold', 'wood', 'stone', 'food', 'warStatus'])
+        self.status = Object(['lastMsgID', 'menuDepth'])
+        self.city.update_times = Object([])
 
     def run(self):
         self.add_update_handler(self.update_handler)
