@@ -11,8 +11,8 @@ from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.contacts import ResolveUsernameRequest
 from telethon.tl.types import (
-    KeyboardButton, KeyboardButtonCallback, UpdatesTg, UpdateNewMessage, UpdateShortMessage, UpdateReadHistoryOutbox,
-    UpdateReadHistoryInbox, UpdateMessageID
+    KeyboardButton, KeyboardButtonCallback, UpdatesTg, UpdateNewMessage, UpdateShortMessage, UpdateShortChatMessage,
+    UpdateReadHistoryOutbox, UpdateReadHistoryInbox, UpdateMessageID
 )
 from telethon.utils import get_display_name
 # from twilio.rest import Client
@@ -200,6 +200,8 @@ class SiegeClient(TelegramClient):
                 """"""
                 # self.log(update_object)
             self.status.lastMsgID = update_object.id
+        elif type(update_object) is UpdateShortChatMessage:
+            pass
         else:
             if hasattr(update_object, "message"):
                 print("update_object is of type: ", type(update_object))
