@@ -851,8 +851,9 @@ def build(self):
     already = False
     missing = 0
     i = 0
-    while missing == 0:
+    while missing == 0 and i < len(self.city.warbuildings):
         already, missing = employ_up_to_capacity(self, self.city.warbuildings[i], already)
+        i += 1
     if already:
         send_message_and_wait(self, "Up menu")
 
