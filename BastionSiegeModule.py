@@ -822,10 +822,10 @@ def pretty_print(objecty):
 
 def build(self):
     return_to_main(self)
-    if wallneedsrepair(self) or self.city.wallNeedsCheck:
+    if self.city.wallNeedsCheck or wall_needs_repair(self):
         send_message_and_wait(self, "Buildings")
         send_message_and_wait(self, "Walls")
-        if wallneedsrepair(self):
+        if wall_needs_repair(self):
             if self.city.wallsCanUpgrade:
                 send_message_and_wait(self, "Repair")
             else:
@@ -971,7 +971,7 @@ def go_to_recruit(self, already):
     return True
 
 
-def wallneedsrepair(self):
+def wall_needs_repair(self):
     return self.city.wallDurability < self.city.wallMaxDurability
 
 
