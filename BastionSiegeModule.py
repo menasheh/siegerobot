@@ -933,21 +933,13 @@ def upgrade_building(self, building):
         send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
 
     self.log(building + " upgraded to level " + str(oldlevel + 1))
-    index = -1
     for x in range(0, len(self.status.replyMarkup)):
-        if "menu" in self.status.replyMarkup[x]:
-            index = x
-            break
-    if index == -1:
-        sys.exit("ReplyMarkup appears to miss a menu button.")
-    for x in range(0, len(self.status.replyMarkup)):
-        if "Hire" in self.status.replyMarkup[x]:
-            send_message_and_wait(self, "Hire")
-            employ_at_capacity(self, building)
-            send_message_and_wait(self, "Back")
+        if "Hire" in self.status.replyMarkup[x] or "Recruit" in self.status.replyMarkup[x]:
+            send_message_and_wait(self, self.status.replyMarkup[x])
+            employ_at_capacity(self, building, False)
             break
 
-    send_message_and_wait(self, self.status.replyMarkup[index])  # Up Menu
+    send_message_and_wait(self, "Up menu")
 
 
 def purchase_resource(self, resource, desired_quantity):
