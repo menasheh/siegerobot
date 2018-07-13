@@ -236,9 +236,6 @@ def upgrade_costs(building, level_desired):
         result[x] = int((coeff[building][x] * (level_desired * level_current * (
                 (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
 
-    if building in 'walls':
-        print(result)
-
     return result
 
 
@@ -445,10 +442,7 @@ def parse_buildings_profile(self, msg):
         self.city.archers = int(match.group(29))
         self.city.maxArchers = int(match.group(30))
 
-    self.status.menuDepth = 1
-
-    self.log(self.city.walls)
-    self.log(self.city.walls)
+    self.status.menuDepth = 1  # keeps track of back - up might be different
 
 
 def parse_war_profile(self, msg):
