@@ -301,8 +301,11 @@ def parse_message(self, message):
 def parse_numbers_from_message(self, msg, numbers):
     t = re.findall(r'(-?\d+)', msg)
 
-    for i in range(0, len(numbers)):
-        setattr(self.city, numbers[i], int(t.pop(0)))
+    try:
+        for i in range(0, len(numbers)):
+            setattr(self.city, numbers[i], int(t.pop(0)))
+    except IndexError:
+        self.log("incorrect numbers? Message:\n" + msg + "\n" + "numbers:\n" + numbers)
 
 
 def debug_numbers_from_message(self, msg):
