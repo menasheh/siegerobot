@@ -16,6 +16,7 @@ from telethon.tl.types import (
 )
 from telethon.utils import get_display_name
 # from twilio.rest import Client
+from hanging_threads import start_monitoring
 
 scriptStartTime = datetime.now()
 
@@ -25,6 +26,8 @@ logext = '.log'
 output = open(logfile + logext, 'a+', 1)
 sys.stdout = output
 sys.stderr = output
+
+monitoring_thread = start_monitoring(seconds_frozen=120, test_interval=100)
 
 
 def load_config(path='settings'):
