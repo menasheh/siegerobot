@@ -17,9 +17,9 @@ def send_message_and_wait(self, message):
         time.sleep(random.randint(1000, 4000) / 1000)
         sleeptime = int(time.time() - start_time)
         if sleeptime > 300:
-            self.log("WARN - sleeping " + pretty_seconds(sleeptime) + " after sending message '" + message + "'")
-            self.log("Can we just return instead of restart?")
-            self.restart(self.city)
+            self.log("WARN - slept " + pretty_seconds(sleeptime) +
+                     " after sending '" + message + "', continuing without confirmation...")
+            return
         pass
 
 
