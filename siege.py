@@ -130,7 +130,7 @@ class SiegeClient(TelegramClient):
                 for each in array:
                     setattr(self, each, 0)
 
-        self.city = Object(['gold', 'wood', 'stone', 'food'])
+        self.city = Object(['gold', 'wood', 'stone', 'food', 'barracks'])
         self.city.warStatus = 'peace'
         self.city.wallNeedsCheck = True
         self.status = Object(['lastMsgID', 'menuDepth'])
