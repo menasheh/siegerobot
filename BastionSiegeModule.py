@@ -690,8 +690,6 @@ def parse_war_attacked(self, msg):
     self.city.attackingClan = match.group(1)
     self.city.attackingPlayer = match.group(2)
     self.city.warStatus = "defend"
-    self.log(msg)
-    self.log('is clan attack different?')
 
 
 def parse_war_victory(self, msg):
