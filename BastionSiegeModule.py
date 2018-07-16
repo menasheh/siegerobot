@@ -506,10 +506,12 @@ def parse_resource_message(self, msg):
 def parse_scout_message(self, msg):
     parse_numbers_from_message(self, msg, ['enemyTerritory', 'enemyKarma'])
 
+    """
     friends = "🐄🦋🛰⚡"
 
     if any((c in friends) for c in msg):
         send_message_and_wait(self, "Suitable")
+    """
 
     msg = msg.split()
 
