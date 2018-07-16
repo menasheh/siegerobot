@@ -812,73 +812,71 @@ def pretty_print(objecty):
 
 def build(self):
     while True:
-        return_to_main(self)
-        if self.city.wallNeedsCheck or wall_needs_repair(self):
-            send_message_and_wait(self, "Buildings")
-            send_message_and_wait(self, "Walls")
-            if wall_needs_repair(self):
-                if self.city.wallsCanUpgrade:
-                    send_message_and_wait(self, "Repair")
-                else:
-                    self.log("Can't repair walls.")  # todo - buy items for it
-            self.city.wallNeedsCheck = False
-        already = False
-        missing = 0
-        i = 0
-        while missing == 0 and i < len(self.city.warbuildings):
-            already, missing = employ_up_to_capacity(self, self.city.warbuildings[i], already)
-            i += 1
-        if already:
-            send_message_and_wait(self, "Up menu")
+        if self.city.warStatus is 'peace':
+            return_to_main(self)
+            if self.city.wallNeedsCheck or wall_needs_repair(self):
+                send_message_and_wait(self, "Buildings")
+                send_message_and_wait(self, "Walls")
+                if wall_needs_repair(self):
+                    if self.city.wallsCanUpgrade:
+                        send_message_and_wait(self, "Repair")
+                    else:
+                        self.log("Can't repair walls.")  # todo - buy items for it
+                self.city.wallNeedsCheck = False
+            already = False
+            missing = 0
+            i = 0
+            while missing == 0 and i < len(self.city.warbuildings):
+                already, missing = employ_up_to_capacity(self, self.city.warbuildings[i], already)
+                i += 1
+            if already:
+                send_message_and_wait(self, "Up menu")
 
-        buildings = self.city.upgradePriorities
-        i = 0
-        while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
-                self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or \
-                self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
-            i += 1
+            buildings = self.city.upgradePriorities
+            i = 0
+            while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
+                    self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or \
+                    self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
+                i += 1
 
-        return_to_main(self)
-        requiredfood = purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
-        requiredwood = purchase_resource(self, "wood",
-                                         get_upgrade_required_resource_quantity(self, buildings[i], "wood"))
-        requiredstone = purchase_resource(self, "stone",
-                                          get_upgrade_required_resource_quantity(self, buildings[i], "stone"))
-        requiredgold = getattr(self.city, buildings[i] + 'UpgradeCost') - self.city.gold
+            return_to_main(self)
+            requiredfood = purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
+            requiredwood = purchase_resource(self, "wood",
+                                             get_upgrade_required_resource_quantity(self, buildings[i], "wood"))
+            requiredstone = purchase_resource(self, "stone",
+                                              get_upgrade_required_resource_quantity(self, buildings[i], "stone"))
+            requiredgold = getattr(self.city, buildings[i] + 'UpgradeCost') - self.city.gold
 
-        estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood, requiredstone)
+            estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood, requiredstone)
 
-        if estimatedtime > 0:
-            self.log(
-                "Upgrade of " + buildings[i] + " possible in approximately " + pretty_seconds(60 * estimatedtime) + ".")
-            goldreq = 0
-            woodreq = 0
-            stonereq = 0
-            leveldesired = getattr(self.city, buildings[i])
-            while self.city.maxWood > woodreq and self.city.maxStone > stonereq and self.city.maxGold > goldreq:
-                leveldesired += 1
-                goldreq, woodreq, stonereq = upgrade_costs(buildings[i], leveldesired)
-                requiredgold += goldreq
-                requiredwood += woodreq
-                requiredstone += stonereq
-            leveldesired -= 1
-            requiredgold -= goldreq
-            requiredwood -= woodreq
-            requiredstone -= stonereq
+            if estimatedtime > 0:
+                self.log(
+                    "Upgrade of " + buildings[i] + " possible in approximately " + pretty_seconds(60 * estimatedtime) + ".")
+                goldreq = 0
+                woodreq = 0
+                stonereq = 0
+                leveldesired = getattr(self.city, buildings[i])
+                while self.city.maxWood > woodreq and self.city.maxStone > stonereq and self.city.maxGold > goldreq:
+                    leveldesired += 1
+                    goldreq, woodreq, stonereq = upgrade_costs(buildings[i], leveldesired)
+                    requiredgold += goldreq
+                    requiredwood += woodreq
+                    requiredstone += stonereq
+                leveldesired -= 1
+                requiredgold -= goldreq
+                requiredwood -= woodreq
+                requiredstone -= stonereq
 
-            estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood,
-                                                            requiredstone)
-            self.log("With %d storage, %s maxes out at %d and will take ~%s to complete." % (
-                self.city.storage, buildings[i], leveldesired, pretty_seconds(60 * estimatedtime)
-            ))
-            procrastinate()
-            update_gold(self)
-            update_resources(self)
-        else:
-            upgrade_building(self, buildings[i])
-
-        while self.city.warStatus is not 'peace':
-            pass
+                estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood,
+                                                                requiredstone)
+                self.log("With %d storage, %s maxes out at %d and will take ~%s to complete." % (
+                    self.city.storage, buildings[i], leveldesired, pretty_seconds(60 * estimatedtime)
+                ))
+                procrastinate()
+                update_gold(self)
+                update_resources(self)
+            else:
+                upgrade_building(self, buildings[i])
 
 
 def get_estimated_time_to_resources(self, gold, food, wood, stone):
