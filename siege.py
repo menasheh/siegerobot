@@ -154,6 +154,7 @@ class SiegeClient(TelegramClient):
             for update in update_object.updates:
                 if type(update) is UpdateNewMessage:
                     if update.message.from_id == self.BOT_ID:
+                        self.city.menuDepth = 3
                         message = update.message.message
                         try:
                             Siege.parse_message(self, message)
