@@ -2,7 +2,7 @@ import random
 import time
 import traceback
 import sys
-import BastionSiegeModule as Siege
+import BastionSiege as Siege
 from datetime import datetime
 from getpass import getpass
 import os
