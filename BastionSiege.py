@@ -21,7 +21,7 @@ def send_message_and_wait(self, message):
             self.log("FATAL - slept " + pretty_seconds(sleeptime) +
                      " after sending '" + message + ". Message incorrect?")
             self.log(traceback.format_exc())
-            for k, v in self.city:
+            for k, v in self.city.__dict__:
                 print(k + ": " + v)
             sys.exit(1)
         pass
