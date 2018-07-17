@@ -267,9 +267,7 @@ def parse_message(self, message):
     elif 'Choose number.' in message:
         self.status.expects = 'chooseNumber'
     elif 'Siege has started!' in message:
-        self.status.atWar = True
-        self.status.atWarOffense = True
-        self.status.atWarDefense = False
+        self.city.warStatus = 'attack'
     elif 'Congratulations' in message and 'army' in message:  # remove army part once alliance parser made
         # if 'army' in message:
         parse_war_victory(self, message)
