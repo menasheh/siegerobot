@@ -25,6 +25,7 @@ def send_message_and_wait(self, message):
                 print(k + ": " + v)
             sys.exit(1)
         pass
+    time.sleep(random.randint(600, 1000) / 1000)
 
 
 def update_gold(self):
