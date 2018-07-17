@@ -3,6 +3,7 @@ import random
 import re
 import sys
 import time
+import traceback
 
 
 def clean_trim(string):
@@ -17,9 +18,10 @@ def send_message_and_wait(self, message):
         time.sleep(random.randint(1000, 4000) / 1000)
         sleeptime = int(time.time() - start_time)
         if sleeptime > 300:
-            self.log("WARN - slept " + pretty_seconds(sleeptime) +
-                     " after sending '" + message + "', continuing without confirmation...")
-            return
+            self.log("FATAL - slept " + pretty_seconds(sleeptime) +
+                     " after sending '" + message + ". Message incorrect?")
+            self.log(traceback.format_exc())
+            sys.exit(1)
         pass
 
 
