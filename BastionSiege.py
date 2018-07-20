@@ -23,7 +23,7 @@ def send_message_and_wait(self, message):
             self.log(traceback.format_exc())
             for k, v in self.city.__dict__.items():
                 print(k + ": " + v)
-            sys.exit(1)
+            inplacerestart()
         pass
     time.sleep(random.randint(600, 1000) / 1000)
 
