@@ -921,7 +921,7 @@ async def build(self):
                     already, missing = await employ_up_to_capacity(self, self.city.warbuildings[i], already)
                     i += 1
                 if already:
-                    send_message_and_wait(self, "⬆️ Up menu")
+                    await send_message_and_wait(self, "⬆️ Up menu")
 
             buildings = self.city.upgrade_priorities
             i = 0
