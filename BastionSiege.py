@@ -962,9 +962,10 @@ async def build(self):
 
                 estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood,
                                                                 requiredstone)
-                self.log.info("With %d storage, %s maxes out at %d and will take ~%s to complete." % (
+                self.city.goal_estimate = "With %d storage, %s maxes out at %d and will take ~%s to complete." % (
                     self.city.storage, buildings[i], leveldesired, pretty_seconds(60 * estimatedtime)
-                ))
+                )
+                self.log.info(self.city.goal_estimate)
                 await procrastinate(self)
                 update_gold(self)
                 update_resources(self)
