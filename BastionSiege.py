@@ -15,7 +15,9 @@ import traceback
 
 scriptStartTime = datetime.now()
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(threadName)s %(levelname)-8s %(message)s')
+logging.basicConfig(level=logging.DEBUG,
+                    stream=sys.stdout,
+                    format='%(asctime)s %(name)-12s %(threadName)s %(levelname)-8s %(message)s')
 logging.getLogger('telethon').setLevel(logging.CRITICAL)
 logging.getLogger('asyncio').setLevel(logging.CRITICAL)
 
