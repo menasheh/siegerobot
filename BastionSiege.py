@@ -3,6 +3,7 @@ import asyncio
 import logging
 import math
 import os
+from os.path import expanduser
 import random
 import re
 import sys
@@ -15,6 +16,10 @@ import traceback
 
 scriptStartTime = datetime.now()
 
+logging.basicConfig(filename=expanduser("~") + '/.hidden/siege.log', level=logging.DEBUG)
+logging.getLogger('telethon').setLevel(logging.CRITICAL)
+logging.getLogger('asyncio').setLevel(logging.CRITICAL)
+
 
 class Siege(object):
     BOT_ID = int(252148344)
@@ -22,7 +27,7 @@ class Siege(object):
     def __init__(self, telegram_client, upgrade_priorities):
         self.telegram = telegram_client
         self.entity = "BastionSiegeBot"
-        self.logger = logging.getLogger(__name__)
+        self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('.')[0])
 
         class Object:
             def __init__(self, array):
@@ -47,7 +52,7 @@ class Siege(object):
             try:
                 parse_message(self, message)
             except Exception as err:
-                print('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
+                self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
 
             if event.message.reply_markup is not None:
                 markup = []
@@ -68,14 +73,14 @@ class Siege(object):
                     self.status.replyMarkup = markup
                 elif not chatbuttons.text == []:
                     self.status.chatbuttons = chatbuttons
-                    print("found chatbuttons:")
-                    print(chatbuttons)
+                    self.log.debug("found chatbuttons:")
+                    self.log.debug(chatbuttons)
             else:
-                print("no markup associated with message " + event.message.message)
+                self.log.warning("no markup associated with message " + event.message.message)
             self.status.lastMsgID = event.message.id
-            # print()
+            # self.log.debug(" ")
             # for k, v in self.city.__dict__.items():
-            #   print(str(k) + ": " + str(v))
+            #   self.log.debug(str(k) + ": " + str(v))
 
         await asyncio.gather(
             self.telegram.run_until_disconnected(),
@@ -95,11 +100,10 @@ async def send_message_and_wait(self, message):
         await asyncio.sleep(random.randint(1000, 4000) / 1000)
         sleeptime = int(time.time() - start_time)
         if sleeptime > 200:
-            print("FATAL - slept " + pretty_seconds(sleeptime) +
-                     " after sending '" + message + "'. Message incorrect?")
-            print(traceback.format_exc())
+            self.log.error("slept " + pretty_seconds(sleeptime) + " after '" + message + "'. Problem?")
+            self.log.error(traceback.format_exc())
             for k, v in self.city.__dict__.items():
-                print(str(k) + ": " + str(v))
+                self.log.debug(str(k) + ": " + str(v))
             await inplacerestart()
         pass
     await asyncio.sleep(random.randint(600, 1000) / 1000)
@@ -125,9 +129,9 @@ def update_resource(self, resource):
     setattr(self.city.update_times, resource, time.time())
 
 
-async def procrastinate():
+async def procrastinate(self):
     rand_time = random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300))
-    print("snoozing for " + pretty_seconds(rand_time) + ".")
+    self.log.info("snoozing for " + pretty_seconds(rand_time) + ".")
     await asyncio.sleep(rand_time)
 
 
@@ -212,7 +216,7 @@ def get_building_employment_vars(self, building):
             if building == 'barracks':
                 return 'soldiers', 'maxSoldiers'
             else:
-                print("ERR: I don't know how to employ at " + building + ".")
+                self.log.critical("I don't know how to employ at " + building + ".")
 
 
 async def employ_at_capacity(self, building, wait=True):
@@ -225,7 +229,7 @@ async def employ_at_capacity(self, building, wait=True):
         sleeptime = math.ceil(min(getattr(self.city, max, 10) - getattr(self.city, workers, 0),
                                   self.city.maxPeople) / self.city.dailyPeopleIncrease)
         if sleeptime > 0 and wait:
-            print("Sleeping " + pretty_seconds(60 * sleeptime) + " to get more workers for " + building + ".")
+            self.log.info("Sleeping " + pretty_seconds(60 * sleeptime) + " to get more workers for " + building + ".")
             await asyncio.sleep(60 * sleeptime)
             await send_message_and_wait(self, str(sleeptime * self.city.dailyPeopleIncrease))
         else:
@@ -374,8 +378,8 @@ def parse_message(self, message):
     elif 'statistic' in message:
         pass
     else:
-        print('ERROR: unknown message type!!!')
-        print(message)
+        self.log.error('unknown message type')
+        self.log.error(message)
 
 
 def parse_numbers_from_message(self, msg, numbers):
@@ -385,24 +389,23 @@ def parse_numbers_from_message(self, msg, numbers):
         for i in range(0, len(numbers)):
             setattr(self.city, numbers[i], int(t.pop(0)))
     except IndexError:
-        print("incorrect numbers? Message:\n" + msg + "\n" + "numbers:\n" + str(numbers))
+        self.log.error("incorrect numbers? Message:\n" + msg + "\n" + "numbers:\n" + str(numbers))
 
 
 def debug_numbers_from_message(self, msg):
-    print('DEBUG_MSG:')
-    print(msg)
+    self.log.debug(msg)
     t = re.findall(r'(-?\d+)', msg)
     i = 0
     for j in t:
-        print(str(i) + ": " + j)
+        self.log.debug(str(i) + ": " + j)
         i += 1
 
 
 def try_regex(self, regex, msg, method):  # todo get method from call stack
     match = re.match(regex, msg)
     if match is None:
-        print("REGEX ERROR:")
-        print("\t" + method + " could not parse:\n" + msg + "\n</msg>\n")
+        self.log.critical("REGEX ERROR:")
+        self.log.critical("\t" + method + " could not parse:\n" + msg + "\n</msg>\n")
         exit(1)
     return match
 
@@ -527,19 +530,21 @@ def parse_war_profile(self, msg):
                 self.city.warStatus = 'clanAttack'
                 self.city.currentClanWarEnemies = m.group(30)
                 self.city.currentClanWarFriends = m.group(29)
-                print("split by commas and count attackers!")
-                print("check if first => attacking")
+                self.city.currentClanWarEnemyCount = len(self.city.currentClanWarEnemies.split(','))
+                self.city.currentClanWarFriendCount = len(self.city.currentClanWarFriends.split(','))
+                self.log.debug("check if first => attacking")
             elif self.city.governor in m.group(
                     14):  # defending
                 self.city.warStatus = 'clanDefence'
                 self.city.currentClanWarEnemies = m.group(29)
                 self.city.currentClanWarFriends = m.group(30)
-                print("split by commas and count defenders!")
-                print("check if first => defending")
+                self.city.currentClanWarEnemyCount = len(self.city.currentClanWarEnemies.split(','))
+                self.city.currentClanWarFriendCount = len(self.city.currentClanWarFriends.split(','))
+                self.log.debug("check if first => defending")
                 # TODO More useful if other bot receives such messages and sends them on here, to aid in decision of
                 #  attacking or not.
             else:
-                print("Could not find self %s in current clan battle!" % self.city.governor)
+                self.log.warning("Could not find self %s in current clan battle!" % self.city.governor)
 
     self.status.menuDepth = 1
 
@@ -554,11 +559,10 @@ def parse_resource_message(self, msg):
     if 'delivered' in msg:
         'resources purchased'
     if 'find money.' in msg:
-        print('ERROR: not enough money for resources.')
+        self.log.error('not enough money for resources')
         send_message_and_wait(self, "1")  # Remind script of actual resource amount by purchasing 1
     if 'no place' in msg:
-        print(
-            'no room for resources we attempted to purchase')  # TODO do something about this to ruin trade loop
+        self.log.error('no room for resources we attempted to purchase')
     else:
         parse_numbers_from_message(self, msg, ['gems', 'gold', 'wood', 'stone', 'food'])
 
@@ -770,7 +774,7 @@ def parse_war_attacked(self, msg):
 
 
 def parse_war_victory(self, msg):
-    print(msg)
+    self.log.info(msg)
 
     reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w ]+) complete')
     m = re.search(reg, msg)
@@ -807,7 +811,7 @@ def parse_war_victory(self, msg):
 
 
 def parse_war_defeat(self, msg):
-    print(msg)
+    self.log.info(msg)
     reg = re.compile(
         r'with 🗡?(?:{(.+)})?(?:\[(\W)])?([\w, ]+) complete. Unfortunately, ([\w ]+),.+ lose\. (None|Only'
         r' (\d+)⚔) of (\d+)⚔')
@@ -840,21 +844,21 @@ def parse_war_defeat(self, msg):
 
 
 def parse_war_clan_defeat(self, msg):
-    print(msg)
-    print('ERR: not implemented for above message')
+    self.log.info(msg)
+    self.log.error('not implemented for above message')
 
     debug_numbers_from_message(self, msg)
 
 
 def parse_war_clan_join(self, msg):
-    print('parsing join - needs reg and inline')
+    self.log.warning('parsing join - needs reg and inline')
     human_readable_indexes(self, msg)
 
     debug_numbers_from_message(self, msg)
 
 
 def parse_war_clan_attack(self, msg):
-    print(msg)
+    self.log.info(msg)
 
     match = try_regex(self, r'Your ally \W?(?:{.+})?\[(.)](.+) attacked \W?(?:{.+})?\[(.)](.+) from the alliance '
                             r'\[.](.+)! Y.+', msg, 'parse_war_clan_attack')
@@ -864,11 +868,10 @@ def parse_war_clan_attack(self, msg):
     self.city.clanDefendingAllianceSymbol = match.group(3)
     self.city.clanDefendingPlayer = match.group(4)
     self.city.clanDefendingAllianceName = match.group(5)
-    # todo get way to attack (inline keyboard)
 
 
 def parse_war_clan_defend(self, msg):
-    print(msg)
+    self.log.info(msg)
 
     match = try_regex(self,
                       r'Your ally \W?(?:{.+})?\[(.)](.+) was attacked by \W?(?:{.+})?\[(.)](.+) from \[.](.+)! '
@@ -900,7 +903,7 @@ async def build(self):
                         if self.city.wallsCanUpgrade:
                             await send_message_and_wait(self, "Repair")
                         else:
-                            print("Can't repair walls.")  # todo - buy items for it
+                            self.log.warning("Can't repair walls. Buy items?")
                     self.city.wallNeedsCheck = False
                 already = False
                 missing = 0
@@ -930,7 +933,7 @@ async def build(self):
                                                             requiredstone)
 
             if estimatedtime > 0:
-                print(
+                self.log.info(
                     "Upgrade of " + buildings[i] + " possible in approximately " + pretty_seconds(
                         60 * estimatedtime) + ".")
                 goldreq = 0
@@ -950,10 +953,10 @@ async def build(self):
 
                 estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood,
                                                                 requiredstone)
-                print("With %d storage, %s maxes out at %d and will take ~%s to complete." % (
+                self.log.info("With %d storage, %s maxes out at %d and will take ~%s to complete." % (
                     self.city.storage, buildings[i], leveldesired, pretty_seconds(60 * estimatedtime)
                 ))
-                await procrastinate()
+                await procrastinate(self)
                 update_gold(self)
                 update_resources(self)
             else:
@@ -998,11 +1001,11 @@ async def upgrade_building(self, building):
     oldlevel = getattr(self.city, building)
     await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
     while getattr(self.city, building) == oldlevel:
-        print("Something went wrong with " + building + " upgrade, please investigate.")
-        procrastinate()  # TODO - use waittime method, again (in case lost money to war, for example)
+        self.log.error("Something went wrong with " + building + " upgrade, please investigate.")
+        procrastinate(self)
         await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
 
-    print(building + " upgraded to level " + str(oldlevel + 1))
+    self.log.info(building + " upgraded to level " + str(oldlevel + 1))
     for x in range(0, len(self.status.replyMarkup)):
         if "Hire" in self.status.replyMarkup[x] or "Recruit" in self.status.replyMarkup[x]:
             await send_message_and_wait(self, self.status.replyMarkup[x])
