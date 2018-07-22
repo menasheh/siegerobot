@@ -5,7 +5,7 @@ import sys
 from BastionSiege import Siege
 from telethon import TelegramClient
 
-logfile = expanduser("~") + '/.hidden/siege.log'
+logfile = expanduser("~") + '/.hidden/robots.log'
 output = open(logfile, 'a+', 1)
 sys.stdout = output
 sys.stderr = output

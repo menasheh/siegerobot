@@ -3,6 +3,7 @@ import asyncio
 import logging
 import math
 import os
+from os.path import expanduser
 import random
 import re
 import sys
@@ -14,6 +15,11 @@ import time
 import traceback
 
 scriptStartTime = datetime.now()
+
+logfile = expanduser("~") + '/.hidden/siege.log'
+output = open(logfile, 'a+', 1)
+sys.stdout = output
+sys.stderr = output
 
 logging.basicConfig(level=logging.DEBUG,
                     stream=sys.stdout,
