@@ -510,15 +510,15 @@ def parse_war_profile(self, msg):
     if m.group(3) is None:
         self.city.cooldownAttack = 0
     else:
-        self.city.cooldownAttack = m.group(3) * (1 if m.group(4) is "sec" else 60)
+        self.city.cooldownAttack = int(m.group(3)) * (1 if m.group(4) is "sec" else 60)
     if m.group(5) is None:
         self.city.cooldownAttackClan = 0
     else:
-        self.city.cooldownAttackClan = m.group(5) * (1 if m.group(6) is "sec" else 60)
+        self.city.cooldownAttackClan = int(m.group(5)) * (1 if m.group(6) is "sec" else 60)
     if m.group(7) is None:
         self.city.cooldownDefense = 0
     else:
-        self.city.cooldownDefense = m.group(7) * (1 if m.group(8) is "sec" else 60)
+        self.city.cooldownDefense = int(m.group(7)) * (1 if m.group(8) is "sec" else 60)
     self.city.update_times.cooldowns = time.time()
     if m.group(9) is None:
         self.city.warStatus = 'peace'
