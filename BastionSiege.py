@@ -776,6 +776,16 @@ def parse_war_attacked(self, msg):
 def parse_war_victory(self, msg):
     self.log.info(msg)
 
+    m3 = re.search(r'(\d+)💰', msg)
+    if m3 is None:
+        self.city.lastBattleGold = 0
+    else:
+        self.city.lastBattleGold = int(m3.group(1))
+    update_gold(self)
+    self.city.gold += self.city.lastBattleGold
+
+    self.city.warStatus = 'peace'
+
     reg = re.compile(r'with (?:{(.+)})?(?:\[(\W)])?([\w ]+) complete')
     m = re.search(reg, msg)
 
@@ -787,12 +797,6 @@ def parse_war_victory(self, msg):
     self.city.lastBattleReturnedSoldiers = int(m2.group(1))
     self.city.lastBattleSentSoldiers = int(m2.group(2) or m2.group(1))
 
-    m3 = re.search(r'(\d+)💰', msg)
-    if m3 is None:
-        self.city.lastBattleGold = 0
-    else:
-        self.city.lastBattleGold = int(m3.group(1))
-
     m4 = re.search('(\d+)🗺', msg)
     if m4 is None:
         self.city.lastBattleTerritory = 0
@@ -800,14 +804,10 @@ def parse_war_victory(self, msg):
     else:
         self.city.lastBattleTerritory = int(m4.group(1))
 
-    update_gold(self)
     if not hasattr(self.city, "soldiers"):
         self.city.soldiers = 0
     self.city.soldiers = max(self.city.soldiers + self.city.lastBattleReturnedSoldiers, self.city.barracks * 40)
-    self.city.gold += self.city.lastBattleGold
     self.city.territory += self.city.lastBattleTerritory
-
-    self.city.warStatus = 'peace'
 
 
 def parse_war_defeat(self, msg):
