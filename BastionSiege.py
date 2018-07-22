@@ -50,7 +50,7 @@ class Siege(object):
             self.status.menuDepth = 3
             message = event.message.message
             try:
-                parse_message(self, message)
+                await parse_message(self, message)
             except Exception as err:
                 self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
 
@@ -199,7 +199,7 @@ async def employ_up_to_capacity(self, building, already):
     workers, max = get_building_employment_vars(self, building)
     missing = 0
     if getattr(self.city, workers, 0) < getattr(self.city, max, 0):
-        already = go_to_recruit(self, already)
+        already = await go_to_recruit(self, already)
         await send_message_and_wait(self, building.capitalize())
         missing = await employ_at_capacity(self, building, False)
         await send_message_and_wait(self, 'Back')
@@ -309,7 +309,7 @@ def human_readable_indexes(self, message):
         print(str(i) + ": " + message.split()[i])
 
 
-def parse_message(self, message):
+async def parse_message(self, message):
     message = message.replace(u'\u200B', '')
     first_line = message.split()[0]
     # Main Info and Buildings
@@ -324,7 +324,7 @@ def parse_message(self, message):
     elif '🏘Houses' in message.split()[0]:
         parse_building_houses(self, message)
     elif 'Resources' in first_line or 'no place in the storage' in message or 'find money.' in message:
-        parse_resource_message(self, message)
+        await parse_resource_message(self, message)
     elif 'Storage' in first_line and '👥' in message:
         parse_building_storage(self, message)
     elif 'Barracks' in first_line:
@@ -555,12 +555,12 @@ def parse_war_recruitment_info(self, msg):
     self.status.menuDepth = 2
 
 
-def parse_resource_message(self, msg):
+async def parse_resource_message(self, msg):
     if 'delivered' in msg:
         'resources purchased'
     if 'find money.' in msg:
         self.log.error('not enough money for resources')
-        send_message_and_wait(self, "1")  # Remind script of actual resource amount by purchasing 1
+        await send_message_and_wait(self, "1")  # Remind script of actual resource amount by purchasing 1
     if 'no place' in msg:
         self.log.error('no room for resources we attempted to purchase')
     else:
@@ -812,9 +812,21 @@ def parse_war_victory(self, msg):
 
 def parse_war_defeat(self, msg):
     self.log.info(msg)
+
+    update_gold(self)
+    m2 = re.search(r'(\d+)💰', msg)
+    if m2 is None:
+        self.city.lastBattleGold = 0
+    else:
+        self.city.lastBattleGold = int(m2.group(1))
+        self.city.gold = self.city.gold - self.city.lastBattleGold
+
+    self.city.warStatus = 'peace'
+
     reg = re.compile(
         r'with 🗡?(?:{(.+)})?(?:\[(\W)])?([\w, ]+) complete. Unfortunately, ([\w ]+),.+ lose\. (None|Only'
         r' (\d+)⚔) of (\d+)⚔')
+
     m = re.search(reg, msg)
 
     self.city.lastEnemyStatuses = m.group(1)
@@ -824,14 +836,6 @@ def parse_war_defeat(self, msg):
     if m.group(6) is not None:
         self.city.soldiers = self.city.soldiers + int(m.group(6))
     self.city.soldiersInPreviousBattle = int(m.group(7))
-    update_gold(self)
-
-    m2 = re.search(r'(\d+)💰', msg)
-    if m2 is None:
-        self.city.lastBattleGold = 0
-    else:
-        self.city.lastBattleGold = int(m2.group(1))
-        self.city.gold = self.city.gold - self.city.lastBattleGold
 
     m3 = re.search('(\d+)🗺', msg)
     if m3 is None:
@@ -839,8 +843,6 @@ def parse_war_defeat(self, msg):
     else:
         self.city.wallNeedsCheck = True
         self.city.lastBattleTerritory = int(m3.group(1))
-
-    self.city.warStatus = 'peace'
 
 
 def parse_war_clan_defeat(self, msg):
