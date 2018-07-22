@@ -3,7 +3,6 @@ import asyncio
 import logging
 import math
 import os
-from os.path import expanduser
 import random
 import re
 import sys
@@ -16,7 +15,7 @@ import traceback
 
 scriptStartTime = datetime.now()
 
-logging.basicConfig(filename=expanduser("~") + '/.hidden/siege.log', level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(name)-12s %(threadName)s %(levelname)-8s %(message)s')
 logging.getLogger('telethon').setLevel(logging.CRITICAL)
 logging.getLogger('asyncio').setLevel(logging.CRITICAL)
 

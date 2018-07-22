@@ -1,8 +1,14 @@
 import asyncio
 from os import environ
+from os.path import expanduser
 import sys
 from BastionSiege import Siege
 from telethon import TelegramClient
+
+logfile = expanduser("~") + '/.hidden/siege.log'
+output = open(logfile, 'a+', 1)
+sys.stdout = output
+sys.stderr = output
 
 modes = [
     ['houses', 'townhall', 'storage'],
