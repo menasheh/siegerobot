@@ -1012,7 +1012,7 @@ async def upgrade_building(self, building):
     await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
     while getattr(self.city, building) == oldlevel:
         self.log.error("Something went wrong with " + building + " upgrade, please investigate.")
-        procrastinate(self)
+        await procrastinate(self)
         await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
 
     self.log.info(building + " upgraded to level " + str(oldlevel + 1))
@@ -1083,5 +1083,5 @@ async def inplacerestart():
         rand = random.randint(1000, 4000)
         print("Very short runtime; Hope " + pretty_seconds(rand) + " of sleep make it go away.")
         await asyncio.sleep(rand)
-    print("better just restart this coroutine, is that a thing?" )
+    logging.warning("better just restart this coroutine, is that a thing?" )
     os.execv(sys.executable, [sys.executable] + sys.argv)
