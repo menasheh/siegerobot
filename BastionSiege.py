@@ -971,6 +971,8 @@ async def build(self):
                 update_resources(self)
             else:
                 await upgrade_building(self, buildings[i])
+        else:
+            await asyncio.sleep(1)
 
 
 def get_estimated_time_to_resources(self, gold, food, wood, stone):
