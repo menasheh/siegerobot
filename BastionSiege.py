@@ -110,16 +110,38 @@ class Siege(object):
         }
 
     def get_upgrade_equivalent_cost(self, building):
-        costs = [0,0,0]
-        storage = [0,0,0]
-        suffix = ['Cost', 'Wood', 'Stone']
-        for x in range(0, 3):
-            costs[x] = getattr(self.city, building + 'Upgrade' + suffix[x])
-            storage[x] = getattr(self.city, 'storageUpgrade' + suffix[x])
+        costs = upgrade_costs(building, getattr(self.city, building, 0) + 1)
+        storage = upgrade_costs('storage', getattr(self.city, 'storage', 0) + 1)
         if costs[1] > self.city.maxResource or costs[2] > self.city.maxResource:
             for x in range(0, 3):
                 costs[x] += storage[x]
         return costs[0] + 2 * (costs[1] + costs[2])
+
+    def get_upgrade_payback_period(self, building):
+        upgrowth = self.get_upgrade_income_growth()[building]
+        upcost = self.get_upgrade_equivalent_cost(building)
+        if upgrowth > 0:
+            return upcost / upgrowth
+        return -1
+
+    def get_building_to_upgrade(self):
+        if getattr(self.city, 'storage', 0) == 0:
+            return 'storage'
+        if getattr(self.city, 'farm', 0) == 0:
+            return 'farm'
+        result = 'townhall'
+        pbp = self.get_upgrade_payback_period(result)
+        for building in ["houses", "farm", "sawmill", "mine"]:
+            other_pbp = self.get_upgrade_payback_period(building)
+            if other_pbp < pbp:
+                result = building
+                pbp = other_pbp
+        costs = upgrade_costs(building, getattr(self.city, building, 0) + 1)
+        if costs[1] > self.city.maxResource or costs[2] > self.city.maxResource:
+            return 'storage'
+        return result
+
+
 def clean_trim(string):
     return ''.join(string.split())
 
