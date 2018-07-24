@@ -17,12 +17,9 @@ import traceback
 scriptStartTime = datetime.now()
 
 logfile = expanduser("~") + '/.hidden/siege.log'
-output = open(logfile, 'a+', 1)
-sys.stdout = output
-sys.stderr = output
 
-logging.basicConfig(level=logging.DEBUG,
-                    stream=sys.stdout,
+logging.basicConfig(filename=logfile,
+                    level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(threadName)s %(levelname)-8s %(message)s')
 logging.getLogger('telethon').setLevel(logging.CRITICAL)
 logging.getLogger('asyncio').setLevel(logging.CRITICAL)
