@@ -126,6 +126,15 @@ class Siege(object):
             return 'storage'
         if getattr(self.city, 'farm', 0) == 0:
             return 'farm'
+        if self.warmode:
+            buildings = self.city.warbuildings
+            i = 0
+            while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
+                    self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or \
+                    self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
+                i += 1
+            if i < len(self.city.warbuildings):
+                return buildings[i]
         result = 'townhall'
         pbp = self.get_upgrade_payback_period(result)
         for building in ["houses", "farm", "sawmill", "mine"]:
@@ -958,21 +967,7 @@ async def build(self):
                     i += 1
                 if already:
                     await send_message_and_wait(self, "⬆️ Up menu")
-            building = ''
-            i = -1
-            if self.warmode:
-                buildings = self.city.warbuildings
-                i = 0
-                while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
-                        self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or \
-                        self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
-                    i += 1
-                if i > len(self.city.warbuildings):
-                    i = -1
-                else:
-                    building = buildings[i]
-            if i == -1:
-                building = self.get_building_to_upgrade()
+            building = self.get_building_to_upgrade()
 
             await return_to_main(self)
             requiredfood = await purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
