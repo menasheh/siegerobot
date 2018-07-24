@@ -28,10 +28,11 @@ logging.getLogger('asyncio').setLevel(logging.CRITICAL)
 class Siege(object):
     BOT_ID = int(252148344)
 
-    def __init__(self, telegram_client, upgrade_priorities):
+    def __init__(self, telegram_client, mode):
         self.telegram = telegram_client
         self.entity = "BastionSiegeBot"
         self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('.')[0])
+        self.warmode = mode == 1
 
         class Object:
             def __init__(self, array):
@@ -45,8 +46,7 @@ class Siege(object):
         self.status.menuDepth = 1
         self.city.update_times = Object([])
 
-        self.city.warbuildings = ["trebuchet", "walls", "barracks"]
-        self.city.upgrade_priorities = upgrade_priorities
+        self.city.warbuildings = ["barracks", "trebuchet", "walls"]
 
     async def run(self):
         @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
@@ -958,36 +958,44 @@ async def build(self):
                     i += 1
                 if already:
                     await send_message_and_wait(self, "⬆️ Up menu")
-
-            buildings = self.city.upgrade_priorities
-            i = 0
-            while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
-                    self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or \
-                    self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
-                i += 1
+            building = ''
+            i = -1
+            if self.warmode:
+                buildings = self.city.warbuildings
+                i = 0
+                while self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or \
+                        self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or \
+                        self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost'):
+                    i += 1
+                if i > len(self.city.warbuildings):
+                    i = -1
+                else:
+                    building = buildings[i]
+            if i == -1:
+                building = self.get_building_to_upgrade()
 
             await return_to_main(self)
             requiredfood = await purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
             requiredwood = await purchase_resource(self, "wood",
-                                             get_upgrade_required_resource_quantity(self, buildings[i], "wood"))
+                                             get_upgrade_required_resource_quantity(self, building, "wood"))
             requiredstone = await purchase_resource(self, "stone",
-                                              get_upgrade_required_resource_quantity(self, buildings[i], "stone"))
-            requiredgold = getattr(self.city, buildings[i] + 'UpgradeCost') - self.city.gold
+                                              get_upgrade_required_resource_quantity(self, building, "stone"))
+            requiredgold = getattr(self.city, building + 'UpgradeCost') - self.city.gold
 
             estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood,
                                                             requiredstone)
 
             if estimatedtime > 0:
                 self.log.info(
-                    "Upgrade of " + buildings[i] + " possible in approximately " + pretty_seconds(
+                    "Upgrade of " + building + " possible in approximately " + pretty_seconds(
                         60 * estimatedtime) + ".")
                 goldreq = 0
                 woodreq = 0
                 stonereq = 0
-                leveldesired = getattr(self.city, buildings[i])
+                leveldesired = getattr(self.city, building)
                 while self.city.maxWood > woodreq and self.city.maxStone > stonereq and self.city.maxGold > goldreq:
                     leveldesired += 1
-                    goldreq, woodreq, stonereq = upgrade_costs(buildings[i], leveldesired)
+                    goldreq, woodreq, stonereq = upgrade_costs(building, leveldesired)
                     requiredgold += goldreq
                     requiredwood += woodreq
                     requiredstone += stonereq
@@ -999,14 +1007,14 @@ async def build(self):
                 estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood,
                                                                 requiredstone)
                 self.city.goal_estimate = "With %d storage, %s maxes out at %d and will take ~%s to complete." % (
-                    self.city.storage, buildings[i], leveldesired, pretty_seconds(60 * estimatedtime)
+                    self.city.storage, building, leveldesired, pretty_seconds(60 * estimatedtime)
                 )
                 self.log.info(self.city.goal_estimate)
                 await procrastinate(self)
                 update_gold(self)
                 update_resources(self)
             else:
-                await upgrade_building(self, buildings[i])
+                await upgrade_building(self, building)
         else:
             await asyncio.sleep(1)
 

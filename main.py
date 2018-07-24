@@ -11,11 +11,6 @@ output = open(logfile, 'a+', 1)
 sys.stdout = output
 sys.stderr = output
 
-modes = [
-    ['houses', 'townhall', 'storage'],
-    ['walls', 'barracks', 'trebuchet', 'houses', 'townhall', 'storage'],
-]
-
 
 def get_config():
     result = []
@@ -40,7 +35,7 @@ for config in configs:
             environ['TG_API_HASH'],
             proxy=None,
         ).start(config[2]),
-        modes[int(config[1])]
+        int(config[1])
     ])
 
 sieges = [Siege(client[0], client[1]) for client in clients]
