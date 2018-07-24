@@ -6,11 +6,6 @@ import sys
 from BastionSiege import Siege, pretty_seconds
 from telethon import TelegramClient
 
-logfile = expanduser("~") + '/.hidden/robots.log'
-output = open(logfile, 'a+', 1)
-sys.stdout = output
-sys.stderr = output
-
 
 def get_config():
     result = []
@@ -37,6 +32,11 @@ for config in configs:
         ).start(config[2]),
         int(config[1])
     ])
+# todo use a logger instead of std
+logfile = expanduser("~") + '/.hidden/robots.log'
+output = open(logfile, 'a+', 1)
+sys.stdout = output
+sys.stderr = output
 
 sieges = [Siege(client[0], client[1]) for client in clients]
 routines = [siege.run() for siege in sieges]
