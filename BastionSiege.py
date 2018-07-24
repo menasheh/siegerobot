@@ -109,6 +109,17 @@ class Siege(object):
             "trebuchet": 0,
         }
 
+    def get_upgrade_equivalent_cost(self, building):
+        costs = [0,0,0]
+        storage = [0,0,0]
+        suffix = ['Cost', 'Wood', 'Stone']
+        for x in range(0, 3):
+            costs[x] = getattr(self.city, building + 'Upgrade' + suffix[x])
+            storage[x] = getattr(self.city, 'storageUpgrade' + suffix[x])
+        if costs[1] > self.city.maxResource or costs[2] > self.city.maxResource:
+            for x in range(0, 3):
+                costs[x] += storage[x]
+        return costs[0] + 2 * (costs[1] + costs[2])
 def clean_trim(string):
     return ''.join(string.split())
 
