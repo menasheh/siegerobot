@@ -48,8 +48,8 @@ async def handle(request):
     for siege in sieges:
         if siege.telegram.session.filename.split('.')[0] == name:
             text = ""
-            buildings = [["storage", "🏤"],["townhall", "🏚"],["houses", "🏘"],["farm", "🌻"],["sawmill", "🌲"],
-                         ["mine", "⛏"],["barracks" "🛡"],["walls", "🏰"],["trebuchet", "⚔"]]
+            buildings = [["storage", "🏤"], ["townhall", "🏚"], ["houses", "🏘"], ["farm", "🌻"], ["sawmill", "🌲"],
+                         ["mine", "⛏"], ["barracks", "🛡"], ["walls", "🏰"], ["trebuchet", "⚔"]]
             upgrowth = siege.get_upgrade_income_growth()
             text += "Icon\tBuilding\tLevel\tUp💰\tEUC\tPBP\n"
             for i in range(0, len(buildings)):
@@ -61,13 +61,15 @@ async def handle(request):
                     text += str(siege.get_upgrade_equivalent_cost(buildings[i][0])) + "\t"
                     period = siege.get_upgrade_payback_period(buildings[i][0])
                     text += ("" if period is -1 else pretty_seconds(60 * period)) + "\n"
-            text += "\n\n"
+            text += "\n"
             text += "Upgrade priority: " + siege.get_building_to_upgrade()
             text += "\n\n\n\n\n"
             for k, v in siege.city.__dict__.items():
                 text += str(k) + ": " + str(v) + "\n"
             continue
     return web.Response(text=text)
+
+
 app = web.Application()
 app.add_routes([web.get('/', handle),
                 web.get('/{name}', handle)])
@@ -80,6 +82,8 @@ async def main():
     await site.start()
     await asyncio.gather(*routines)
     await runner.cleanup()
+
+
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
