@@ -177,9 +177,9 @@ async def environment(self):
     self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # Assumes max pop
     self.city.dailyPeopleIncrease = self.city.houses
 
-    self.city.dailyWoodProduction = self.city.sawmill * 10
-    self.city.dailyStoneProduction = self.city.mine * 10
-    self.city.dailyFoodProduction = self.city.farm * 10
+    self.city.dailyWoodProduction = min(self.city.storage, self.city.sawmill) * 10
+    self.city.dailyStoneProduction = min(self.city.storage, self.city.mine) * 10
+    self.city.dailyFoodProduction = min(self.city.storage, self.city.farm) * 10
 
     await structure_exists(self)
     await resource_hires(self)
