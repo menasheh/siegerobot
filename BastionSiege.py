@@ -285,17 +285,14 @@ def calc_all_upgrade_costs(self):
     calc_upgrade_costs(self, 'farm')
     calc_upgrade_costs(self, 'houses')
     calc_upgrade_costs(self, 'townhall')
-    if hasattr(self.city, "barracks") and (self.city.barracks != 0):
-        calc_upgrade_costs(self, 'barracks')
-    if hasattr(self.city, "walls") and (self.city.walls != 0):
-        calc_upgrade_costs(self, 'walls')
-    if hasattr(self.city, "trebuchet") and (self.city.trebuchet != 0):
-        calc_upgrade_costs(self, 'trebuchet')
+    calc_upgrade_costs(self, 'barracks')
+    calc_upgrade_costs(self, 'walls')
+    calc_upgrade_costs(self, 'trebuchet')
     calc_upgrade_costs(self, 'storage')
 
 
 def calc_upgrade_costs(self, building):
-    results = upgrade_costs(building, getattr(self.city, building) + 1)
+    results = upgrade_costs(building, getattr(self.city, building, 0) + 1)
     suffix = ['Cost', 'Wood', 'Stone']
 
     for x in range(0, 3):
@@ -314,20 +311,15 @@ def upgrade_costs(building, level_desired):
         'trebuchet': [8000, 1000, 300],
         'storage': [200, 100, 100]
     }
-
     level_current = level_desired - 1
     level_previous = level_desired - 2
-
     resources_sunk = -2
     if level_current > 0:
         resources_sunk = level_current * level_previous * ((2 * level_current + 8) / 6 + 2 / level_current)
-
     result = [0, 0, 0]
-
     for x in range(0, 3):
         result[x] = int((coeff[building][x] * (level_desired * level_current * (
                 (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
-
     return result
 
 
