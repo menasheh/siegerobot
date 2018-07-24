@@ -1053,17 +1053,23 @@ async def upgrade_building(self, building):
 
     oldlevel = getattr(self.city, building)
     await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-    while getattr(self.city, building) == oldlevel:
+    if getattr(self.city, building) == oldlevel:
         self.log.error("Something went wrong with " + building + " upgrade, please investigate.")
-        await procrastinate(self)
-        await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
-
-    self.log.info(building + " upgraded to level " + str(oldlevel + 1))
-    for x in range(0, len(self.status.replyMarkup)):
-        if "Hire" in self.status.replyMarkup[x] or "Recruit" in self.status.replyMarkup[x]:
-            await send_message_and_wait(self, self.status.replyMarkup[x])
-            await employ_at_capacity(self, building, False)
-            break
+        self.log.error("gold, max, wood, max, stone, max, food")
+        self.log.error(self.city.gold)
+        self.log.error(self.city.maxGold)
+        self.log.error(self.city.wood)
+        self.log.error(self.city.maxWood)
+        self.log.error(self.city.stone)
+        self.log.error(self.city.maxStone)
+        self.log.error(self.city.food)
+    else:
+        self.log.info(building + " upgraded to level " + str(oldlevel + 1))
+        for x in range(0, len(self.status.replyMarkup)):
+            if "Hire" in self.status.replyMarkup[x] or "Recruit" in self.status.replyMarkup[x]:
+                await send_message_and_wait(self, self.status.replyMarkup[x])
+                await employ_at_capacity(self, building, False)
+                break
 
     await send_message_and_wait(self, "⬆️ Up menu")
 
