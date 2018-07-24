@@ -60,8 +60,10 @@ class Siege(object):
 
             if event.message.reply_markup is not None:
                 markup = []
+
                 class Object:
                     pass
+
                 chatbuttons = Object()
                 chatbuttons.id = event.message.id
                 chatbuttons.text = []
@@ -97,10 +99,10 @@ class Siege(object):
             "townhall": self.city.houses * 2,
             "houses": 10 + self.city.townhall * 2 - (5 if self.city.farm > self.city.houses else 20),
             "farm": 5 if self.city.farm > self.city.houses else 20 if self.city.farm < self.city.storage else 0,
-            "sawmill": 5 if self.city.dailyGoldProduction / (
-                        self.city.sawmill + 1) < 20 else 20 if self.city.sawmill < self.city.storage else 0,
-            "mine": 5 if self.city.dailyGoldProduction / (
-                        self.city.mine + 1) < 20 else 20 if self.city.mine < self.city.storage else 0,
+            "sawmill": (5 if self.city.dailyGoldProduction / (
+                        self.city.sawmill + 1) < 20 else 20) if self.city.sawmill < self.city.storage else 0,
+            "mine": (5 if self.city.dailyGoldProduction / (
+                        self.city.mine + 1) < 20 else 20) if self.city.mine < self.city.storage else 0,
             "barracks": 0,
             "walls": 0,
             "trebuchet": 0,
@@ -139,7 +141,7 @@ class Siege(object):
         pbp = self.get_upgrade_payback_period(result)
         for building in ["houses", "farm", "sawmill", "mine"]:
             other_pbp = self.get_upgrade_payback_period(building)
-            if other_pbp < pbp:
+            if 0 < other_pbp < pbp:
                 result = building
                 pbp = other_pbp
         costs = upgrade_costs(building, getattr(self.city, building, 0) + 1)
@@ -972,9 +974,9 @@ async def build(self):
             await return_to_main(self)
             requiredfood = await purchase_resource(self, "food", get_food_purchase_quantity_for_reserve(self))
             requiredwood = await purchase_resource(self, "wood",
-                                             get_upgrade_required_resource_quantity(self, building, "wood"))
+                                                   get_upgrade_required_resource_quantity(self, building, "wood"))
             requiredstone = await purchase_resource(self, "stone",
-                                              get_upgrade_required_resource_quantity(self, building, "stone"))
+                                                    get_upgrade_required_resource_quantity(self, building, "stone"))
             requiredgold = getattr(self.city, building + 'UpgradeCost') - self.city.gold
 
             estimatedtime = get_estimated_time_to_resources(self, requiredgold, requiredfood, requiredwood,
@@ -1124,5 +1126,5 @@ async def inplacerestart():
         rand = random.randint(1000, 4000)
         print("Very short runtime; Hope " + pretty_seconds(rand) + " of sleep make it go away.")
         await asyncio.sleep(rand)
-    logging.warning("better just restart this coroutine, is that a thing?" )
+    logging.warning("better just restart this coroutine, is that a thing?")
     os.execv(sys.executable, [sys.executable] + sys.argv)
