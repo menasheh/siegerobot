@@ -55,7 +55,7 @@ async def handle(request):
             for i in range(0, len(buildings)):
                 if hasattr(siege.city, buildings[i][0]):
                     text += buildings[i][1] + "\t" + buildings[i][0] + "\t"
-                    if buildings[i][0][0] != 't':
+                    if len(buildings[i][0]) < 8:
                         text += "\t"
                     text += str(getattr(siege.city, buildings[i][0])) + "\t" + str(upgrowth[buildings[i][0]]) + "\t"
                     text += str(siege.get_upgrade_equivalent_cost(buildings[i][0])) + "\t"
