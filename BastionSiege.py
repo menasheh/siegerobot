@@ -94,6 +94,20 @@ class Siege(object):
             build(self)
         )
 
+    def get_upgrade_income_growth(self):
+        return {
+            "storage": 0,
+            "townhall": self.city.houses * 2,
+            "houses": 10 + self.city.townhall * 2 - (5 if self.city.farm > self.city.houses else 20),
+            "farm": 5 if self.city.farm > self.city.houses else 20 if self.city.farm < self.city.storage else 0,
+            "sawmill": 5 if self.city.dailyGoldProduction / (
+                        self.city.sawmill + 1) < 20 else 20 if self.city.sawmill < self.city.storage else 0,
+            "mine": 5 if self.city.dailyGoldProduction / (
+                        self.city.mine + 1) < 20 else 20 if self.city.mine < self.city.storage else 0,
+            "barracks": 0,
+            "walls": 0,
+            "trebuchet": 0,
+        }
 
 def clean_trim(string):
     return ''.join(string.split())
