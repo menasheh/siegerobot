@@ -98,7 +98,7 @@ class Siege(object):
             "storage": 0,
             "townhall": self.city.houses * 2,
             "houses": 10 + self.city.townhall * 2 - (5 if self.city.farm > self.city.houses else 20),
-            "farm": 5 if self.city.farm > self.city.houses else 20 if self.city.farm < self.city.storage else 0,
+            "farm": (5 if self.city.farm > self.city.houses else 20) if self.city.farm < self.city.storage else 0,
             "sawmill": (5 if self.city.dailyGoldProduction / (
                         self.city.sawmill + 1) < 20 else 20) if self.city.sawmill < self.city.storage else 0,
             "mine": (5 if self.city.dailyGoldProduction / (
