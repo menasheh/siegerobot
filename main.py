@@ -3,7 +3,7 @@ from aiohttp import web
 from os import environ
 from os.path import expanduser
 import sys
-from BastionSiege import Siege
+from BastionSiege import Siege, pretty_seconds
 from telethon import TelegramClient
 
 logfile = expanduser("~") + '/.hidden/robots.log'
@@ -53,6 +53,22 @@ async def handle(request):
     for siege in sieges:
         if siege.telegram.session.filename.split('.')[0] == name:
             text = ""
+            buildings = [["storage", "🏤"],["townhall", "🏚"],["houses", "🏘"],["farm", "🌻"],["sawmill", "🌲"],
+                         ["mine", "⛏"],["barracks" "🛡"],["walls", "🏰"],["trebuchet", "⚔"]]
+            upgrowth = siege.get_upgrade_income_growth()
+            text += "Icon\tBuilding\tLevel\tUp💰\tEUC\tPBP\n"
+            for i in range(0, len(buildings)):
+                if hasattr(siege.city, buildings[i][0]):
+                    text += buildings[i][1] + "\t" + buildings[i][0] + "\t"
+                    if buildings[i][0][0] != 't':
+                        text += "\t"
+                    text += str(getattr(siege.city, buildings[i][0])) + "\t" + str(upgrowth[buildings[i][0]]) + "\t"
+                    text += str(siege.get_upgrade_equivalent_cost(buildings[i][0])) + "\t"
+                    period = siege.get_upgrade_payback_period(buildings[i][0])
+                    text += ("" if period is -1 else pretty_seconds(60 * period)) + "\n"
+            text += "\n\n"
+            text += "Upgrade priority: " + siege.get_building_to_upgrade()
+            text += "\n\n\n\n\n"
             for k, v in siege.city.__dict__.items():
                 text += str(k) + ": " + str(v) + "\n"
             continue
@@ -69,7 +85,6 @@ async def main():
     await site.start()
     await asyncio.gather(*routines)
     await runner.cleanup()
-
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
