@@ -123,7 +123,6 @@ class Siege(object):
             return upcost / upgrowth
         return -1
 
-    @staticmethod
     def get_building_to_upgrade(self):
         if getattr(self.city, 'storage', 0) == 0:
             return 'storage'
