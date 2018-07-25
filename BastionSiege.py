@@ -109,8 +109,8 @@ class Siege(object):
         }
 
     def get_upgrade_equivalent_cost(self, building):
-        costs = upgrade_costs(building, getattr(self.city, building, 0) + 1)
-        storage = upgrade_costs('storage', getattr(self.city, 'storage', 0) + 1)
+        costs = Siege.upgrade_costs(building, getattr(self.city, building, 0) + 1)
+        storage = Siege.upgrade_costs('storage', getattr(self.city, 'storage', 0) + 1)
         if costs[1] > self.city.maxResource or costs[2] > self.city.maxResource:
             for x in range(0, 3):
                 costs[x] += storage[x]
@@ -123,6 +123,7 @@ class Siege(object):
             return upcost / upgrowth
         return -1
 
+    @staticmethod
     def get_building_to_upgrade(self):
         if getattr(self.city, 'storage', 0) == 0:
             return 'storage'
@@ -144,9 +145,33 @@ class Siege(object):
             if 0 < other_pbp < pbp:
                 result = building
                 pbp = other_pbp
-        costs = upgrade_costs(building, getattr(self.city, building, 0) + 1)
+        costs = Siege.upgrade_costs(building, getattr(self.city, building, 0) + 1)
         if costs[1] > self.city.maxWood or costs[2] > self.city.maxStone:
             return 'storage'
+        return result
+
+    @staticmethod
+    def upgrade_costs(building, level_desired):
+        coeff = {
+            'sawmill': [100, 50, 50],
+            'mine': [100, 50, 50],
+            'farm': [100, 50, 50],
+            'houses': [200, 100, 100],
+            'townhall': [500, 200, 200],
+            'barracks': [200, 100, 100],
+            'walls': [5000, 500, 1500],
+            'trebuchet': [8000, 1000, 300],
+            'storage': [200, 100, 100]
+        }
+        level_current = level_desired - 1
+        level_previous = level_desired - 2
+        resources_sunk = -2
+        if level_current > 0:
+            resources_sunk = level_current * level_previous * ((2 * level_current + 8) / 6 + 2 / level_current)
+        result = [0, 0, 0]
+        for x in range(0, 3):
+            result[x] = int((coeff[building][x] * (level_desired * level_current * (
+                    (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
         return result
 
 
@@ -322,35 +347,11 @@ def calc_all_upgrade_costs(self):
 
 
 def calc_upgrade_costs(self, building):
-    results = upgrade_costs(building, getattr(self.city, building, 0) + 1)
+    results = Siege.upgrade_costs(building, getattr(self.city, building, 0) + 1)
     suffix = ['Cost', 'Wood', 'Stone']
 
     for x in range(0, 3):
         setattr(self.city, building + 'Upgrade' + suffix[x], results[x])
-
-
-def upgrade_costs(building, level_desired):
-    coeff = {
-        'sawmill': [100, 50, 50],
-        'mine': [100, 50, 50],
-        'farm': [100, 50, 50],
-        'houses': [200, 100, 100],
-        'townhall': [500, 200, 200],
-        'barracks': [200, 100, 100],
-        'walls': [5000, 500, 1500],
-        'trebuchet': [8000, 1000, 300],
-        'storage': [200, 100, 100]
-    }
-    level_current = level_desired - 1
-    level_previous = level_desired - 2
-    resources_sunk = -2
-    if level_current > 0:
-        resources_sunk = level_current * level_previous * ((2 * level_current + 8) / 6 + 2 / level_current)
-    result = [0, 0, 0]
-    for x in range(0, 3):
-        result[x] = int((coeff[building][x] * (level_desired * level_current * (
-                (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
-    return result
 
 
 async def return_to_main(self):
@@ -992,7 +993,7 @@ async def build(self):
                 leveldesired = getattr(self.city, building)
                 while self.city.maxWood > woodreq and self.city.maxStone > stonereq and self.city.maxGold > goldreq:
                     leveldesired += 1
-                    goldreq, woodreq, stonereq = upgrade_costs(building, leveldesired)
+                    goldreq, woodreq, stonereq = Siege.upgrade_costs(building, leveldesired)
                     requiredgold += goldreq
                     requiredwood += woodreq
                     requiredstone += stonereq
