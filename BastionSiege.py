@@ -145,7 +145,7 @@ class Siege(object):
                 result = building
                 pbp = other_pbp
         costs = upgrade_costs(building, getattr(self.city, building, 0) + 1)
-        if costs[1] > self.city.maxResource or costs[2] > self.city.maxResource:
+        if costs[1] > self.city.maxWood or costs[2] > self.city.maxStone:
             return 'storage'
         return result
 
