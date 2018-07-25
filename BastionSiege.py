@@ -686,27 +686,19 @@ def parse_building_houses(self, msg):
 
 
 def parse_building_mine(self, msg):
-    reg = re.compile(r'(\d+)')
-    m = re.findall(reg, msg)
+    numbers = ['mine', 'mineWorkers', 'maxMineWorkers', 'mineLocalStorage', 'mineMaxLocalStorage',
+               'dailyStoneProduction', 'storageWorkers', 'mineHireCost', 'mineHirePeople', 'gold', 'people',
+               'mineDigPercentBeforeDecimal', 'mineDigPercentAfterDecimal', 'mineDigAttempts']
+    if 'end' in msg:
+        numbers.append('mineDigEndTime')
+    numbers.append('mineUpgradeCost')
+    numbers.append('mineUpgradeWood')
+    numbers.append('mineUpgradeStone')
 
-    debug_numbers_from_message(self, msg)
+    parse_numbers_from_message(self, msg, numbers)
 
-    self.city.mine = int(m[0])
-    self.city.mineWorkers = int(m[1])
-    self.city.mineMaxWorkers = int(m[2])
-    self.city.mineLocalStorage = int(m[3])
-    # mineMaxLocalStorage
-    self.city.dailyStoneProduction = int(m[5])
-    self.city.storageWorkers = int(m[6])
-    # Individual cost variable for hiring?
-    #
-    self.city.gold = int(m[9])
     self.city.update_times.gold = time.time()
-    self.city.people = int(m[10])
     self.city.update_times.people = time.time()
-    self.city.mineUpgradeCost = int(m[11])
-    self.city.mineUpgradeWood = int(m[12])
-    self.city.mineUpgradeStone = int(m[13])
 
     self.status.menuDepth = 2
 
