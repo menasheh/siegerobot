@@ -939,7 +939,7 @@ def pretty_print(objecty):
 
 
 async def build(self):
-    await procrastinate()
+    await procrastinate(self)
     await environment(self)
     while True:
         if self.city.warStatus is 'peace':
