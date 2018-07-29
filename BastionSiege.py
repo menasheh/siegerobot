@@ -482,7 +482,7 @@ def parse_profile(self, msg):
     match = try_regex(self, r'(\W+?)?(?:{(.+)})?(?:\[(\W)])?([\w ]+).+ory\d+🗺Season(\w+.+)Weather(\w+).+',
                       clean_trim(msg), "parse_profile")
 
-    parse_numbers_from_message(self, msg,
+    parse_numbers_from_message(self, msg.split("\n",2)[2],
                                ['territory', 'time.hour', 'time.minute', 'time.second', 'people', 'soldiers',
                                 'gems', 'gold', 'wood', 'stone', 'food'])
 
