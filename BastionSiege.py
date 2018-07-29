@@ -221,6 +221,7 @@ async def procrastinate(self):
     self.log.info("snoozing for " + pretty_seconds(rand_time) + ".")
     self.sleep = asyncio.sleep(rand_time)
     await self.sleep
+    self.sleep = None
 
 
 async def environment(self):

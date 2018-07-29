@@ -42,7 +42,7 @@ sieges = [Siege(client[0], client[1]) for client in clients]
 routines = [siege.run() for siege in sieges]
 
 
-async def handle(request):
+async def siege_info_handler(request):
     name = request.match_info.get('name', "Anonymous")
     text = "No session for " + name
     for siege in sieges:
@@ -70,9 +70,23 @@ async def handle(request):
     return web.Response(text=text)
 
 
+async def siege_wake_handler(request):
+    name = request.match_info.get('name', None)
+    if name is not None:
+        for siege in sieges:
+            if siege.telegram.session.filename.split('.')[0] == name:
+                if siege.sleep is not None:
+                    siege.sleep.cancel()
+                continue
+        return web.Response(text="Woke " + name)
+    else:
+        return web.Response(text="Session not found")
+
+
 app = web.Application()
-app.add_routes([web.get('/', handle),
-                web.get('/{name}', handle)])
+app.add_routes([web.get('/', siege_info_handler),
+                web.get('/{name}', siege_info_handler),
+                web.get('/{name}/wake', siege_wake_handler)])
 runner = web.AppRunner(app)
 
 
