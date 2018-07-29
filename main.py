@@ -115,7 +115,7 @@ async def siege_dashboard_handler(request):
                 else:
                     text += f'{session} has not parsed buildings yet\n'
         text += f'slaves: {slaves}\n'
-        text += f'{refs} referrals in training. {recents} recently awarded. Highest level is {maxref} and lowest is'
+        text += f'{refs} referrals in training. {recents} recently awarded. Highest level is {maxref} and lowest is '
         text += f'{minref if minref is not 9999 else -1}\n'
         return web.Response(text=text)
     else:
