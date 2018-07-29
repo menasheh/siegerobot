@@ -42,28 +42,12 @@ sieges = [Siege(client[0], client[1]) for client in clients]
 routines = [siege.run() for siege in sieges]
 
 
-async def siege_info_handler(request):
+async def siege_debug_handler(request):
     name = request.match_info.get('name', "Anonymous")
     text = "No session for " + name
     for siege in sieges:
         if siege.telegram.session.filename.split('.')[0] == name:
             text = ""
-            buildings = [["storage", "🏤"], ["townhall", "🏚"], ["houses", "🏘"], ["farm", "🌻"], ["sawmill", "🌲"],
-                         ["mine", "⛏"], ["barracks", "🛡"], ["walls", "🏰"], ["trebuchet", "⚔"]]
-            upgrowth = siege.get_upgrade_income_growth()
-            text += "Icon\tBuilding\tLevel\tUp💰\tEUC\tPBP\n"
-            for i in range(0, len(buildings)):
-                if hasattr(siege.city, buildings[i][0]):
-                    text += buildings[i][1] + "\t" + buildings[i][0] + "\t"
-                    if len(buildings[i][0]) < 8:
-                        text += "\t"
-                    text += str(getattr(siege.city, buildings[i][0])) + "\t" + str(upgrowth[buildings[i][0]]) + "\t"
-                    text += str(siege.get_upgrade_equivalent_cost(buildings[i][0])) + "\t"
-                    period = siege.get_upgrade_payback_period(buildings[i][0])
-                    text += ("" if period is -1 else pretty_seconds(60 * period)) + "\n"
-            text += "\n"
-            text += "Upgrade priority: " + siege.get_building_to_upgrade()
-            text += "\n\n\n\n\n"
             for k, v in siege.city.__dict__.items():
                 text += str(k) + ": " + str(v) + "\n"
             continue
@@ -84,10 +68,66 @@ async def siege_wake_handler(request):
         return web.Response(text="Session not found")
 
 
+async def siege_dashboard_handler(request):
+    name = request.match_info.get('name', None)
+    if name is not None:
+        text = ''
+
+        slaves = []
+        refs = 0
+        recents = 0
+        maxref = -1
+        minref = 9999
+
+        for siege in sieges:
+            session = siege.telegram.session.filename.split('.')[0]
+            if session == name:
+                buildings = [["storage", "🏤"], ["townhall", "🏚"], ["houses", "🏘"], ["farm", "🌻"], ["sawmill", "🌲"],
+                             ["mine", "⛏"], ["barracks", "🛡"], ["walls", "🏰"], ["trebuchet", "⚔"]]
+                upgrowth = siege.get_upgrade_income_growth()
+                text += "Icon\tBuilding\tLevel\tUp💰\tEUC\tPBP\n"
+                for i in range(0, len(buildings)):
+                    if hasattr(siege.city, buildings[i][0]):
+                        text += buildings[i][1] + "\t" + buildings[i][0] + "\t"
+                        if len(buildings[i][0]) < 8:
+                            text += "\t"
+                        text += str(getattr(siege.city, buildings[i][0])) + "\t" + str(upgrowth[buildings[i][0]]) + "\t"
+                        text += str(siege.get_upgrade_equivalent_cost(buildings[i][0])) + "\t"
+                        period = siege.get_upgrade_payback_period(buildings[i][0])
+                        text += ("" if period is -1 else pretty_seconds(60 * period)) + "\n"
+                text += "\n"
+                text += "Upgrade priority: " + siege.get_building_to_upgrade()
+                text += "\n\n"
+            else:
+                slaves.append(session)
+                if hasattr(siege.city, 'townhall'):
+                    town = siege.city.townhall
+                    if town < 27:
+                        if town > 24:
+                            recents += 1
+                        else:
+                            refs += 1
+                        if town < minref:
+                            minref = town
+                        if town > maxref:
+                            maxref = town
+                else:
+                    text += f'{session} has not parsed buildings yet\n'
+        text += "referrals:\n"
+        text += str(slaves)
+        text += "\n"
+        text += f'{refs} in training. {recents} recently awarded. Highest level is {maxref} and lowest is'
+        text += f'{minref if minref is not 9999 else -1}\n'
+        return web.Response(text=text)
+    else:
+        return web.Response(text="Session not found")
+
+
 app = web.Application()
-app.add_routes([web.get('/', siege_info_handler),
-                web.get('/{name}', siege_info_handler),
-                web.get('/{name}/wake', siege_wake_handler)])
+app.add_routes([web.get('/', siege_debug_handler),
+                web.get('/{name}', siege_dashboard_handler),
+                web.get('/{name}/wake', siege_wake_handler),
+                web.get('/{name}/debug', siege_debug_handler)])
 runner = web.AppRunner(app)
 
 
