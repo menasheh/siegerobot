@@ -8,6 +8,7 @@ import random
 import re
 import sys
 from telethon import events
+from telethon.errors import FloodWaitError
 from telethon.tl.types import (
     KeyboardButton, KeyboardButtonCallback
 )
@@ -180,10 +181,16 @@ def clean_trim(string):
 
 
 async def send_message_and_wait(self, message):
-    self.log.debug('sending message: ' + message)
     start_time = time.time()
     lastid = self.status.lastMsgID
-    await self.telegram.send_message(self.entity, message)
+    while True:
+        try:
+            await self.telegram.send_message(self.entity, message)
+        except FloodWaitError as e:
+            self.log.warning(f'FloodWaitError while sending "{message}" - waiting {pretty_seconds(e.seconds)}')
+            await asyncio.sleep(e.seconds)
+            continue
+        break
     while lastid == self.status.lastMsgID:
         await asyncio.sleep(random.randint(1000, 4000) / 1000)
         sleeptime = int(time.time() - start_time)
