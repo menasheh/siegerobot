@@ -180,6 +180,7 @@ def clean_trim(string):
 
 
 async def send_message_and_wait(self, message):
+    self.log.debug('sending message: ' + message)
     start_time = time.time()
     lastid = self.status.lastMsgID
     await self.telegram.send_message(self.entity, message)
