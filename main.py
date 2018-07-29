@@ -96,7 +96,8 @@ async def siege_dashboard_handler(request):
                         period = siege.get_upgrade_payback_period(buildings[i][0])
                         text += ("" if period is -1 else pretty_seconds(60 * period)) + "\n"
                 text += "\n"
-                text += "Upgrade priority: " + siege.get_building_to_upgrade()
+                text += "Upgrade priority: " + siege.get_building_to_upgrade() + "\n"
+                text += getattr(siege.city, 'goal_estimate', '')
                 text += "\n\n"
             else:
                 slaves.append(session)
@@ -113,10 +114,8 @@ async def siege_dashboard_handler(request):
                             maxref = town
                 else:
                     text += f'{session} has not parsed buildings yet\n'
-        text += "referrals:\n"
-        text += str(slaves)
-        text += "\n"
-        text += f'{refs} in training. {recents} recently awarded. Highest level is {maxref} and lowest is'
+        text += f'slaves: {slaves}\n'
+        text += f'{refs} referrals in training. {recents} recently awarded. Highest level is {maxref} and lowest is'
         text += f'{minref if minref is not 9999 else -1}\n'
         return web.Response(text=text)
     else:
