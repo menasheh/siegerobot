@@ -77,8 +77,9 @@ async def siege_wake_handler(request):
             if siege.telegram.session.filename.split('.')[0] == name:
                 if siege.sleep is not None:
                     siege.sleep.cancel()
-                continue
-        return web.Response(text="Woke " + name)
+                    return web.Response(text="woke " + name)
+                else:
+                    return web.Response(text=name + " wasn't sleeping")
     else:
         return web.Response(text="Session not found")
 
