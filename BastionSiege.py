@@ -220,8 +220,11 @@ def update_resource(self, resource):
 async def procrastinate(self):
     rand_time = random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300))
     self.log.info("snoozing for " + pretty_seconds(rand_time) + ".")
-    self.sleep = asyncio.sleep(rand_time)
-    await self.sleep
+    self.sleep = asyncio.ensure_future(asyncio.sleep(rand_time))
+    try:
+        await self.sleep
+    except asyncio.CancelledError:
+        pass
     self.sleep = None
 
 
