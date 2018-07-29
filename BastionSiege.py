@@ -1040,9 +1040,12 @@ async def upgrade_building(self, building):
             building_index = x
             break
     if building_index == -1:
-        sys.exit("Building " + building + " seems not to exist.")
+        self.log.critical("Building " + building + " seems not to exist.")
+        building_message = building.replace("townhall", "town hall").capitalize()
+    else:
+        building_message = self.status.replyMarkup[building_index]
 
-    await send_message_and_wait(self, self.status.replyMarkup[building_index])
+    await send_message_and_wait(self, building_message)
 
     oldlevel = getattr(self.city, building)
     await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
