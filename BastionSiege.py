@@ -2,11 +2,9 @@ from datetime import datetime
 import asyncio
 import logging
 import math
-import os
 from os.path import expanduser
 import random
 import re
-import sys
 from telethon import events
 from telethon.errors import FloodWaitError
 from telethon.tl.types import (
@@ -14,8 +12,6 @@ from telethon.tl.types import (
 )
 import time
 import traceback
-
-scriptStartTime = datetime.now()
 
 logfile = expanduser("~") + '/.hidden/siege.log'
 
@@ -35,6 +31,7 @@ class Siege(object):
         self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('.')[0])
         self.warmode = mode == 1
         self.sleep = None
+        self.scriptStartTime = datetime.now()
 
         class Object:
             def __init__(self, array):
@@ -197,9 +194,7 @@ async def send_message_and_wait(self, message):
         if sleeptime > 200:
             self.log.error("slept " + pretty_seconds(sleeptime) + " after '" + message + "'. Problem?")
             self.log.error(traceback.format_exc())
-            for k, v in self.city.__dict__.items():
-                self.log.debug(str(k) + ": " + str(v))
-            await inplacerestart()
+            await inplacerestart(self)
         pass
     await asyncio.sleep(random.randint(600, 1000) / 1000)
 
@@ -1133,14 +1128,16 @@ def pretty_seconds(number):
     return ", ".join(result)
 
 
-async def inplacerestart():
-    totalscripttime = (datetime.now() - scriptStartTime).total_seconds()
+async def inplacerestart(self):
+    for k, v in self.city.__dict__.items():
+        self.log.debug(str(k) + ": " + str(v))
+    totalscripttime = (datetime.now() - self.scriptStartTime).total_seconds()
     inwords = pretty_seconds(totalscripttime)
-    print('[Runtime] ' + inwords)
-
+    self.log.debug('[Runtime] ' + inwords)
     if totalscripttime < 100:
         rand = random.randint(1000, 4000)
         print("Very short runtime; Hope " + pretty_seconds(rand) + " of sleep make it go away.")
         await asyncio.sleep(rand)
-    logging.warning("better just restart this coroutine, is that a thing?")
-    os.execv(sys.executable, [sys.executable] + sys.argv)
+    self.scriptStartTime = datetime.now()
+    # this isn't the best way, but should work
+    await self.run()
