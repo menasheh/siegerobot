@@ -181,9 +181,9 @@ def clean_trim(string):
 
 
 async def send_message_and_wait(self, message):
-    start_time = time.time()
     lastid = self.status.lastMsgID
     while True:
+        start_time = time.time()
         try:
             await self.telegram.send_message(self.entity, message)
         except FloodWaitError as e:
