@@ -33,6 +33,7 @@ class Siege(object):
         self.entity = "BastionSiegeBot"
         self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('.')[0])
         self.warmode = mode == 1
+        self.sleep = None
 
         class Object:
             def __init__(self, array):
@@ -218,7 +219,8 @@ def update_resource(self, resource):
 async def procrastinate(self):
     rand_time = random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300))
     self.log.info("snoozing for " + pretty_seconds(rand_time) + ".")
-    await asyncio.sleep(rand_time)
+    self.sleep = asyncio.sleep(rand_time)
+    await self.sleep
 
 
 async def environment(self):
