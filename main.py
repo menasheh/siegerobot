@@ -108,10 +108,10 @@ async def siege_dashboard_handler(request):
                             recents += 1
                         else:
                             refs += 1
-                        if town < minref:
-                            minref = town
-                        if town > maxref:
-                            maxref = town
+                            if town < minref:
+                                minref = town
+                            if town > maxref:
+                                maxref = town
                 else:
                     text += f'{session} has not parsed buildings yet\n'
         text += f'slaves: {slaves}\n'
