@@ -87,6 +87,10 @@ class Siege(object):
             # for k, v in self.city.__dict__.items():
             #   self.log.debug(str(k) + ": " + str(v))
 
+        @self.telegram.on(events.NewMessage(incoming=True, from_users=777000))
+        async def update_handler(event):
+            self.log.critical(event.message.message)
+
         await asyncio.gather(
             self.telegram.run_until_disconnected(),
             build(self)
