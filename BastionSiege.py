@@ -39,6 +39,7 @@ class Siege(object):
                     setattr(self, each, 0)
 
         self.city = Object(['gold', 'wood', 'stone', 'food', 'barracks', 'farm', 'mine', 'sawmill'])
+        self.buttons = Object([])
         self.city.warStatus = 'peace'
         self.city.wallNeedsCheck = True
         self.status = Object(['lastMsgID', 'menuDepth'])
@@ -52,10 +53,6 @@ class Siege(object):
         async def update_handler(event):
             self.status.menuDepth = 3
             message = event.message.message
-            try:
-                await parse_message(self, message)
-            except Exception as err:
-                self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
 
             if event.message.reply_markup is not None:
                 markup = []
@@ -78,14 +75,19 @@ class Siege(object):
                     self.status.replyMarkup = markup
                 elif not chatbuttons.text == []:
                     self.status.chatbuttons = chatbuttons
-                    self.log.debug("found chatbuttons:")
-                    self.log.debug(chatbuttons)
+
+                    for i, item in enumerate(event.message.buttons):
+                        action = item[0].button.data.decode("utf-8").split(' ')[0]
+                        setattr(self.buttons, action, event.click(i))
+                        self.log.debug(f'{action} button set with callback data {item[0].button.data}')
             else:
-                self.log.warning("no markup associated with message " + event.message.message)
+                self.log.info("no markup associated with message " + event.message.message)
+            try:
+                await parse_message(self, message)
+            except Exception as err:
+                self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
+
             self.status.lastMsgID = event.message.id
-            # self.log.debug(" ")
-            # for k, v in self.city.__dict__.items():
-            #   self.log.debug(str(k) + ": " + str(v))
 
         @self.telegram.on(events.NewMessage(incoming=True, from_users=777000))
         async def update_handler(event):
