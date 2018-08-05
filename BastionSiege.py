@@ -50,7 +50,7 @@ class Siege(object):
 
     async def run(self):
         @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
-        async def update_handler(event):
+        async def handle(event):
             self.status.menuDepth = 3
             message = event.message.message
 
@@ -90,11 +90,11 @@ class Siege(object):
             self.status.lastMsgID = event.message.id
 
         @self.telegram.on(events.NewMessage(incoming=True, from_users=777000))
-        async def update_handler(event):
+        async def handle(event):
             self.log.critical(event.message.message)
 
         @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
-        async def update_handler(event):
+        async def handle(event):
             alliance_chat = -1001126957096
             message = event.message.message
             if 'attack' in message:
