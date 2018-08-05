@@ -867,6 +867,8 @@ def parse_war_victory(self, msg):
     if not hasattr(self.city, "soldiers"):
         self.city.soldiers = 0
     self.city.soldiers = max(self.city.soldiers + self.city.lastBattleReturnedSoldiers, self.city.barracks * 40)
+    if not hasattr(self.city, "territory"):
+        self.city.territory = 0
     self.city.territory += self.city.lastBattleTerritory
 
 
