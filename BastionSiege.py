@@ -93,6 +93,39 @@ class Siege(object):
         async def update_handler(event):
             self.log.critical(event.message.message)
 
+        @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
+        async def update_handler(event):
+            alliance_chat = -1001126957096
+            message = event.message.message
+            if 'attack' in message:
+                self.log.info('alliance preparing for attack')
+                if not getattr(self.status, 'respondedallyattack', False):
+                    if recruits_needed(self):
+                        self.sleep.cancel()
+                    else:
+                        self.status.respondedallyattack = True
+                        # await asyncio.sleep(random.randint(10, 30))
+                        self.log.warning('make join work before enabling + in chat when attacking')
+                        # await self.telegram.send_message(alliance_chat, '+')
+            if 'defence' in message:
+                self.log.info('alliance preparing for defence')
+                if not getattr(self.status, 'respondedallydefence', False):
+                    if recruits_needed(self):
+                        self.sleep.cancel()
+                    else:
+                        self.status.respondedallydefence = True
+                        # await asyncio.sleep(random.randint(10, 30))
+                        self.log.warning('make join work before enabling + in chat when defending')
+                        # await self.telegram.send_message(alliance_chat, '+')
+                self.status.respondedallydefence = True
+            if 'JOIN' in message:
+                self.log.info('alliance requests you JOIN either attack or defence')
+                self.log.critical('need to check which one and/or try both buttons, or are they the same?')
+                self.log.info('resetting response statuses attack' +
+                              f'{self.status.respondedallyattack}; defence {self.status.respondedallydefence}')
+                self.status.respondedallyattack = False
+                self.status.respondedallydefence = False
+
         await asyncio.gather(
             self.telegram.run_until_disconnected(),
             build(self)
@@ -105,9 +138,9 @@ class Siege(object):
             "houses": 10 + self.city.townhall * 2 - (5 if self.city.farm > self.city.houses else 20),
             "farm": (5 if self.city.farm > self.city.houses else 20) if self.city.farm < self.city.storage else 0,
             "sawmill": (5 if self.city.dailyGoldProduction / (
-                        self.city.sawmill + 1) < 20 else 20) if self.city.sawmill < self.city.storage else 0,
+                    self.city.sawmill + 1) < 20 else 20) if self.city.sawmill < self.city.storage else 0,
             "mine": (5 if self.city.dailyGoldProduction / (
-                        self.city.mine + 1) < 20 else 20) if self.city.mine < self.city.storage else 0,
+                    self.city.mine + 1) < 20 else 20) if self.city.mine < self.city.storage else 0,
             "barracks": 0,
             "walls": 0,
             "trebuchet": 0,
@@ -372,6 +405,14 @@ async def return_to_main(self):
         await self.send_message_and_wait('⬆️ Up menu')
 
 
+def recruits_needed(self):
+    needed = 0
+    for i in self.city.warbuildings:
+        workers, max = get_building_employment_vars(self, i)
+        needed += getattr(self.city, max, 0) - getattr(self.city, workers, 0)
+    return needed
+
+
 def human_readable_indexes(self, message):
     for i in range(0, len(message.split())):
         print(str(i) + ": " + message.split()[i])
@@ -482,7 +523,7 @@ def parse_profile(self, msg):
     match = try_regex(self, r'(\W+?)?(?:{(.+)})?(?:\[(\W)])?([\w ]+).+ory\d+🗺Season(\w+.+)Weather(\w+).+',
                       clean_trim(msg), "parse_profile")
 
-    parse_numbers_from_message(self, msg.split("\n",2)[2],
+    parse_numbers_from_message(self, msg.split("\n", 2)[2],
                                ['territory', 'time.hour', 'time.minute', 'time.second', 'people', 'soldiers',
                                 'gems', 'gold', 'wood', 'stone', 'food'])
 
