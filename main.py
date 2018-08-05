@@ -68,6 +68,27 @@ async def siege_wake_handler(request):
         return web.Response(text="Session not found")
 
 
+async def siege_action_handler(request):
+    name = request.match_info.get('name', None)
+    if name is not None:
+        for siege in sieges:
+            if siege.telegram.session.filename.split('.')[0] == name:
+                action = request.match_info.get('action', None)
+                info = '\nPossible actions:\n'
+                for i, button in enumerate(siege.buttons.__dict__.keys(), start=1):
+                    info += f'{i}: {button}\n'
+                if action is not None:
+                    if hasattr(siege.buttons, action):
+                        await getattr(siege.buttons, action)
+                        return web.Response(text=f'{name} has called {action}!{info}')
+                    else:
+                        return web.Response(text=f'{name} has no action called {action}{info}')
+                else:
+                    return web.Response(text=f'action undefined{info}')
+    else:
+        return web.Response(text="Session not found")
+
+
 async def siege_dashboard_handler(request):
     name = request.match_info.get('name', None)
     if name is not None:
@@ -126,7 +147,8 @@ app = web.Application()
 app.add_routes([web.get('/', siege_debug_handler),
                 web.get('/{name}', siege_dashboard_handler),
                 web.get('/{name}/wake', siege_wake_handler),
-                web.get('/{name}/debug', siege_debug_handler)])
+                web.get('/{name}/debug', siege_debug_handler),
+                web.get('/{name}/{action}', siege_action_handler)])
 runner = web.AppRunner(app)
 
 
