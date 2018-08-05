@@ -104,9 +104,8 @@ class Siege(object):
                         self.sleep.cancel()
                     else:
                         self.status.respondedallyattack = True
-                        # await asyncio.sleep(random.randint(10, 30))
-                        self.log.warning('make join work before enabling + in chat when attacking')
-                        # await self.telegram.send_message(alliance_chat, '+')
+                        await asyncio.sleep(random.randint(10, 60))
+                        await self.telegram.send_message(alliance_chat, '+')
             elif 'defence' in message:
                 self.log.info('alliance preparing for defence')
                 if not getattr(self.status, 'respondedallydefence', False):
@@ -114,18 +113,21 @@ class Siege(object):
                         self.sleep.cancel()
                     else:
                         self.status.respondedallydefence = True
-                        # await asyncio.sleep(random.randint(10, 30))
-                        self.log.warning('make join work before enabling + in chat when defending')
-                        # await self.telegram.send_message(alliance_chat, '+')
+                        await asyncio.sleep(random.randint(10, 60))
+                        self.log.warning('confirm join works for defence')
+                        self.log.warning('what if there are multiple active attacks?')
+                        await self.telegram.send_message(alliance_chat, '+')
                 self.status.respondedallydefence = True
             elif 'JOIN' in message:
                 self.log.info('alliance requests you JOIN either attack or defence')
                 if hasattr(self.buttons, 'joinattack'):
+                    await asyncio.sleep(random.randint(10, 30))
+                    if recruits_needed(self):
+                        self.sleep.cancel()
                     await self.buttons.joinattack
                     del self.buttons.joinattack
                 else:
                     self.log.critical('no joinattack button found, is the defence one called something else?')
-                    self.log.warning('what if there are multiple active attacks?')
                 self.log.info('resetting response statuses attack' +
                               f'{self.status.respondedallyattack}; defence {self.status.respondedallydefence}')
                 self.status.respondedallyattack = False
