@@ -178,31 +178,30 @@ class Siege(object):
                     (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
         return result
 
+    async def send_message_and_wait(self, message):
+        lastid = self.status.lastMsgID
+        while True:
+            start_time = time.time()
+            try:
+                await self.telegram.send_message(self.entity, message)
+            except FloodWaitError as e:
+                self.log.warning(f'FloodWaitError while sending "{message}" - waiting {pretty_seconds(e.seconds)}')
+                await asyncio.sleep(e.seconds)
+                continue
+            break
+        while lastid == self.status.lastMsgID:
+            await asyncio.sleep(random.randint(1000, 4000) / 1000)
+            sleeptime = int(time.time() - start_time)
+            if sleeptime > 200:
+                self.log.error("slept " + pretty_seconds(sleeptime) + " after '" + message + "'. Problem?")
+                self.log.error(traceback.format_exc())
+                await inplacerestart(self)
+            pass
+        await asyncio.sleep(random.randint(600, 1000) / 1000)
+
 
 def clean_trim(string):
     return ''.join(string.split())
-
-
-async def send_message_and_wait(self, message):
-    lastid = self.status.lastMsgID
-    while True:
-        start_time = time.time()
-        try:
-            await self.telegram.send_message(self.entity, message)
-        except FloodWaitError as e:
-            self.log.warning(f'FloodWaitError while sending "{message}" - waiting {pretty_seconds(e.seconds)}')
-            await asyncio.sleep(e.seconds)
-            continue
-        break
-    while lastid == self.status.lastMsgID:
-        await asyncio.sleep(random.randint(1000, 4000) / 1000)
-        sleeptime = int(time.time() - start_time)
-        if sleeptime > 200:
-            self.log.error("slept " + pretty_seconds(sleeptime) + " after '" + message + "'. Problem?")
-            self.log.error(traceback.format_exc())
-            await inplacerestart(self)
-        pass
-    await asyncio.sleep(random.randint(600, 1000) / 1000)
 
 
 def update_gold(self):
@@ -238,9 +237,9 @@ async def procrastinate(self):
 
 async def environment(self):
     await return_to_main(self)
-    await send_message_and_wait(self, "⚒ Workshop")  # Workshop
-    await send_message_and_wait(self, "⬅️ Back")  # Back
-    await send_message_and_wait(self, "🏘 Buildings")  # Buildings
+    await self.send_message_and_wait("⚒ Workshop")
+    await self.send_message_and_wait("⬅️ Back")
+    await self.send_message_and_wait("🏘 Buildings")
 
     self.city.maxGold = 500000 * self.city.townhall
     self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # Assumes max pop
@@ -267,33 +266,33 @@ async def environment(self):
 
 async def structure_exists(self):
     if self.city.storage == 0:
-        await send_message_and_wait(self, '🏚 Storage')
-        await send_message_and_wait(self, self.status.replyMarkup[0])  # Build
-        await send_message_and_wait(self, '➕ Hire')
+        await self.send_message_and_wait('🏚 Storage')
+        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
+        await self.send_message_and_wait('➕ Hire')
         await employ_at_capacity(self, "storage")
-        await send_message_and_wait(self, "⬅️ Back")
-        await send_message_and_wait(self, "⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
     if self.city.farm == 0:
-        await send_message_and_wait(self, '🌻 Farm')  # Farm
-        await send_message_and_wait(self, self.status.replyMarkup[0])  # Build
-        await send_message_and_wait(self, "➕ Hire")
+        await self.send_message_and_wait('🌻 Farm')  # Farm
+        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
+        await self.send_message_and_wait("➕ Hire")
         await employ_at_capacity(self, "farm")  # todo technically could detect active building from message...
-        await send_message_and_wait(self, "⬅️ Back")
-        await send_message_and_wait(self, "⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
     if self.city.sawmill == 0:
-        await send_message_and_wait(self, '🌲 Sawmill')  # Sawmill
-        await send_message_and_wait(self, self.status.replyMarkup[0])  # Build
-        await send_message_and_wait(self, "➕ Hire")
+        await self.send_message_and_wait('🌲 Sawmill')  # Sawmill
+        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
+        await self.send_message_and_wait("➕ Hire")
         await employ_at_capacity(self, "sawmill")
-        await send_message_and_wait(self, "⬅️ Back")
-        await send_message_and_wait(self, "⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
     if self.city.mine == 0:
-        await send_message_and_wait(self, '⛏ Mine')  # Mine
-        await send_message_and_wait(self, self.status.replyMarkup[0])  # Build
-        await send_message_and_wait(self, "➕ Hire")
+        await self.send_message_and_wait('⛏ Mine')  # Mine
+        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
+        await self.send_message_and_wait("➕ Hire")
         await employ_at_capacity(self, "mine")
-        await send_message_and_wait(self, "⬅️ Back")
-        await send_message_and_wait(self, "⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
+        await self.send_message_and_wait("⬅️ Back")
 
 
 async def employ_up_to_capacity(self, building, already):
@@ -301,9 +300,9 @@ async def employ_up_to_capacity(self, building, already):
     missing = 0
     if getattr(self.city, workers, 0) < getattr(self.city, max, 0):
         already = await go_to_recruit(self, already)
-        await send_message_and_wait(self, building.capitalize())
+        await self.send_message_and_wait(building.capitalize())
         missing = await employ_at_capacity(self, building, False)
-        await send_message_and_wait(self, 'Back')
+        await self.send_message_and_wait('Back')
     return already, missing
 
 
@@ -326,13 +325,13 @@ async def employ_at_capacity(self, building, wait=True):
     while getattr(self.city, max, 10) > getattr(self.city, workers, 0):
         hirable = min(self.city.people, getattr(self.city, max, 10) - getattr(self.city, workers, 0))
         if hirable > 0:
-            await send_message_and_wait(self, str(hirable))
+            await self.send_message_and_wait(str(hirable))
         sleeptime = math.ceil(min(getattr(self.city, max, 10) - getattr(self.city, workers, 0),
                                   self.city.maxPeople) / self.city.dailyPeopleIncrease)
         if sleeptime > 0 and wait:
             self.log.info("Sleeping " + pretty_seconds(60 * sleeptime) + " to get more workers for " + building + ".")
             await asyncio.sleep(60 * sleeptime)
-            await send_message_and_wait(self, str(sleeptime * self.city.dailyPeopleIncrease))
+            await self.send_message_and_wait(str(sleeptime * self.city.dailyPeopleIncrease))
         else:
             return getattr(self.city, max, 10) - getattr(self.city, workers, 0)
 
@@ -341,11 +340,11 @@ async def resource_hires(self):
     for x in ['storage', 'farm', 'sawmill', 'mine']:
         workers, max = x + 'Workers', x + 'MaxWorkers'
         if getattr(self.city, workers) < getattr(self.city, max):
-            await send_message_and_wait(self, x.capitalize())
-            await send_message_and_wait(self, "➕ Hire")
+            await self.send_message_and_wait(x.capitalize())
+            await self.send_message_and_wait("➕ Hire")
             await employ_at_capacity(self, x)
-            await send_message_and_wait(self, "⬅️ Back")
-            await send_message_and_wait(self, "⬅️ Back")
+            await self.send_message_and_wait("⬅️ Back")
+            await self.send_message_and_wait("⬅️ Back")
 
 
 def calc_all_upgrade_costs(self):
@@ -370,7 +369,7 @@ def calc_upgrade_costs(self, building):
 
 async def return_to_main(self):
     if self.status.menuDepth > 0:
-        await send_message_and_wait(self, '⬆️ Up menu')
+        await self.send_message_and_wait('⬆️ Up menu')
 
 
 def human_readable_indexes(self, message):
@@ -629,7 +628,7 @@ async def parse_resource_message(self, msg):
         'resources purchased'
     if 'find money.' in msg:
         self.log.error('not enough money for resources')
-        await send_message_and_wait(self, "1")  # Remind script of actual resource amount by purchasing 1
+        await self.send_message_and_wait("1")  # Remind script of actual resource amount by purchasing 1
     if 'no place' in msg:
         self.log.error('no room for resources we attempted to purchase')
     else:
@@ -656,7 +655,7 @@ def parse_scout_message(self, msg):
     friends = "🐄🦋🛰⚡"
 
     if any((c in friends) for c in msg):
-        send_message_and_wait(self, "Suitable")
+        self.send_message_and_wait("Suitable")
     """
 
     msg = msg.split()
@@ -961,11 +960,11 @@ async def build(self):
             if getattr(self.city, 'walls', 0) > 0:
                 await return_to_main(self)
                 if self.city.wallNeedsCheck or wall_needs_repair(self):
-                    await send_message_and_wait(self, "Buildings")
-                    await send_message_and_wait(self, "Walls")
+                    await self.send_message_and_wait("Buildings")
+                    await self.send_message_and_wait("Walls")
                     if wall_needs_repair(self):
                         if self.city.wallsCanUpgrade:
-                            await send_message_and_wait(self, "Repair")
+                            await self.send_message_and_wait("Repair")
                         else:
                             self.log.warning("Can't repair walls. Buy items?")
                     self.city.wallNeedsCheck = False
@@ -976,7 +975,7 @@ async def build(self):
                     already, missing = await employ_up_to_capacity(self, self.city.warbuildings[i], already)
                     i += 1
                 if already:
-                    await send_message_and_wait(self, "⬆️ Up menu")
+                    await self.send_message_and_wait("⬆️ Up menu")
             building = self.get_building_to_upgrade()
 
             await return_to_main(self)
@@ -1045,9 +1044,9 @@ def get_food_purchase_quantity_for_reserve(self):
 
 async def upgrade_building(self, building):
     if building == "trebuchet":
-        await send_message_and_wait(self, self.status.replyMarkup[2])  # Workshop
+        await self.send_message_and_wait(self.status.replyMarkup[2])  # Workshop
     else:
-        await send_message_and_wait(self, self.status.replyMarkup[1])  # Buildings
+        await self.send_message_and_wait(self.status.replyMarkup[1])  # Buildings
 
     building_index = -1
     for x in range(0, len(self.status.replyMarkup)):
@@ -1060,10 +1059,10 @@ async def upgrade_building(self, building):
     else:
         building_message = self.status.replyMarkup[building_index]
 
-    await send_message_and_wait(self, building_message)
+    await self.send_message_and_wait(building_message)
 
     oldlevel = getattr(self.city, building)
-    await send_message_and_wait(self, self.status.replyMarkup[1])  # Upgrade
+    await self.send_message_and_wait(self.status.replyMarkup[1])  # Upgrade
     if getattr(self.city, building) == oldlevel:
         self.log.error("Something went wrong with " + building + " upgrade, please investigate.")
         self.log.error("gold, max, wood, max, stone, max, food")
@@ -1078,11 +1077,11 @@ async def upgrade_building(self, building):
         self.log.info(building + " upgraded to level " + str(oldlevel + 1))
         for x in range(0, len(self.status.replyMarkup)):
             if "Hire" in self.status.replyMarkup[x] or "Recruit" in self.status.replyMarkup[x]:
-                await send_message_and_wait(self, self.status.replyMarkup[x])
+                await self.send_message_and_wait(self.status.replyMarkup[x])
                 await employ_at_capacity(self, building, False)
                 break
 
-    await send_message_and_wait(self, "⬆️ Up menu")
+    await self.send_message_and_wait("⬆️ Up menu")
 
 
 async def purchase_resource(self, resource, desired_quantity):
@@ -1091,18 +1090,18 @@ async def purchase_resource(self, resource, desired_quantity):
     quantity = get_purchasable_resource_quantity(self, desired_quantity)
     if quantity < 1:
         return 0
-    await send_message_and_wait(self, "Trade")
-    await send_message_and_wait(self, "💰 Buy")
-    await send_message_and_wait(self, resource.capitalize())
-    await send_message_and_wait(self, str(quantity))
-    await send_message_and_wait(self, "⬆️ Up menu")
+    await self.send_message_and_wait("Trade")
+    await self.send_message_and_wait("💰 Buy")
+    await self.send_message_and_wait(resource.capitalize())
+    await self.send_message_and_wait(str(quantity))
+    await self.send_message_and_wait("⬆️ Up menu")
     return desired_quantity - quantity
 
 
 async def go_to_recruit(self, already):
     if not already:
-        await send_message_and_wait(self, "War")
-        await send_message_and_wait(self, "Recruit")
+        await self.send_message_and_wait("War")
+        await self.send_message_and_wait("Recruit")
     return True
 
 
