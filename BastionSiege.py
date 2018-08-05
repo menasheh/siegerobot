@@ -17,7 +17,7 @@ logfile = expanduser("~") + '/.hidden/siege.log'
 
 logging.basicConfig(filename=logfile,
                     level=logging.DEBUG,
-                    format='%(asctime)s %(name)-12s %(threadName)s %(levelname)-8s %(message)s')
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 logging.getLogger('telethon').setLevel(logging.CRITICAL)
 logging.getLogger('asyncio').setLevel(logging.CRITICAL)
 
