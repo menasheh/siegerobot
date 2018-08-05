@@ -80,6 +80,7 @@ async def siege_action_handler(request):
                 if action is not None:
                     if hasattr(siege.buttons, action):
                         await getattr(siege.buttons, action)
+                        delattr(siege.buttons, action)
                         return web.Response(text=f'{name} has called {action}!{info}')
                     else:
                         return web.Response(text=f'{name} has no action called {action}{info}')

@@ -107,7 +107,7 @@ class Siege(object):
                         # await asyncio.sleep(random.randint(10, 30))
                         self.log.warning('make join work before enabling + in chat when attacking')
                         # await self.telegram.send_message(alliance_chat, '+')
-            if 'defence' in message:
+            elif 'defence' in message:
                 self.log.info('alliance preparing for defence')
                 if not getattr(self.status, 'respondedallydefence', False):
                     if recruits_needed(self):
@@ -118,13 +118,20 @@ class Siege(object):
                         self.log.warning('make join work before enabling + in chat when defending')
                         # await self.telegram.send_message(alliance_chat, '+')
                 self.status.respondedallydefence = True
-            if 'JOIN' in message:
+            elif 'JOIN' in message:
                 self.log.info('alliance requests you JOIN either attack or defence')
-                self.log.critical('need to check which one and/or try both buttons, or are they the same?')
+                if hasattr(self.buttons, 'joinattack'):
+                    await self.buttons.joinattack
+                    del self.buttons.joinattack
+                else:
+                    self.log.critical('no joinattack button found, is the defence one called something else?')
+                    self.log.warning('what if there are multiple active attacks?')
                 self.log.info('resetting response statuses attack' +
                               f'{self.status.respondedallyattack}; defence {self.status.respondedallydefence}')
                 self.status.respondedallyattack = False
                 self.status.respondedallydefence = False
+            else:
+                self.log.warning(f'don\'t know intent of message:\n{message}')
 
         await asyncio.gather(
             self.telegram.run_until_disconnected(),
