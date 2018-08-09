@@ -32,6 +32,7 @@ class Siege(object):
         self.warmode = mode == 1
         self.sleep = None
         self.scriptStartTime = datetime.now()
+        self.handlers_exist = False
 
         class Object:
             def __init__(self, array):
@@ -49,91 +50,93 @@ class Siege(object):
         self.city.warbuildings = ["barracks", "trebuchet", "walls"]
 
     async def run(self):
-        @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
-        async def handle(event):
-            self.status.menuDepth = 3
-            message = event.message.message
+        if not self.handlers_exist:
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
+            async def handle(event):
+                self.status.menuDepth = 3
+                message = event.message.message
 
-            if event.message.reply_markup is not None:
-                markup = []
+                if event.message.reply_markup is not None:
+                    markup = []
 
-                class Object:
-                    pass
+                    class Object:
+                        pass
 
-                chatbuttons = Object()
-                chatbuttons.id = event.message.id
-                chatbuttons.text = []
-                chatbuttons.data = []
-                for row in event.message.reply_markup.rows:
-                    for button in row.buttons:
-                        if type(button) is KeyboardButton:
-                            markup.append(button.text)
-                        elif type(button) is KeyboardButtonCallback:
-                            chatbuttons.text.append(button.text)
-                            chatbuttons.data.append(button.data)
-                if not markup == []:
-                    self.status.replyMarkup = markup
-                elif not chatbuttons.text == []:
-                    self.status.chatbuttons = chatbuttons
+                    chatbuttons = Object()
+                    chatbuttons.id = event.message.id
+                    chatbuttons.text = []
+                    chatbuttons.data = []
+                    for row in event.message.reply_markup.rows:
+                        for button in row.buttons:
+                            if type(button) is KeyboardButton:
+                                markup.append(button.text)
+                            elif type(button) is KeyboardButtonCallback:
+                                chatbuttons.text.append(button.text)
+                                chatbuttons.data.append(button.data)
+                    if not markup == []:
+                        self.status.replyMarkup = markup
+                    elif not chatbuttons.text == []:
+                        self.status.chatbuttons = chatbuttons
 
-                    for i, item in enumerate(event.message.buttons):
-                        action = item[0].button.data.decode("utf-8").split(' ')[0]
-                        setattr(self.buttons, action, event.click(i))
-                        self.log.debug(f'{action} button set with callback data {item[0].button.data}')
-            else:
-                self.log.info("no markup associated with message " + event.message.message)
-            try:
-                await parse_message(self, message)
-            except Exception as err:
-                self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
-
-            self.status.lastMsgID = event.message.id
-
-        @self.telegram.on(events.NewMessage(incoming=True, from_users=777000))
-        async def handle(event):
-            self.log.critical(event.message.message)
-
-        @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
-        async def handle(event):
-            alliance_chat = -1001126957096
-            message = event.message.message
-            if 'attack' in message:
-                self.log.info('alliance preparing for attack')
-                if not getattr(self.status, 'respondedallyattack', False):
-                    if recruits_needed(self):
-                        self.sleep.cancel()
-                    else:
-                        self.status.respondedallyattack = True
-                        await asyncio.sleep(random.randint(10, 60))
-                        await self.telegram.send_message(alliance_chat, '+')
-            elif 'defence' in message:
-                self.log.info('alliance preparing for defence')
-                if not getattr(self.status, 'respondedallydefence', False):
-                    if recruits_needed(self):
-                        self.sleep.cancel()
-                    else:
-                        self.status.respondedallydefence = True
-                        await asyncio.sleep(random.randint(10, 60))
-                        self.log.warning('confirm join works for defence')
-                        self.log.warning('what if there are multiple active attacks?')
-                        await self.telegram.send_message(alliance_chat, '+')
-                self.status.respondedallydefence = True
-            elif 'JOIN' in message:
-                self.log.info('alliance requests you JOIN either attack or defence')
-                if hasattr(self.buttons, 'joinattack'):
-                    await asyncio.sleep(random.randint(10, 30))
-                    if recruits_needed(self):
-                        self.sleep.cancel()
-                    await self.buttons.joinattack
-                    del self.buttons.joinattack
+                        for i, item in enumerate(event.message.buttons):
+                            action = item[0].button.data.decode("utf-8").split(' ')[0]
+                            setattr(self.buttons, action, event.click(i))
+                            self.log.debug(f'{action} button set with callback data {item[0].button.data}')
                 else:
-                    self.log.critical('no joinattack button found, is the defence one called something else?')
-                self.log.info('resetting response statuses attack' +
-                              f'{self.status.respondedallyattack}; defence {self.status.respondedallydefence}')
-                self.status.respondedallyattack = False
-                self.status.respondedallydefence = False
-            else:
-                self.log.warning(f'don\'t know intent of message:\n{message}')
+                    self.log.info("no markup associated with message " + event.message.message)
+                try:
+                    await parse_message(self, message)
+                except Exception as err:
+                    self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
+
+                self.status.lastMsgID = event.message.id
+
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=777000))
+            async def handle(event):
+                self.log.critical(event.message.message)
+
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
+            async def handle(event):
+                alliance_chat = -1001126957096
+                message = event.message.message
+                if 'attack' in message:
+                    self.log.info('alliance preparing for attack')
+                    if not getattr(self.status, 'respondedallyattack', False):
+                        if recruits_needed(self):
+                            self.sleep.cancel()
+                        else:
+                            self.status.respondedallyattack = True
+                            await asyncio.sleep(random.randint(10, 60))
+                            await self.telegram.send_message(alliance_chat, '+')
+                elif 'defence' in message:
+                    self.log.info('alliance preparing for defence')
+                    if not getattr(self.status, 'respondedallydefence', False):
+                        if recruits_needed(self):
+                            self.sleep.cancel()
+                        else:
+                            self.status.respondedallydefence = True
+                            await asyncio.sleep(random.randint(10, 60))
+                            self.log.warning('confirm join works for defence')
+                            self.log.warning('what if there are multiple active attacks?')
+                            await self.telegram.send_message(alliance_chat, '+')
+                    self.status.respondedallydefence = True
+                elif 'JOIN' in message:
+                    self.log.info('alliance requests you JOIN either attack or defence')
+                    if hasattr(self.buttons, 'joinattack'):
+                        await asyncio.sleep(random.randint(10, 30))
+                        if recruits_needed(self):
+                            self.sleep.cancel()
+                        await self.buttons.joinattack
+                        del self.buttons.joinattack
+                    else:
+                        self.log.critical('no joinattack button found, is the defence one called something else?')
+                    self.log.info('resetting response statuses attack' +
+                                  f'{self.status.respondedallyattack}; defence {self.status.respondedallydefence}')
+                    self.status.respondedallyattack = False
+                    self.status.respondedallydefence = False
+                else:
+                    self.log.warning(f'don\'t know intent of message:\n{message}')
+            self.handlers_exist = True
 
         await asyncio.gather(
             self.telegram.run_until_disconnected(),
