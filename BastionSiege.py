@@ -518,7 +518,7 @@ async def parse_message(self, message):
     elif 'statistic' in message:
         pass
     elif 'Select language.' in message:
-        await self.send_message_and_wait("🇬🇧English")
+        await self.telegram.send_message("🇬🇧English")
     elif 'What is your name?' in message or 'Think up another name.' in message:
         self.done_setup = False
         await self.telegram.send_message(self.entity, names.get_full_name())
@@ -528,7 +528,7 @@ async def parse_message(self, message):
     elif 'we call your village' in message:
         self.done_setup = False
         await self.telegram.send_message(self.entity, getcity())
-    elif 'around the domain.' in message:
+    elif 'begin the game' in message or 'high ledge near' in message:
         self.done_setup = True
     else:
         self.log.error('unknown message type')
