@@ -9,7 +9,6 @@ import random
 import re
 from telethon import events
 from telethon.errors import FloodWaitError
-from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import (
     KeyboardButton, KeyboardButtonCallback
 )
@@ -285,7 +284,7 @@ async def procrastinate(self):
 
 async def for_initial_setup(self):
     while not getattr(self, 'done_setup', True):
-        asyncio.sleep(5)
+        await asyncio.sleep(5)
 
 
 async def environment(self):
@@ -293,13 +292,13 @@ async def environment(self):
 
     if len(message):
         self.log.info(f'latest message is {message.data[0].id}')
-        parse_message(self, message.data[0].message)
+        await parse_message(self, message.data[0].message)
         print(message.data[0].id)
     else:
         self.log.info("no message found, starting siege from the beginning...")
         await self.send_message_and_wait("/start")
         self.done_setup = False
-        await for_initial_setup(self)
+    await for_initial_setup(self)
 
     await return_to_main(self)
     await self.send_message_and_wait("⚒ Workshop")
