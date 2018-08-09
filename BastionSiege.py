@@ -517,7 +517,7 @@ async def parse_message(self, message):
         pass
     elif 'statistic' in message:
         pass
-    elif 'Select Language.' in message:
+    elif 'Select language.' in message:
         await self.send_message_and_wait("🇬🇧English")
     elif 'What is your name?' in message or 'Think up another name.' in message:
         await self.send_message_and_wait(names.get_full_name())
