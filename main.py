@@ -159,7 +159,7 @@ async def siege_signup_handler(request):
     number = request.match_info.get('number', None)
     code = request.match_info.get('code', None)
 
-    if code is None:
+    if new_client is None or code is None:
         session = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
         new_client = TelegramClient(
             session,
@@ -174,7 +174,6 @@ async def siege_signup_handler(request):
             return web.Response(text=f'The number {number} is banned from Telegram')
         return web.Response(text=f'get your code at {number} and append to the url')
     else:
-
         try:
             await new_client.sign_up(code, names.get_first_name())
             message = 'signed up!'
@@ -186,6 +185,7 @@ async def siege_signup_handler(request):
         new_siege = Siege(new_client, 0)
         sieges.append(new_siege)
         asyncio.ensure_future(new_siege.run())
+        new_client = None
         return web.Response(text=message)
 
 
