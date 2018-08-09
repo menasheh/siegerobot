@@ -293,6 +293,7 @@ async def environment(self):
 
     if len(message):
         self.log.info(f'latest message is {message.data[0].id}')
+        parse_message(self, message.data[0].message)
         print(message.data[0].id)
     else:
         self.log.info("no message found, starting siege from the beginning...")
