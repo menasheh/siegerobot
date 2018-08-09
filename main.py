@@ -8,7 +8,7 @@ from os.path import expanduser
 import sys
 from BastionSiege import Siege, pretty_seconds
 from telethon import TelegramClient
-from telethon.errors import PhoneNumberBannedError
+from telethon.errors import PhoneNumberBannedError, PhoneNumberOccupiedError
 
 
 def get_config():
@@ -175,16 +175,18 @@ async def siege_signup_handler(request):
         return web.Response(text=f'get your code at {number} and append to the url')
     else:
 
-        await new_client.sign_up(code, names.get_first_name())
-
+        try:
+            await new_client.sign_up(code, names.get_first_name())
+            message = 'signed up!'
+        except PhoneNumberOccupiedError:
+            await new_client.sign_in(number, code)
+            message = 'signed in to existing account!'
         session = new_client.session.filename.split('.')[0]
         save_session(session, number)
-
         new_siege = Siege(new_client, 0)
         sieges.append(new_siege)
-
         asyncio.ensure_future(new_siege.run())
-        return web.Response(text=f'sent message, still some setup needed perhaps')
+        return web.Response(text=message)
 
 
 app = web.Application()
