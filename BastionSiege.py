@@ -284,7 +284,7 @@ async def procrastinate(self):
 
 
 async def for_initial_setup(self):
-    while not self.done_setup:
+    while not getattr(self, 'done_setup', True):
         asyncio.sleep(5)
 
 
