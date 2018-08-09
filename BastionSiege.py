@@ -520,11 +520,14 @@ async def parse_message(self, message):
     elif 'Select language.' in message:
         await self.send_message_and_wait("🇬🇧English")
     elif 'What is your name?' in message or 'Think up another name.' in message:
-        await self.send_message_and_wait(names.get_full_name())
+        self.done_setup = False
+        await self.telegram.send_message(self.entity, names.get_full_name())
     elif 'exactly your name' in message or 'suitable for village' in message:
-        await self.send_message_and_wait("✅ Yes")
+        self.done_setup = False
+        await self.telegram.send_message(self.entity, "✅ Yes")
     elif 'we call your village' in message:
-        await self.send_message_and_wait(getcity())
+        self.done_setup = False
+        await self.telegram.send_message(self.entity, getcity())
     elif 'around the domain.' in message:
         self.done_setup = True
     else:
