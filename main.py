@@ -123,6 +123,7 @@ async def siege_dashboard_handler(request):
                         text += ("" if period is -1 else pretty_seconds(60 * period)) + "\n"
                 text += "\n"
                 text += "Upgrade priority: " + siege.get_building_to_upgrade() + "\n"
+                text += getattr(siege.city, 'construction_estimate', '')
                 text += getattr(siege.city, 'goal_estimate', '')
                 text += "\n\n"
             else:

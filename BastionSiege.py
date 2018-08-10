@@ -139,6 +139,7 @@ class Siege(object):
                     self.status.respondedallydefence = False
                 else:
                     self.log.warning(f'don\'t know intent of message:\n{message}')
+
             self.handlers_exist = True
 
         await asyncio.gather(
@@ -1044,9 +1045,8 @@ async def build(self):
                                                             requiredstone)
 
             if estimatedtime > 0:
-                self.log.info(
-                    "Upgrade of " + building + " possible in approximately " + pretty_seconds(
-                        60 * estimatedtime) + ".")
+                self.city.construction_estimate = "Upgrade of " + building + " possible in approximately " + \
+                                                  pretty_seconds(60 * estimatedtime) + "."
                 goldreq = 0
                 woodreq = 0
                 stonereq = 0
