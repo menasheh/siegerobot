@@ -58,39 +58,40 @@ class Siege(object):
                 self.status.menuDepth = 3
                 message = event.message.message
 
-                if event.message.reply_markup is not None:
-                    markup = []
+                try:
+                    if event.message.reply_markup is not None and event.message.reply_markup.rows is not None:
+                        markup = []
 
-                    class Object:
-                        pass
+                        class Object:
+                            pass
 
-                    chatbuttons = Object()
-                    chatbuttons.id = event.message.id
-                    chatbuttons.text = []
-                    chatbuttons.data = []
-                    for row in event.message.reply_markup.rows:
-                        for button in row.buttons:
-                            if type(button) is KeyboardButton:
-                                markup.append(button.text)
-                            elif type(button) is KeyboardButtonCallback:
-                                chatbuttons.text.append(button.text)
-                                chatbuttons.data.append(button.data)
-                    if not markup == []:
-                        self.status.replyMarkup = markup
-                    elif not chatbuttons.text == []:
-                        self.status.chatbuttons = chatbuttons
-
-                        for i, item in enumerate(event.message.buttons):
-                            action = item[0].button.data.decode("utf-8").split(' ')[0]
-                            setattr(self.buttons, action, event.click(i))
-                            self.log.debug(f'{action} button set with callback data {item[0].button.data}')
-                else:
-                    self.log.info("no markup associated with message " + event.message.message)
+                        chatbuttons = Object()
+                        chatbuttons.id = event.message.id
+                        chatbuttons.text = []
+                        chatbuttons.data = []
+                        for row in event.message.reply_markup.rows:
+                            for button in row.buttons:
+                                if type(button) is KeyboardButton:
+                                    markup.append(button.text)
+                                elif type(button) is KeyboardButtonCallback:
+                                    chatbuttons.text.append(button.text)
+                                    chatbuttons.data.append(button.data)
+                        if not markup == []:
+                            self.status.replyMarkup = markup
+                        elif not chatbuttons.text == []:
+                            self.status.chatbuttons = chatbuttons
+                            for i, item in enumerate(event.message.buttons):
+                                action = item[0].button.data.decode("utf-8").split(' ')[0]
+                                setattr(self.buttons, action, event.click(i))
+                                self.log.debug(f'{action} button set with callback data {item[0].button.data}')
+                    else:
+                        self.log.info("no markup associated with message " + event.message.message)
+                except Exception as err:
+                    self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
                 try:
                     await parse_message(self, message)
                 except Exception as err:
                     self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
-
                 self.status.lastMsgID = event.message.id
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=777000))
