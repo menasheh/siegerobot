@@ -289,7 +289,6 @@ async def for_initial_setup(self):
 
 async def ensure_account_exists(self):
     message = await self.telegram.get_messages(self.entity, limit=1)
-
     if len(message):
         self.log.info(f'latest message is {message.data[0].id}: {message.data[0].message}')
         await parse_message(self, message.data[0].message)  # If extra messages came in first, this won't help
@@ -441,7 +440,7 @@ async def parse_message(self, message):
     elif 'statistic' in message:
         pass
     elif 'Select language.' in message:
-        await self.telegram.send_message("🇬🇧English")
+        await self.telegram.send_message(self.entity, "🇬🇧English")
     elif 'What is your name?' in message or 'Think up another name.' in message:
         self.done_setup = False
         await self.telegram.send_message(self.entity, names.get_full_name())
