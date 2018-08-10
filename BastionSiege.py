@@ -306,7 +306,7 @@ async def employ_up_to_capacity(self, building, already):
     if getattr(self.city, workers, 0) < getattr(self.city, max, 0):
         already = await go_to_recruit(self, already)
         await self.send_message_and_wait(building.capitalize())
-        missing = await employ_at_capacity(self, building, False)
+        missing = await employ_at_capacity(self, building)
         await self.send_message_and_wait('Back')
     return already, missing
 
@@ -1132,7 +1132,7 @@ async def upgrade_building(self, building):
         for x in range(0, len(self.status.replyMarkup)):
             if "Hire" in self.status.replyMarkup[x] or "Recruit" in self.status.replyMarkup[x]:
                 await self.send_message_and_wait(self.status.replyMarkup[x])
-                await employ_at_capacity(self, building, False)
+                await employ_at_capacity(self, building)
                 break
 
     await self.send_message_and_wait("⬆️ Up menu")
