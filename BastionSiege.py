@@ -287,76 +287,17 @@ async def for_initial_setup(self):
         await asyncio.sleep(5)
 
 
-async def environment(self):
+async def ensure_account_exists(self):
     message = await self.telegram.get_messages(self.entity, limit=1)
 
     if len(message):
-        self.log.info(f'latest message is {message.data[0].id}')
-        await parse_message(self, message.data[0].message)
-        print(message.data[0].id)
+        self.log.info(f'latest message is {message.data[0].id}: {message.data[0].message}')
+        await parse_message(self, message.data[0].message)  # If extra messages came in first, this won't help
     else:
         self.log.info("no message found, starting siege from the beginning...")
         await self.send_message_and_wait("/start")
         self.done_setup = False
     await for_initial_setup(self)
-
-    await return_to_main(self)
-    await self.send_message_and_wait("⚒ Workshop")
-    await self.send_message_and_wait("⬅️ Back")
-    await self.send_message_and_wait("🏘 Buildings")
-
-    self.city.maxGold = 500000 * self.city.townhall
-    self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # Assumes max pop
-    self.city.dailyPeopleIncrease = self.city.houses
-
-    self.city.dailyWoodProduction = min(self.city.storage, self.city.sawmill) * 10
-    self.city.dailyStoneProduction = min(self.city.storage, self.city.mine) * 10
-    self.city.dailyFoodProduction = min(self.city.storage, self.city.farm) * 10
-
-    await structure_exists(self)
-    await resource_hires(self)
-
-    self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
-    self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
-
-    self.city.dailyFoodConsumption = (self.city.houses - min(self.city.farm, self.city.storage)) * 10 \
-        if self.city.houses > min(self.city.farm, self.city.storage) else 0
-    self.city.foodReserveHours = 8
-    self.city.foodReserve = min(self.city.dailyFoodConsumption * self.city.foodReserveHours * 60, self.city.maxFood)
-    self.city.foodReserveMin = self.city.foodReserve / 2
-
-    calc_all_upgrade_costs(self)
-
-
-async def structure_exists(self):
-    if self.city.storage == 0:
-        await self.send_message_and_wait('🏚 Storage')
-        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
-        await self.send_message_and_wait('➕ Hire')
-        await employ_at_capacity(self, "storage")
-        await self.send_message_and_wait("⬅️ Back")
-        await self.send_message_and_wait("⬅️ Back")
-    if self.city.farm == 0:
-        await self.send_message_and_wait('🌻 Farm')  # Farm
-        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
-        await self.send_message_and_wait("➕ Hire")
-        await employ_at_capacity(self, "farm")  # todo technically could detect active building from message...
-        await self.send_message_and_wait("⬅️ Back")
-        await self.send_message_and_wait("⬅️ Back")
-    if self.city.sawmill == 0:
-        await self.send_message_and_wait('🌲 Sawmill')  # Sawmill
-        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
-        await self.send_message_and_wait("➕ Hire")
-        await employ_at_capacity(self, "sawmill")
-        await self.send_message_and_wait("⬅️ Back")
-        await self.send_message_and_wait("⬅️ Back")
-    if self.city.mine == 0:
-        await self.send_message_and_wait('⛏ Mine')  # Mine
-        await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
-        await self.send_message_and_wait("➕ Hire")
-        await employ_at_capacity(self, "mine")
-        await self.send_message_and_wait("⬅️ Back")
-        await self.send_message_and_wait("⬅️ Back")
 
 
 async def employ_up_to_capacity(self, building, already):
@@ -383,21 +324,16 @@ def get_building_employment_vars(self, building):
                 self.log.critical("I don't know how to employ at " + building + ".")
 
 
-async def employ_at_capacity(self, building, wait=True):
+async def employ_at_capacity(self, building):
     workers, max = get_building_employment_vars(self, building)
-
     while getattr(self.city, max, 10) > getattr(self.city, workers, 0):
         hirable = min(self.city.people, getattr(self.city, max, 10) - getattr(self.city, workers, 0))
         if hirable > 0:
             await self.send_message_and_wait(str(hirable))
         sleeptime = math.ceil(min(getattr(self.city, max, 10) - getattr(self.city, workers, 0),
                                   self.city.maxPeople) / self.city.dailyPeopleIncrease)
-        if sleeptime > 0 and wait:
-            self.log.info("Sleeping " + pretty_seconds(60 * sleeptime) + " to get more workers for " + building + ".")
-            await asyncio.sleep(60 * sleeptime)
-            await self.send_message_and_wait(str(sleeptime * self.city.dailyPeopleIncrease))
-        else:
-            return getattr(self.city, max, 10) - getattr(self.city, workers, 0)
+        self.log.info(f'{pretty_seconds(60 * sleeptime)} till there might be enough workers for {building}.')
+        return getattr(self.city, max, 10) - getattr(self.city, workers, 0)
 
 
 async def resource_hires(self):
@@ -411,22 +347,9 @@ async def resource_hires(self):
             await self.send_message_and_wait("⬅️ Back")
 
 
-def calc_all_upgrade_costs(self):
-    calc_upgrade_costs(self, 'sawmill')
-    calc_upgrade_costs(self, 'mine')
-    calc_upgrade_costs(self, 'farm')
-    calc_upgrade_costs(self, 'houses')
-    calc_upgrade_costs(self, 'townhall')
-    calc_upgrade_costs(self, 'barracks')
-    calc_upgrade_costs(self, 'walls')
-    calc_upgrade_costs(self, 'trebuchet')
-    calc_upgrade_costs(self, 'storage')
-
-
 def calc_upgrade_costs(self, building):
     results = Siege.upgrade_costs(building, getattr(self.city, building, 0) + 1)
     suffix = ['Cost', 'Wood', 'Stone']
-
     for x in range(0, 3):
         setattr(self.city, building + 'Upgrade' + suffix[x], results[x])
 
@@ -1041,8 +964,52 @@ def pretty_print(objecty):
 
 async def build(self):
     await procrastinate(self)
-    await environment(self)
+    await ensure_account_exists(self)
     while True:
+        if self.warmode and not hasattr(self.city, 'trebuchet'):
+            await return_to_main(self)
+            await self.send_message_and_wait("⚒ Workshop")
+        in_buildings_room = False
+        if not hasattr(self.city, 'storage') or not hasattr(self.city, 'dailyGoldProduction'):
+            await return_to_main(self)
+            await self.send_message_and_wait("🏘 Buildings")
+            self.city.maxGold = 500000 * self.city.townhall
+            self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # max pop
+            self.city.dailyPeopleIncrease = self.city.houses
+            self.city.dailyWoodProduction = min(self.city.storage, self.city.sawmill) * 10
+            self.city.dailyStoneProduction = min(self.city.storage, self.city.mine) * 10
+            self.city.dailyFoodProduction = min(self.city.storage, self.city.farm) * 10
+            in_buildings_room = True
+        buildings = ['storage', 'farm', 'sawmill', 'mine']
+        icons = ['🏚', '🌻', '🌲', '⛏']
+        for i, each in enumerate(buildings):
+            workers, max = each + 'Workers', each + 'MaxWorkers'
+            levelzero = getattr(self.city, each) == 0
+            if levelzero or getattr(self.city, workers) < getattr(self.city, max):
+                if not in_buildings_room:
+                    await self.send_message_and_wait("🏘 Buildings")
+                    in_buildings_room = True
+                await self.send_message_and_wait(f'{icons[i]} {each.capitalize()}')
+                if levelzero:
+                    await self.send_message_and_wait(self.status.replyMarkup[0])  # Build
+                await self.send_message_and_wait('➕ Hire')
+                stillneed = await employ_at_capacity(self, each)
+                await self.send_message_and_wait("⬅️ Back")
+                await self.send_message_and_wait("⬅️ Back")
+                if stillneed:
+                    break
+
+        self.city.maxResource = (self.city.storage * 50 + 1000) * self.city.storage
+        self.city.maxWood = self.city.maxStone = self.city.maxFood = self.city.maxResource
+        self.city.dailyFoodConsumption = (self.city.houses - min(self.city.farm, self.city.storage)) * 10 \
+            if self.city.houses > min(self.city.farm, self.city.storage) else 0
+        self.city.foodReserveHours = 8
+        self.city.foodReserve = min(self.city.dailyFoodConsumption * self.city.foodReserveHours * 60, self.city.maxFood)
+        self.city.foodReserveMin = self.city.foodReserve / 2
+
+        for building in ['sawmill', 'mine', 'farm', 'houses', 'townhall', 'barracks', 'walls', 'trebuchet', 'storage']:
+            calc_upgrade_costs(self, building)
+
         if self.city.warStatus is 'peace':
             if getattr(self.city, 'walls', 0) > 0:
                 await return_to_main(self)
