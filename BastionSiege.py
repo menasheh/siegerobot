@@ -31,7 +31,7 @@ class Siege(object):
         self.telegram = telegram_client
         self.entity = "BastionSiegeBot"
         self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('.')[0])
-        self.warmode = mode == 1
+        self.warmode = (mode == 1)
         self.sleep = None
         self.scriptStartTime = datetime.now()
         self.handlers_exist = False
@@ -984,7 +984,7 @@ async def build(self):
         icons = ['🏚', '🌻', '🌲', '⛏']
         for i, each in enumerate(buildings):
             workers, max = each + 'Workers', each + 'MaxWorkers'
-            levelzero = getattr(self.city, each) == 0
+            levelzero = (getattr(self.city, each) == 0)
             if levelzero or getattr(self.city, workers) < getattr(self.city, max):
                 if not in_buildings_room:
                     await self.send_message_and_wait("🏘 Buildings")
