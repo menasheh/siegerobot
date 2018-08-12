@@ -125,14 +125,17 @@ class Siege(object):
                     self.status.respondedallydefence = True
                 elif 'JOIN' in message:
                     self.log.info('alliance requests you JOIN either attack or defence')
+                    # todo - full army first
+                    # todo - log if neither worked
+                    if recruits_needed(self):
+                        self.sleep.cancel()
+                    await asyncio.sleep(random.randint(10, 30))
                     if hasattr(self.buttons, 'joinattack'):
-                        await asyncio.sleep(random.randint(10, 30))
-                        if recruits_needed(self):
-                            self.sleep.cancel()
                         await self.buttons.joinattack
                         del self.buttons.joinattack
-                    else:
-                        self.log.critical('no joinattack button found, is the defence one called something else?')
+                    if hasattr(self.buttons, 'joindefence'):
+                        await self.buttons.joindefence
+                        del self.buttons.joindefence
                     self.log.info('resetting response statuses attack' +
                                   f'{self.status.respondedallyattack}; defence {self.status.respondedallydefence}')
                     self.status.respondedallyattack = False
