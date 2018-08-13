@@ -444,6 +444,10 @@ async def parse_message(self, message):
         pass
     elif 'statistic' in message:
         pass
+    elif 'reward for the invited player' in message:
+        self.log.info(message)
+        if self.sleep is not None:
+            self.sleep.cancel()
     elif 'Select language.' in message:
         await self.telegram.send_message(self.entity, "🇬🇧English")
     elif 'What is your name?' in message or 'Think up another name.' in message:
