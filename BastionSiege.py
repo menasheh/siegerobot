@@ -86,8 +86,6 @@ class Siege(object):
                                 setattr(self.buttons, action, event.click(i))
                                 if not hadattr:
                                     self.log.debug(f'{action} button set with callback data {item[0].button.data}')
-                    else:
-                        self.log.info("no markup associated with message " + event.message.message)
                 except Exception as err:
                     self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
                 try:
