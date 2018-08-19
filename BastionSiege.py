@@ -2,11 +2,14 @@ from datetime import datetime
 import asyncio
 import logging
 import math
+import names
+from places import getcity
 from os.path import expanduser
 import random
 import re
 from telethon import events
 from telethon.errors import FloodWaitError
+from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import (
     KeyboardButton, KeyboardButtonCallback
 )
@@ -280,7 +283,23 @@ async def procrastinate(self):
     self.sleep = None
 
 
+async def for_initial_setup(self):
+    while not self.done_setup:
+        asyncio.sleep(5)
+
+
 async def environment(self):
+    message = await self.telegram.get_messages(self.entity, limit=1)
+
+    if len(message):
+        self.log.info(f'latest message is {message.data[0].id}')
+        print(message.data[0].id)
+    else:
+        self.log.info("no message found, starting siege from the beginning...")
+        await self.send_message_and_wait("/start")
+        self.done_setup = False
+        await for_initial_setup(self)
+
     await return_to_main(self)
     await self.send_message_and_wait("⚒ Workshop")
     await self.send_message_and_wait("⬅️ Back")
@@ -498,6 +517,16 @@ async def parse_message(self, message):
         pass
     elif 'statistic' in message:
         pass
+    elif 'Select Language.' in message:
+        await self.send_message_and_wait("🇬🇧English")
+    elif 'What is your name?' in message or 'Think up another name.' in message:
+        await self.send_message_and_wait(names.get_full_name())
+    elif 'exactly your name' in message or 'suitable for village' in message:
+        await self.send_message_and_wait("✅ Yes")
+    elif 'we call your village' in message:
+        await self.send_message_and_wait(getcity())
+    elif 'around the domain.' in message:
+        self.done_setup = True
     else:
         self.log.error('unknown message type')
         self.log.error(message)

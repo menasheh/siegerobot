@@ -1,10 +1,14 @@
 import asyncio
+import random
+import string
+import names
 from aiohttp import web
 from os import environ
 from os.path import expanduser
 import sys
 from BastionSiege import Siege, pretty_seconds
 from telethon import TelegramClient
+from telethon.errors import PhoneNumberBannedError
 
 
 def get_config():
@@ -32,7 +36,7 @@ for config in configs:
         ).start(config[2]),
         int(config[1])
     ])
-# todo use a logger instead of std
+new_client = None
 logfile = expanduser("~") + '/.hidden/robots.log'
 output = open(logfile, 'a+', 1)
 sys.stdout = output
@@ -144,8 +148,49 @@ async def siege_dashboard_handler(request):
         return web.Response(text="Session not found")
 
 
+def save_session(session, number):
+    f = open("settings.cfg", "a")
+    f.write(f'\n{session},0,{number}')
+    f.close()
+
+
+async def siege_signup_handler(request):
+    global new_client
+    number = request.match_info.get('number', None)
+    code = request.match_info.get('code', None)
+
+    if code is None:
+        session = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
+        new_client = TelegramClient(
+            session,
+            environ['TG_API_ID'],
+            environ['TG_API_HASH'],
+            proxy=None,
+        )
+        await new_client.connect()
+        try:
+            await new_client.send_code_request(phone=number, force_sms=True)
+        except PhoneNumberBannedError:
+            return web.Response(text=f'The number {number} is banned from Telegram')
+        return web.Response(text=f'get your code at {number} and append to the url')
+    else:
+
+        await new_client.sign_up(code, names.get_first_name())
+
+        session = new_client.session.filename.split('.')[0]
+        save_session(session, number)
+
+        new_siege = Siege(new_client, 0)
+        sieges.append(new_siege)
+
+        asyncio.ensure_future(new_siege.run())
+        return web.Response(text=f'sent message, still some setup needed perhaps')
+
+
 app = web.Application()
 app.add_routes([web.get('/', siege_debug_handler),
+                web.get('/create/{number}', siege_signup_handler),
+                web.get('/create/{number}/{code}', siege_signup_handler),
                 web.get('/{name}', siege_dashboard_handler),
                 web.get('/{name}/wake', siege_wake_handler),
                 web.get('/{name}/debug', siege_debug_handler),
