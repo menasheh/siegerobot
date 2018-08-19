@@ -417,11 +417,11 @@ async def parse_message(self, message):
         self.status.expects = 'chooseNumber'
     elif 'Siege has started!' in message:
         self.city.warStatus = 'attack'
-    elif 'Congratulations' in message and 'army' in message:  # remove army part once alliance parser made
-        # if 'army' in message:
-        parse_war_victory(self, message)
-        # elif 'alliance' in message:
-        #   parse_war_clan_victory(self, message)
+    elif 'Congratulations' in message:
+        if 'army' in message:
+            parse_war_victory(self, message)
+        elif 'alliance' in message:
+            parse_war_clan_victory(self, message)
     elif 'Your domain attacked!' in message:
         parse_war_attacked(self, message)
     elif 'your army lose' in message:
@@ -923,10 +923,17 @@ def parse_war_defeat(self, msg):
         self.city.lastBattleTerritory = int(m3.group(1))
 
 
-def parse_war_clan_defeat(self, msg):
+def parse_war_clan_victory(self, msg):
+    self.city.warStatus = 'peace'
     self.log.info(msg)
     self.log.error('not implemented for above message')
+    debug_numbers_from_message(self, msg)
 
+
+def parse_war_clan_defeat(self, msg):
+    self.city.warStatus = 'peace'
+    self.log.info(msg)
+    self.log.error('not implemented for above message')
     debug_numbers_from_message(self, msg)
 
 
