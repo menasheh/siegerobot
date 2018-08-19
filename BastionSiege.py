@@ -294,7 +294,7 @@ async def ensure_account_exists(self):
         await parse_message(self, message.data[0].message)  # If extra messages came in first, this won't help
     else:
         self.log.info("no message found, starting siege from the beginning...")
-        await self.send_message_and_wait("/start")
+        await self.telegram.send_message(self.entity, "/start")
         self.done_setup = False
     await for_initial_setup(self)
 
