@@ -226,7 +226,7 @@ class Siege(object):
             resources_sunk = level_current * level_previous * ((2 * level_current + 8) / 6 + 2 / level_current)
         result = [0, 0, 0]
         for x in range(0, 3):
-            result[x] = int((coeff[building][x] * (level_desired * level_current * (
+            result[x] = math.ceil((coeff[building][x] * (level_desired * level_current * (
                     (2 * level_desired + 8) / 6 + 2 / level_desired) - resources_sunk)) / 2)
         return result
 
@@ -1107,8 +1107,7 @@ def get_purchasable_resource_quantity(self, quantity):
 
 
 def get_upgrade_required_resource_quantity(self, building, resource):
-    return math.ceil(
-        getattr(self.city, building + 'Upgrade' + resource.capitalize()) - getattr(self.city, resource))
+    return getattr(self.city, building + 'Upgrade' + resource.capitalize()) - getattr(self.city, resource)
 
 
 def get_food_purchase_quantity_for_reserve(self):
