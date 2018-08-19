@@ -997,14 +997,17 @@ async def build(self):
         in_buildings_room = False
         if not hasattr(self.city, 'storage') or not hasattr(self.city, 'dailyGoldProduction'):
             await return_to_main(self)
-            await self.send_message_and_wait("🏘 Buildings")
-            self.city.maxGold = 500000 * self.city.townhall
-            self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # max pop
-            self.city.dailyPeopleIncrease = self.city.houses
-            self.city.dailyWoodProduction = min(self.city.storage, self.city.sawmill) * 10
-            self.city.dailyStoneProduction = min(self.city.storage, self.city.mine) * 10
-            self.city.dailyFoodProduction = min(self.city.storage, self.city.farm) * 10
-            in_buildings_room = True
+            try:
+                await self.send_message_and_wait("🏘 Buildings")
+                self.city.maxGold = 500000 * self.city.townhall
+                self.city.dailyGoldProduction = self.city.houses * 10 + self.city.houses * self.city.townhall * 2  # max pop
+                self.city.dailyPeopleIncrease = self.city.houses
+                self.city.dailyWoodProduction = min(self.city.storage, self.city.sawmill) * 10
+                self.city.dailyStoneProduction = min(self.city.storage, self.city.mine) * 10
+                self.city.dailyFoodProduction = min(self.city.storage, self.city.farm) * 10
+                in_buildings_room = True
+            except:
+                inplacerestart(self)
         buildings = ['storage', 'farm', 'sawmill', 'mine']
         icons = ['🏚', '🌻', '🌲', '⛏']
         for i, each in enumerate(buildings):
