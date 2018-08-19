@@ -436,13 +436,14 @@ async def parse_message(self, message):
     elif 'your alliance lose' in message:
         parse_war_clan_defeat(self, message)
     # skip some message types
-    elif 'joined the attack' in message:
-        pass
-    elif 'not yet recovered' in message:
-        pass
-    elif 'Welcome to the alliance' in message:
-        pass
-    elif 'statistic' in message:
+    elif any(thing in message for thing in [
+        'not yet recovered'
+        'joined the attack'
+        'joined the defence'
+        
+        'Welcome to the alliance',
+        'statistic'
+    ]):
         pass
     elif 'reward for the invited player' in message:
         self.log.info(message)
