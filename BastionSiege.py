@@ -443,6 +443,7 @@ async def parse_message(self, message):
         'Welcome to the alliance',
         'Leaders of alliances',
         'joined the siege on',
+        'existing alliances',
         'statistic',
         '#message',
     ]):
