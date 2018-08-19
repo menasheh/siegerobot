@@ -448,6 +448,8 @@ async def parse_message(self, message):
         '#message',
     ]):
         pass
+    elif 'shop is closed' in message:
+        self.city.warStatus = "unknown"
     elif 'reward for the invited player' in message:
         self.log.info(message)
         if self.sleep is not None:
