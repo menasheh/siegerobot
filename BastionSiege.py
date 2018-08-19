@@ -82,8 +82,10 @@ class Siege(object):
                             self.status.chatbuttons = chatbuttons
                             for i, item in enumerate(event.message.buttons):
                                 action = item[0].button.data.decode("utf-8").split(' ')[0]
+                                hadattr = hasattr(self.buttons, action)
                                 setattr(self.buttons, action, event.click(i))
-                                self.log.debug(f'{action} button set with callback data {item[0].button.data}')
+                                if not hadattr:
+                                    self.log.debug(f'{action} button set with callback data {item[0].button.data}')
                     else:
                         self.log.info("no markup associated with message " + event.message.message)
                 except Exception as err:
@@ -431,8 +433,6 @@ async def parse_message(self, message):
         parse_war_clan_attack(self, message)
     elif 'help defend' in message:
         parse_war_clan_defend(self, message)
-    # elif 'The' in message.split()[0]:  # This was probably NOT intended as a catch all...
-    #    parse_war_clan_join(self, message)
     elif 'your alliance lose' in message:
         parse_war_clan_defeat(self, message)
     # skip some message types
