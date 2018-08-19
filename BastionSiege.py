@@ -251,7 +251,7 @@ class Siege(object):
                 self.log.error(traceback.format_exc())
                 await inplacerestart(self)
             pass
-        await asyncio.sleep(random.randint(600, 1000) / 1000)
+        await asyncio.sleep(random.randint(600, 1500) / 1000)
 
 
 def clean_trim(string):
