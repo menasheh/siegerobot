@@ -441,6 +441,8 @@ async def parse_message(self, message):
         'joined the defence',
         
         'Welcome to the alliance',
+        'Leaders of alliances',
+        'joined the siege on',
         'statistic',
         '#message',
     ]):
