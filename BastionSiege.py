@@ -451,15 +451,19 @@ async def parse_message(self, message):
         if self.sleep is not None:
             self.sleep.cancel()
     elif 'Select language.' in message:
+        await asyncio.sleep(random.randint(2, 10))
         await self.telegram.send_message(self.entity, "🇬🇧English")
     elif 'What is your name?' in message or 'Think up another name.' in message:
         self.done_setup = False
+        await asyncio.sleep(random.randint(2, 10))
         await self.telegram.send_message(self.entity, names.get_full_name())
     elif 'exactly your name' in message or 'suitable for village' in message:
         self.done_setup = False
+        await asyncio.sleep(random.randint(2, 10))
         await self.telegram.send_message(self.entity, "✅ Yes")
     elif 'we call your village' in message:
         self.done_setup = False
+        await asyncio.sleep(random.randint(2, 10))
         await self.telegram.send_message(self.entity, getcity())
     elif 'begin the game' in message or 'high ledge near' in message:
         self.done_setup = True
