@@ -438,12 +438,13 @@ async def parse_message(self, message):
         parse_war_clan_defeat(self, message)
     # skip some message types
     elif any(thing in message for thing in [
-        'not yet recovered'
-        'joined the attack'
-        'joined the defence'
+        'not yet recovered',
+        'joined the attack',
+        'joined the defence',
         
         'Welcome to the alliance',
-        'statistic'
+        'statistic',
+        '#message',
     ]):
         pass
     elif 'reward for the invited player' in message:
