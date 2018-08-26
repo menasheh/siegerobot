@@ -1105,7 +1105,7 @@ async def build(self):
 
 
 def get_estimated_time_to_resources(self, gold, food, wood, stone):
-    return max(0, int(math.ceil((gold + 2 * (food + wood + stone)) / self.city.dailyGoldProduction)))
+    return max(0, int(math.ceil((gold + 2 * (food + wood + stone)) / max(self.city.dailyGoldProduction, 1))))
 
 
 def get_purchasable_resource_quantity(self, quantity):
