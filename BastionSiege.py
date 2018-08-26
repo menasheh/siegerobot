@@ -424,7 +424,16 @@ async def parse_message(self, message):
         elif 'alliance' in message:
             parse_war_clan_victory(self, message)
     elif 'Your domain attacked!' in message:
-        parse_war_attacked(self, message)
+        if 'approaches the border' in message:
+            parse_war_attacked(self, message)
+        elif 'already at the walls' in message:
+            self.city.warStatus = "Undead"
+        elif 'cuts the sky' in message:
+            self.city.warStatus = "Dragon"
+        else:
+            self.city.warStatus = "UnknownEvent"
+            self.log.warning("Something unknown attacked us, probably new event: ")
+            self.log.warning(message)
     elif 'your army lose' in message:
         parse_war_defeat(self, message)
     # Clan War
