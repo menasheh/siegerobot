@@ -100,7 +100,7 @@ class Siege(object):
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
             async def handle(event):
-                alliance_chat = -1001126957096
+                alliance_chat = -1001349813646
                 message = event.message.message
                 if 'attack' in message:
                     self.log.info('alliance preparing for attack')
