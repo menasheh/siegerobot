@@ -509,7 +509,7 @@ def try_regex(self, regex, msg, method):  # todo get method from call stack
     if match is None:
         self.log.critical("REGEX ERROR:")
         self.log.critical("\t" + method + " could not parse:\n" + msg + "\n</msg>\n")
-        exit(1)
+        inplacerestart(self)
     return match
 
 
