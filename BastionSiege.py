@@ -806,27 +806,26 @@ def parse_building_town_hall(self, msg):
 
 
 def parse_building_walls(self, msg):
-    reg = re.compile(
-        r'(\d+)\D+(\d+)/(\d+)🏹\D+(\d+)💰(\d+)🍖/(\d+)👥\D+\+(\d+)\D+(\d+)/(\d+)\D+(\d+)\D+(\d+)👥.+(Repair|'
-        r'Upgrade)\D+(\d+)💰(⛔️|✅)\D+(\d+)🌲(⛔️|✅)\D+(\d+)⛏(⛔️|✅)', re.S)
+    numbers = ['walls', 'archers', 'maxArchers', 'wallsRecruitCostGold', 'wallsRecruitCostFood',
+               'wallsRecruitCostPeople', 'wallAttackBonus', 'wallDurability', 'wallMaxDurability', 'gold', 'people']
+    if "Repair" in msg:
+        for each in ['wallsRepairCost', 'wallsRepairWood', 'wallsRepairStone']:
+            numbers.append(each)
+    else:
+        for each in ['wallsUpgradeCost', 'wallsUpgradeWood', 'wallsUpgradeStone']:
+            numbers.append(each)
+    if "Steward" in msg:
+        numbers.append('wallsUpgradeStewardCost')
+
+    parse_numbers_from_message(self, msg, numbers)
+
+    self.city.update_times.gold = time.time()
+    self.city.update_times.people = time.time()
+
+    reg = re.compile(r'💰(⛔️|✅)\D+\d+🌲(⛔️|✅)\D+\d+⛏(⛔️|✅)(?:\D+\d+💰(⛔️|✅))?', re.S)
     m = re.search(reg, msg)
 
-    self.city.walls = int(m.group(1))
-    self.city.archers = int(m.group(2))
-    self.city.maxArchers = int(m.group(3))
-    # Individual Recruit cost? 10, 1, 1 are current values of 4, 5, 6
-    self.city.wallAttackBonus = int(m.group(7))
-    self.city.wallDurability = int(m.group(8))
-    self.city.wallMaxDurability = int(m.group(9))
-    self.city.gold = int(m.group(10))
-    self.city.update_times.gold = time.time()
-    self.city.people = int(m.group(11))
-    self.city.update_times.people = time.time()
-    self.city.wallStatus = m.group(12)
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Cost', int(m.group(13)))
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Wood', int(m.group(15)))
-    setattr(self.city, 'walls' + self.city.wallStatus + 'Stone', int(m.group(17)))
-    self.city.wallsCanUpgrade = False if '⛔' in m.group(14) + m.group(16) + m.group(18) else True
+    self.city.wallsCanUpgrade = ('✅✅✅' in m.group(1) + m.group(2) + m.group(3)) or ('✅' in m.group(4))
 
     self.status.menuDepth = 2
 
