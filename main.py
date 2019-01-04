@@ -27,15 +27,18 @@ configs = get_config()
 clients = []
 for config in configs:
     print("starting session '" + config[0] + "'")
-    clients.append([
-        TelegramClient(
-            config[0],
-            environ['TG_API_ID'],
-            environ['TG_API_HASH'],
-            proxy=None,
-        ).start(config[2]),
-        int(config[1])
-    ])
+    try:
+        clients.append([
+            TelegramClient(
+                config[0],
+                environ['TG_API_ID'],
+                environ['TG_API_HASH'],
+                proxy=None,
+            ).start(config[2]),
+            int(config[1])
+        ])
+    except PhoneNumberBannedError:
+        print("The phone number associated with '" + config[0] + "' is banned from telegram. [TODO autoremove]")
 new_client = None
 logfile = expanduser("~") + '/.hidden/robots.log'
 output = open(logfile, 'a+', 1)
