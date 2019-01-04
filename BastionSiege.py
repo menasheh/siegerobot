@@ -188,7 +188,7 @@ class Siege(object):
         if self.warmode:
             buildings = self.city.warbuildings
             i = 0
-            while i < len(self.city.buildings) and \
+            while i < len(buildings) and \
                     (self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or
                      self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or
                      self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost')):
