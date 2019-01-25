@@ -298,16 +298,21 @@ async def for_initial_setup(self):
 
 
 async def ensure_account_exists(self):
-    message = await self.telegram.get_messages(self.entity, limit=1)
-    if len(message):
-        self.log.info(f'latest message is {message.data[0].id}: {message.data[0].message}')
-        if message.data[0].id < 20:
-            await parse_message(self, message.data[0].message)
-    else:
-        self.log.info("no message found, starting siege from the beginning...")
-        await self.telegram.send_message(self.entity, "/start")
-        self.done_setup = False
-    await for_initial_setup(self)
+    try:
+        message = await self.telegram.get_messages(self.entity, limit=1)
+        if len(message):
+            self.log.info(f'latest message is {message.data[0].id}: {message.data[0].message}')
+            if message.data[0].id < 20:
+                await parse_message(self, message.data[0].message)
+        else:
+            self.log.info("no message found, starting siege from the beginning...")
+            await self.telegram.send_message(self.entity, "/start")
+            self.done_setup = False
+        await for_initial_setup(self)
+    except YouBlockedUserError as e:
+        self.log.error("You blocked this user! Attempting to unblock. [TODO force signout/set password]")
+        await self.telegram(UnblockRequest(self.entity))
+        await self.ensure_account_exists()
 
 
 async def employ_up_to_capacity(self, building, already):
