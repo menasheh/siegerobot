@@ -309,10 +309,11 @@ async def ensure_account_exists(self):
             await self.telegram.send_message(self.entity, "/start")
             self.done_setup = False
         await for_initial_setup(self)
+        return True
     except YouBlockedUserError as e:
         self.log.error("You blocked this user! Attempting to unblock. [TODO force signout/set password]")
         await self.telegram(UnblockRequest(self.entity))
-        await self.ensure_account_exists()
+        return False
 
 
 async def employ_up_to_capacity(self, building, already):
@@ -1007,7 +1008,8 @@ def pretty_print(objecty):
 
 async def build(self):
     await procrastinate(self)
-    await ensure_account_exists(self)
+    while not (await ensure_account_exists(self)):
+        pass
     while True:
         if self.warmode and not hasattr(self.city, 'trebuchet'):
             await return_to_main(self)
