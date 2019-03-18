@@ -50,7 +50,7 @@ class Siege(object):
         self.status.menuDepth = 1
         self.city.update_times = Object([])
 
-        self.city.warbuildings = ["barracks", "walls", "trebuchet"]
+        self.city.warbuildings = ["barracks",] # "walls", "trebuchet"]
 
     async def run(self):
         if not self.handlers_exist:
