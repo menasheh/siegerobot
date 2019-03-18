@@ -1028,7 +1028,7 @@ async def build(self):
                 self.city.dailyFoodProduction = min(self.city.storage, self.city.farm) * 10
                 in_buildings_room = True
             except:
-                inplacerestart(self)
+                await inplacerestart(self)
         buildings = ['storage', 'farm', 'sawmill', 'mine']
         icons = ['🏚', '🌻', '🌲', '⛏']
         for i, each in enumerate(buildings):
