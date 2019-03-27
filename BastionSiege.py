@@ -50,7 +50,7 @@ class Siege(object):
         self.status.menuDepth = 1
         self.city.update_times = Object([])
 
-        self.city.warbuildings = ["barracks",] # "walls", "trebuchet"]
+        self.city.warbuildings = ["barracks", "walls", "trebuchet"]
 
     async def run(self):
         if not self.handlers_exist:
@@ -187,7 +187,7 @@ class Siege(object):
         if getattr(self.city, 'farm', 0) == 0:
             return 'farm'
         if self.warmode:
-            buildings = self.city.warbuildings
+            buildings = ["barracks"]  # self.city.warbuildings # use this to also upgrade the rest of the warbuildings
             i = 0
             while i < len(buildings) and \
                     (self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or
