@@ -194,7 +194,7 @@ class Siege(object):
                      self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or
                      self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost')):
                 i += 1
-            if i < len(self.city.warbuildings):
+            if i < len(buildings):
                 return buildings[i]
         result = 'townhall'
         pbp = self.get_upgrade_payback_period(result)
