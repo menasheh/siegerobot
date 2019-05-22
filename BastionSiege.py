@@ -104,8 +104,39 @@ class Siege(object):
                 if 'menasheh' in self.entity.session:
                     self.log.critical(event.message.to_id)
 
-            @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
-            async def handle(event):
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
+            async def handleFoxRfxbot(event):
+                alliance_chat = -1001100232223
+                message = event.message.message
+
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=560661122))
+            async def handleCuteLittleFox(event):
+                alliance_chat = -1001100232223
+                message = event.message.message
+                if 'ALARM' in message:
+                    self.log.info('alliance requests you JOIN either attack or defence')
+                    # todo - full army first
+                    if recruits_needed(self):
+                        self.sleep.cancel()
+                    await asyncio.sleep(random.randint(10, 30))
+                    if hasattr(self.buttons, 'joinattack'):
+                        await self.buttons.joinattack
+                        del self.buttons.joinattack
+                        self.log.info("pressed join attack button")
+                    elif hasattr(self.buttons, 'joindefence'):
+                        await self.buttons.joindefence
+                        del self.buttons.joindefence
+                        self.log.info("pressed join defence button")
+                    elif hasattr(self.buttons, 'joinsiege'):
+                        await self.buttons.joinsiege
+                        del self.buttons.joinsiege
+                        self.log.info("pressed join siege button")
+                    else:
+                        self.log.warning('Alarm sounded but no attack, defence, or siege available.')
+                        self.log.warning(self.buttons)
+
+            # @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
+            async def handleDragonWatcher(event):
                 alliance_chat = -1001151460313
                 message = event.message.message
                 if 'attack' in message:
