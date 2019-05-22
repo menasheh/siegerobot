@@ -101,6 +101,7 @@ class Siege(object):
 
             @self.telegram.on(events.NewMessage())
             async def debug(event):
+                self.log.critical(event.message)
                 self.log.critical(self.entity.session.filename)
                 if 'menasheh' in self.entity.session.filename:
                     self.log.critical(event.message.to_id)
