@@ -496,7 +496,11 @@ async def parse_message(self, message):
     elif any(thing in message for thing in [
         'not yet recovered',
         'joined the attack',
-        'joined the defence',
+        'joined the defense',
+
+        'Formation of the army',
+        'castle began!',
+        'castle is over!'
         
         'Welcome to the alliance',
         'Leaders of alliances',
