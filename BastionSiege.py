@@ -1,6 +1,5 @@
 from datetime import datetime
 import asyncio
-import json
 import logging
 import math
 import names
@@ -102,9 +101,8 @@ class Siege(object):
 
             @self.telegram.on(events.NewMessage())
             async def debug(event):
-                self.log.critical(json.dumps(event.message))
-                self.log.critical(self.entity.session.filename)
                 if 'menasheh' in self.entity.session.filename:
+                    self.log.critical(event.message) # Was crashing but maybe because of chinese. Try json.dumps if still crashes
                     self.log.critical(event.message.to_id)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
