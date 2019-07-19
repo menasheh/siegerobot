@@ -963,6 +963,10 @@ def parse_war_defeat(self, msg):
 
     self.city.warStatus = 'peace'
 
+    if 'Undead army' in msg:
+        # lost to Undead. TODO process this message further
+        return
+
     reg = re.compile(
         r'with 🗡?(?:{(.+)})?(?:\[(\W)])?([\w, ]+) complete. Unfortunately, ([\w ]+),.+ lose\. (None|Only'
         r' (\d+)⚔) of (\d+)⚔')
