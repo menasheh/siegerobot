@@ -704,10 +704,10 @@ def parse_war_recruitment_info(self, msg):
 async def parse_resource_message(self, msg):
     if 'delivered' in msg:
         'resources purchased'
-    if 'find money.' in msg:
+    elif 'find money' in msg:
         self.log.error('not enough money for resources')
         await self.send_message_and_wait("1")  # Remind script of actual resource amount by purchasing 1
-    if 'no place' in msg:
+    elif 'no place' in msg:
         self.log.error('no room for resources we attempted to purchase')
     else:
         parse_numbers_from_message(self, msg, ['gems', 'gold', 'wood', 'stone', 'food'])
