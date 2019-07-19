@@ -234,8 +234,8 @@ async def main():
         diff = int(time.time()) - start
         log.info(f'runtime: {pretty_seconds(diff)}')
         if diff < 10:
-            log.warning("will retry in one hour")
-            await asyncio.sleep(3600)
+            log.warning("will retry in fifteen minutes")
+            await asyncio.sleep(900)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
