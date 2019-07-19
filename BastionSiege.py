@@ -23,6 +23,7 @@ logging.basicConfig(filename=logfile,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 logging.getLogger('telethon').setLevel(logging.CRITICAL)
 logging.getLogger('asyncio').setLevel(logging.CRITICAL)
+logging.getLogger('aiohttp.access').setLevel(logging.CRITICAL)
 
 
 class Siege(object):
@@ -320,7 +321,7 @@ def update_resource(self, resource):
 
 async def procrastinate(self):
     rand_time = random.randint(120, random.randint(1200, 1500 + random.randint(0, 1) * 300))
-    self.log.info("snoozing for " + pretty_seconds(rand_time) + ".")
+    # self.log.info("snoozing for " + pretty_seconds(rand_time) + ".")
     self.sleep = asyncio.ensure_future(asyncio.sleep(rand_time))
     try:
         await self.sleep
@@ -1156,7 +1157,6 @@ async def build(self):
                 self.city.goal_estimate = "With %d storage, %s maxes out at %d and will take ~%s to complete." % (
                     self.city.storage, building, leveldesired, pretty_seconds(60 * estimatedtime)
                 )
-                self.log.info(self.city.goal_estimate)
                 await procrastinate(self)
                 update_gold(self)
                 update_resources(self)
