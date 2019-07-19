@@ -1,8 +1,9 @@
 import asyncio
 import logging
+import names
 import random
 import string
-import names
+import time
 import traceback
 from aiohttp import web
 from os import environ
@@ -62,7 +63,6 @@ for config in configs:
 new_client = None
 
 sieges = [Siege(client[0], client[1]) for client in clients]
-routines = [siege.run() for siege in sieges]
 
 
 async def siege_debug_handler(request):
@@ -220,12 +220,22 @@ runner = web.AppRunner(app)
 
 
 async def main():
-    await runner.setup()
-    site = web.TCPSite(runner, 'localhost', 8080)
-    await site.start()
-    await asyncio.gather(*routines)
-    await runner.cleanup()
-
+    while True:
+        start = int(time.time())
+        try:
+            await runner.setup()
+            site = web.TCPSite(runner, 'localhost', 8080)
+            await site.start()
+            await asyncio.gather(*[siege.run() for siege in sieges])
+        except Exception:
+            log.error(traceback.format_exc())
+        finally:
+            await runner.cleanup()
+        diff = int(time.time()) - start
+        log.info(f'runtime: {pretty_seconds(diff)}')
+        if diff < 10:
+            log.warning("will retry in one hour")
+            await asyncio.sleep(3600)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
