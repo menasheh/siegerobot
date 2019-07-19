@@ -339,9 +339,9 @@ async def ensure_account_exists(self):
     try:
         message = await self.telegram.get_messages(self.entity, limit=1)
         if len(message):
-            self.log.info(f'latest message is {message.data[0].id}: {message.data[0].message}')
-            if message.data[0].id < 20:
-                await parse_message(self, message.data[0].message)
+            self.log.info(f'latest message is {message[0].id}: {message[0].message}')
+            if message[0].id < 20:
+                await parse_message(self, message[0].message)
         else:
             self.log.info("no message found, starting siege from the beginning...")
             await self.telegram.send_message(self.entity, "/start")
