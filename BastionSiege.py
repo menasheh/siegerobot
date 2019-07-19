@@ -4,7 +4,6 @@ import logging
 import math
 import names
 from places import getcity
-from os.path import expanduser
 import random
 import re
 from telethon import events
@@ -15,15 +14,6 @@ from telethon.tl.types import (
 )
 import time
 import traceback
-
-logfile = expanduser("~") + '/.hidden/siege.log'
-
-logging.basicConfig(handlers=[logging.FileHandler(logfile, 'a+', 'utf-8')],
-                    level=logging.DEBUG,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-logging.getLogger('telethon').setLevel(logging.CRITICAL)
-logging.getLogger('asyncio').setLevel(logging.CRITICAL)
-logging.getLogger('aiohttp.access').setLevel(logging.CRITICAL)
 
 
 class Siege(object):

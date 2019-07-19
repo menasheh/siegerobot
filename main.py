@@ -1,7 +1,9 @@
 import asyncio
+import logging
 import random
 import string
 import names
+import traceback
 from aiohttp import web
 from os import environ
 from os.path import expanduser
@@ -9,6 +11,24 @@ import sys
 from BastionSiege import Siege, pretty_seconds
 from telethon import TelegramClient
 from telethon.errors import PhoneNumberBannedError, PhoneNumberOccupiedError
+
+home_folder = expanduser("~")
+siege_log_file = home_folder + '/.hidden/siege.log'
+robots_log_file = home_folder + '/.hidden/robots.log'
+
+log = logging.getLogger("robots")
+log.propagate = False
+log.setLevel(logging.DEBUG)
+handler = logging.FileHandler(robots_log_file, 'a+', 'utf-8')
+handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(message)s'))
+log.addHandler(handler)
+
+logging.basicConfig(handlers=[logging.FileHandler(siege_log_file, 'a+', 'utf-8')],
+                    level=logging.DEBUG,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+logging.getLogger('telethon').setLevel(logging.CRITICAL)
+logging.getLogger('asyncio').setLevel(logging.CRITICAL)
+logging.getLogger('aiohttp.access').setLevel(logging.CRITICAL)
 
 
 def get_config():
@@ -18,7 +38,7 @@ def get_config():
             for line in file:
                 result.append(line.split(','))
     except FileNotFoundError:
-        print("missing config: make settings.cfg with config in the format session,mode,phone")
+        log.critical("missing config: make settings.cfg with config in the format session,mode,phone")
         sys.exit(1)
     return result
 
@@ -26,7 +46,7 @@ def get_config():
 configs = get_config()
 clients = []
 for config in configs:
-    print("starting session '" + config[0] + "'")
+    log.info("starting session '" + config[0] + "'")
     try:
         clients.append([
             TelegramClient(
@@ -38,12 +58,8 @@ for config in configs:
             int(config[1])
         ])
     except PhoneNumberBannedError:
-        print("The phone number associated with '" + config[0] + "' is banned from telegram. [TODO autoremove]")
+        log.warning("The phone number associated with '" + config[0] + "' is banned from telegram. [TODO autoremove]")
 new_client = None
-logfile = expanduser("~") + '/.hidden/robots.log'
-output = open(logfile, 'a+', 1, encoding="utf8")
-sys.stdout = output
-sys.stderr = output
 
 sieges = [Siege(client[0], client[1]) for client in clients]
 routines = [siege.run() for siege in sieges]
