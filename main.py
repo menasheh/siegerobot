@@ -41,7 +41,7 @@ for config in configs:
         print("The phone number associated with '" + config[0] + "' is banned from telegram. [TODO autoremove]")
 new_client = None
 logfile = expanduser("~") + '/.hidden/robots.log'
-output = open(logfile, 'a+', 1)
+output = open(logfile, 'a+', 1, encoding="utf8")
 sys.stdout = output
 sys.stderr = output
 
@@ -191,7 +191,6 @@ async def siege_signup_handler(request):
         asyncio.ensure_future(new_siege.run())
         new_client = None
         return web.Response(text=message)
-
 
 app = web.Application()
 app.add_routes([web.get('/', siege_debug_handler),

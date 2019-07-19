@@ -18,7 +18,7 @@ import traceback
 
 logfile = expanduser("~") + '/.hidden/siege.log'
 
-logging.basicConfig(filename=logfile,
+logging.basicConfig(handlers=[logging.FileHandler(logfile, 'a+', 'utf-8')],
                     level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 logging.getLogger('telethon').setLevel(logging.CRITICAL)
