@@ -441,12 +441,12 @@ async def parse_message(self, message):
     first_line = message.split()[0]
     # Main Info and Buildings
     if 'Season' in message:
+        await forward_to_bsa(self, id)
         parse_profile(self, message)
         await self.draft.delete()
-        await forward_to_bsa(self, id)
     elif 'Buildings' in message:
-        parse_buildings_profile(self, message)
         await forward_to_bsa(self, id)
+        parse_buildings_profile(self, message)
     elif 'Wins' in message and 'rating' not in message:
         parse_war_profile(self, message)
     elif 'Town hall' in message:
@@ -468,27 +468,27 @@ async def parse_message(self, message):
     elif 'Farm' in first_line:
         parse_building_farm(self, message)
     elif 'Workshop' in first_line:
-        parse_workshop(self, message)
         await forward_to_bsa(self, id)
+        parse_workshop(self, message)
     elif 'Trebuchet' in first_line and '👥' in message:
         parse_trebuchet(self, message)
     # War
     elif 'Info' in message.split()[0]:
         parse_war_recruitment_info(self, message)
     elif 'Our scouts' in message:
-        parse_scout_message(self, message)
         await forward_to_bsa(self, id)
+        parse_scout_message(self, message)
     elif 'Choose number.' in message:
         self.status.expects = 'chooseNumber'
     elif 'Siege has started!' in message:
         self.city.warStatus = 'attack'
         await self.draft.delete()
     elif 'Congratulations' in message:
+        await forward_to_bsa(self, id)
         if 'army' in message:
             parse_war_victory(self, message)
         elif 'alliance' in message:
             parse_war_clan_victory(self, message)
-        await forward_to_bsa(self, id)
     elif 'Your domain attacked!' in message:
         if 'approaches the border' in message:
             parse_war_attacked(self, message)
@@ -501,16 +501,16 @@ async def parse_message(self, message):
             self.log.warning("Something unknown attacked us, probably new event: ")
             self.log.warning(message)
     elif 'your army lose' in message:
-        parse_war_defeat(self, message)
         await forward_to_bsa(self, id)
+        parse_war_defeat(self, message)
     # Clan War
     elif 'help him in the attack' in message:
         parse_war_clan_attack(self, message)
     elif 'help defend' in message:
         parse_war_clan_defend(self, message)
     elif 'your alliance lose' in message:
-        parse_war_clan_defeat(self, message)
         await forward_to_bsa(self, id)
+        parse_war_clan_defeat(self, message)
     # skip some message types
     elif any(thing in message for thing in [
         'not yet recovered',
