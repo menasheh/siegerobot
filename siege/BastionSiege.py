@@ -417,7 +417,7 @@ def human_readable_indexes(self, message):
 
 
 async def forward_to_bsa(self, id):
-    await self.telegram.forward_messages(529180789, id, self.entity)
+    await self.telegram.forward_messages("BastionSiegeAssistBot", id, self.entity)  # 529180789
 
 
 async def parse_message(self, message):
