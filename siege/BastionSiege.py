@@ -107,6 +107,9 @@ class Siege(object):
                 if '🔭' in event.message.message and 'eport' not in event.message.message:
                     await self.draft.delete()  # forces refresh
                     await self.draft.set_message(event.message.message)
+                if 'This player is an active user' in event.message.message:
+                    await self.draft.delete()  # forces refresh
+                    await self.draft.set_message(event.message.message.split('\n')[0] + ' 🛡💙')
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
             async def handleFoxRfxbot(event):
