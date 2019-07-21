@@ -22,7 +22,7 @@ class Siege(object):
     def __init__(self, telegram_client, mode):
         self.telegram = telegram_client
         self.entity = "BastionSiegeBot"
-        self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('.')[0])
+        self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('/')[2].split('.')[0])
         self.warmode = (mode == 1)
         self.sleep = None
         self.scriptStartTime = datetime.now()
