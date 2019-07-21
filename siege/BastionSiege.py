@@ -91,10 +91,11 @@ class Siege(object):
 
             @self.telegram.on(events.NewMessage())
             async def debug(event):
+                # todo more efficient web-accessible list of interacted users and their ids per client
                 if event.message.from_id == 198287622:
                     self.log.critical(event.message.to_id)
-                if event.message.to_id == 198287622:
-                    self.log.critical(event.message)
+                # if event.message.to_id.user_id == 198287622:
+                #    self.log.critical(event.message)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
             async def handleFoxRfxbot(event):
