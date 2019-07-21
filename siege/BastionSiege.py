@@ -49,7 +49,8 @@ class Siege(object):
     async def run(self):
         if not self.handlers_exist:
             if self.session == 'menasheh':
-                self.draft = next((x for x in await self.telegram.get_drafts() if x.entity.id == self.BOT_ID), None)
+                drafts = await self.telegram.get_drafts()
+                self.draft = next((x for x in drafts if x.entity.id == self.BOT_ID), None)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
             async def handle(event):
