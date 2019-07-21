@@ -48,7 +48,6 @@ class Siege(object):
             @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
             async def handle(event):
                 self.status.menuDepth = 3
-                message = event.message.message
 
                 try:
                     if event.message.reply_markup is not None and event.message.reply_markup.rows is not None:
@@ -81,7 +80,7 @@ class Siege(object):
                 except Exception as err:
                     self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
                 try:
-                    await parse_message(self, message)
+                    await parse_message(self, event.message)
                 except Exception as err:
                     self.log.error('Unexpected error ({}): {} at\n{}'.format(type(err), err, traceback.format_exc()))
                 self.status.lastMsgID = event.message.id
@@ -416,14 +415,21 @@ def human_readable_indexes(self, message):
         print(str(i) + ": " + message.split()[i])
 
 
+async def forward_to_bsa(self, id):
+    await self.telegram.forward_messages(198287622, id, self.entity)
+
+
 async def parse_message(self, message):
-    message = message.replace(u'\u200B', '')
+    id = message.id
+    message = message.message.replace(u'\u200B', '')
     first_line = message.split()[0]
     # Main Info and Buildings
     if 'Season' in message:
         parse_profile(self, message)
+        await forward_to_bsa(self, id)
     elif 'Buildings' in message:
         parse_buildings_profile(self, message)
+        await forward_to_bsa(self, id)
     elif 'Wins' in message and 'rating' not in message:
         parse_war_profile(self, message)
     elif 'Town hall' in message:
@@ -446,6 +452,7 @@ async def parse_message(self, message):
         parse_building_farm(self, message)
     elif 'Workshop' in first_line:
         parse_workshop(self, message)
+        await forward_to_bsa(self, id)
     elif 'Trebuchet' in first_line and '👥' in message:
         parse_trebuchet(self, message)
     # War
@@ -462,6 +469,7 @@ async def parse_message(self, message):
             parse_war_victory(self, message)
         elif 'alliance' in message:
             parse_war_clan_victory(self, message)
+        await forward_to_bsa(self, id)
     elif 'Your domain attacked!' in message:
         if 'approaches the border' in message:
             parse_war_attacked(self, message)
@@ -475,6 +483,7 @@ async def parse_message(self, message):
             self.log.warning(message)
     elif 'your army lose' in message:
         parse_war_defeat(self, message)
+        await forward_to_bsa(self, id)
     # Clan War
     elif 'help him in the attack' in message:
         parse_war_clan_attack(self, message)
@@ -482,6 +491,7 @@ async def parse_message(self, message):
         parse_war_clan_defend(self, message)
     elif 'your alliance lose' in message:
         parse_war_clan_defeat(self, message)
+        await forward_to_bsa(self, id)
     # skip some message types
     elif any(thing in message for thing in [
         'not yet recovered',
