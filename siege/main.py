@@ -63,7 +63,7 @@ async def siege_debug_handler(request):
     name = request.match_info.get('name', "Anonymous")
     text = "No session for " + name
     for siege in sieges:
-        if get_session_name(siege) == name:
+        if siege.session == name:
             text = ""
             for k, v in siege.city.__dict__.items():
                 text += str(k) + ": " + str(v) + "\n"
@@ -75,7 +75,7 @@ async def siege_wake_handler(request):
     name = request.match_info.get('name', None)
     if name is not None:
         for siege in sieges:
-            if get_session_name(siege) == name:
+            if siege.session == name:
                 if siege.sleep is not None:
                     siege.sleep.cancel()
                     return web.Response(text="woke " + name)
@@ -89,7 +89,7 @@ async def siege_action_handler(request):
     name = request.match_info.get('name', None)
     if name is not None:
         for siege in sieges:
-            if get_session_name(siege) == name:
+            if siege.session == name:
                 action = request.match_info.get('action', None)
                 info = '\nPossible actions:\n'
                 for i, button in enumerate(siege.buttons.__dict__.keys(), start=1):
@@ -119,7 +119,7 @@ async def siege_dashboard_handler(request):
         minref = 9999
 
         for siege in sieges:
-            session = get_session_name(siege)
+            session = siege.session
             if session == name:
                 buildings = [["storage", "🏤"], ["townhall", "🏚"], ["houses", "🏘"], ["farm", "🌻"], ["sawmill", "🌲"],
                              ["mine", "⛏"], ["barracks", "🛡"], ["walls", "🏰"], ["trebuchet", "⚔"]]
@@ -160,10 +160,6 @@ async def siege_dashboard_handler(request):
         return web.Response(text=text)
     else:
         return web.Response(text="Session not found")
-
-
-def get_session_name(siege):
-    return siege.telegram.session.filename.split('/')[2].split('.')[0]
 
 
 def save_session(session, number):

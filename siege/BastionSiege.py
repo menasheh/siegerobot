@@ -21,10 +21,11 @@ class Siege(object):
     BOT_ID = int(252148344)
 
     def __init__(self, telegram_client, mode):
+        self.session = self.telegram.session.filename.split('/')[2].split('.')[0]
         self.telegram = telegram_client
         self.entity = "BastionSiegeBot"
         self.draft = None
-        self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('/')[2].split('.')[0])
+        self.log = logging.getLogger(__name__ + ":" + self.session)
         self.warmode = (mode == 1)
         self.sleep = None
         self.scriptStartTime = datetime.now()
@@ -47,7 +48,8 @@ class Siege(object):
 
     async def run(self):
         if not self.handlers_exist:
-            self.draft = next((x for x in await self.telegram.get_drafts() if x.entity.id == self.BOT_ID), None)
+            if self.session == 'menasheh':
+                self.draft = next((x for x in await self.telegram.get_drafts() if x.entity.id == self.BOT_ID), None)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
             async def handle(event):
@@ -101,11 +103,12 @@ class Siege(object):
                 # if event.message.to_id.user_id == 198287622:
                 #    self.log.critical(event.message)
 
-            @self.telegram.on(events.NewMessage(incoming=True, from_users=529180789))
-            async def handleBastionSiegeAssist(event):
-                if '🔭' in event.message.message:
-                    await self.draft.delete()  # forces refresh
-                    await self.draft.set_message(event.message.message)
+            if self.draft is not None:
+                @self.telegram.on(events.NewMessage(incoming=True, from_users=529180789))
+                async def handleBastionSiegeAssist(event):
+                    if '🔭' in event.message.message:
+                        await self.draft.delete()  # forces refresh
+                        await self.draft.set_message(event.message.message)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
             async def handleFoxRfxbot(event):
