@@ -23,6 +23,7 @@ class Siege(object):
     def __init__(self, telegram_client, mode):
         self.telegram = telegram_client
         self.entity = "BastionSiegeBot"
+        self.draft = None
         self.log = logging.getLogger(__name__ + ":" + self.telegram.session.filename.split('/')[2].split('.')[0])
         self.warmode = (mode == 1)
         self.sleep = None
@@ -46,6 +47,8 @@ class Siege(object):
 
     async def run(self):
         if not self.handlers_exist:
+            self.draft = next((x for x in await self.telegram.get_drafts() if x.entity.id == self.BOT_ID), None)
+
             @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
             async def handle(event):
                 self.status.menuDepth = 3
@@ -95,10 +98,14 @@ class Siege(object):
                 # todo more efficient web-accessible list of interacted users and their ids per client
                 if event.message.from_id == 198287622:
                     self.log.critical(event.message.to_id)
-                    draft = Draft(client=self.telegram, entity=self.entity)
-                    await draft.set_message(f"PANIC AND RUN: {event.message.to_id}")
                 # if event.message.to_id.user_id == 198287622:
                 #    self.log.critical(event.message)
+
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=529180789))
+            async def handleBastionSiegeAssist(event):
+                if '🔭' in event.message.message:
+                    await self.draft.delete()  # forces refresh
+                    await self.draft.set_message(event.message.message)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
             async def handleFoxRfxbot(event):
@@ -431,6 +438,7 @@ async def parse_message(self, message):
     # Main Info and Buildings
     if 'Season' in message:
         parse_profile(self, message)
+        await self.draft.delete()
         await forward_to_bsa(self, id)
     elif 'Buildings' in message:
         parse_buildings_profile(self, message)
@@ -470,6 +478,7 @@ async def parse_message(self, message):
         self.status.expects = 'chooseNumber'
     elif 'Siege has started!' in message:
         self.city.warStatus = 'attack'
+        await self.draft.delete()
     elif 'Congratulations' in message:
         if 'army' in message:
             parse_war_victory(self, message)
