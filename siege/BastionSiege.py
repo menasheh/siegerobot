@@ -460,6 +460,7 @@ async def parse_message(self, message):
         parse_war_recruitment_info(self, message)
     elif 'Our scouts' in message:
         parse_scout_message(self, message)
+        await forward_to_bsa(self, id)
     elif 'Choose number.' in message:
         self.status.expects = 'chooseNumber'
     elif 'Siege has started!' in message:
