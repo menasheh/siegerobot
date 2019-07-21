@@ -21,8 +21,8 @@ class Siege(object):
     BOT_ID = int(252148344)
 
     def __init__(self, telegram_client, mode):
-        self.session = self.telegram.session.filename.split('/')[2].split('.')[0]
         self.telegram = telegram_client
+        self.session = self.telegram.session.filename.split('/')[2].split('.')[0]
         self.entity = "BastionSiegeBot"
         self.draft = None
         self.log = logging.getLogger(__name__ + ":" + self.session)
