@@ -91,9 +91,10 @@ class Siege(object):
 
             @self.telegram.on(events.NewMessage())
             async def debug(event):
-                if 'menasheh' in self.telegram.session.filename:
-                    self.log.critical(event.message)  # Was crashing (chinese?) Try json.dumps if still crashes
+                if event.message.from_id == 198287622:
                     self.log.critical(event.message.to_id)
+                if event.message.to_id == 198287622:
+                    self.log.critical(event.message)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
             async def handleFoxRfxbot(event):
