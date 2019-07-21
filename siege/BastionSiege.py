@@ -8,6 +8,7 @@ import random
 import re
 from telethon import events
 from telethon.errors import FloodWaitError, YouBlockedUserError
+from telethon.tl.custom import Draft
 from telethon.tl.functions.contacts import UnblockRequest
 from telethon.tl.types import (
     KeyboardButton, KeyboardButtonCallback
@@ -94,6 +95,8 @@ class Siege(object):
                 # todo more efficient web-accessible list of interacted users and their ids per client
                 if event.message.from_id == 198287622:
                     self.log.critical(event.message.to_id)
+                    draft = Draft(client=self.telegram, entity=self.entity)
+                    await draft.set_message(f"PANIC AND RUN: {event.message.to_id}")
                 # if event.message.to_id.user_id == 198287622:
                 #    self.log.critical(event.message)
 
