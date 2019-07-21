@@ -104,7 +104,7 @@ class Siege(object):
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=529180789))
             async def handleBastionSiegeAssist(event):
-                if '🔭' in event.message.message:
+                if '🔭' in event.message.message and 'eport' not in event.message.message:
                     await self.draft.delete()  # forces refresh
                     await self.draft.set_message(event.message.message)
 
