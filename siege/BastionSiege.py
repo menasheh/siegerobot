@@ -3,7 +3,7 @@ import asyncio
 import logging
 import math
 import names
-from places import getcity
+from siege.places import getcity
 import random
 import re
 from telethon import events
@@ -92,8 +92,8 @@ class Siege(object):
 
             @self.telegram.on(events.NewMessage())
             async def debug(event):
-                if 'menasheh' in self.entity.session.filename:
-                    self.log.critical(event.message) # Was crashing but maybe because of chinese. Try json.dumps if still crashes
+                if 'menasheh' in self.telegram.session.filename:
+                    self.log.critical(event.message)  # Was crashing (chinese?) Try json.dumps if still crashes
                     self.log.critical(event.message.to_id)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
@@ -490,7 +490,7 @@ async def parse_message(self, message):
 
         'Formation of the army',
         'castle began!',
-        'castle is over!'
+        'castle is over!',
         
         'Welcome to the alliance',
         'Leaders of alliances',

@@ -6,11 +6,10 @@ import string
 import time
 import traceback
 from aiohttp import web
-from os import environ
 from os.path import expanduser
 import sys
-from BastionSiege import Siege, pretty_seconds
-from telethon import TelegramClient
+from siege.BastionSiege import Siege, pretty_seconds
+from telegram.client import auth, create
 from telethon.errors import PhoneNumberBannedError, PhoneNumberOccupiedError
 
 home_folder = expanduser("~")
@@ -35,7 +34,7 @@ logging.getLogger('aiohttp.access').setLevel(logging.CRITICAL)
 def get_config():
     result = []
     try:
-        with open('settings.cfg', 'r', encoding='utf-8') as file:
+        with open('siege/settings.cfg', 'r', encoding='utf-8') as file:
             for line in file:
                 result.append(line.split(','))
     except FileNotFoundError:
@@ -50,12 +49,7 @@ for config in configs:
     log.info("starting session '" + config[0] + "'")
     try:
         clients.append([
-            TelegramClient(
-                config[0],
-                environ['TG_API_ID'],
-                environ['TG_API_HASH'],
-                proxy=None,
-            ).start(config[2]),
+            auth(config[0], config[2]),
             int(config[1])
         ])
     except PhoneNumberBannedError:
@@ -69,7 +63,7 @@ async def siege_debug_handler(request):
     name = request.match_info.get('name', "Anonymous")
     text = "No session for " + name
     for siege in sieges:
-        if siege.telegram.session.filename.split('.')[0] == name:
+        if get_session_name(siege) == name:
             text = ""
             for k, v in siege.city.__dict__.items():
                 text += str(k) + ": " + str(v) + "\n"
@@ -81,7 +75,7 @@ async def siege_wake_handler(request):
     name = request.match_info.get('name', None)
     if name is not None:
         for siege in sieges:
-            if siege.telegram.session.filename.split('.')[0] == name:
+            if get_session_name(siege) == name:
                 if siege.sleep is not None:
                     siege.sleep.cancel()
                     return web.Response(text="woke " + name)
@@ -95,7 +89,7 @@ async def siege_action_handler(request):
     name = request.match_info.get('name', None)
     if name is not None:
         for siege in sieges:
-            if siege.telegram.session.filename.split('.')[0] == name:
+            if get_session_name(siege) == name:
                 action = request.match_info.get('action', None)
                 info = '\nPossible actions:\n'
                 for i, button in enumerate(siege.buttons.__dict__.keys(), start=1):
@@ -125,7 +119,7 @@ async def siege_dashboard_handler(request):
         minref = 9999
 
         for siege in sieges:
-            session = siege.telegram.session.filename.split('.')[0]
+            session = get_session_name(siege)
             if session == name:
                 buildings = [["storage", "🏤"], ["townhall", "🏚"], ["houses", "🏘"], ["farm", "🌻"], ["sawmill", "🌲"],
                              ["mine", "⛏"], ["barracks", "🛡"], ["walls", "🏰"], ["trebuchet", "⚔"]]
@@ -168,6 +162,10 @@ async def siege_dashboard_handler(request):
         return web.Response(text="Session not found")
 
 
+def get_session_name(siege):
+    return siege.telegram.session.filename.split('/')[2].split('.')[0]
+
+
 def save_session(session, number):
     f = open("settings.cfg", "a")
     f.write(f'\n{session},0,{number}')
@@ -181,16 +179,8 @@ async def siege_signup_handler(request):
 
     if new_client is None or code is None:
         session = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
-        new_client = TelegramClient(
-            session,
-            environ['TG_API_ID'],
-            environ['TG_API_HASH'],
-            proxy=None,
-        )
-        await new_client.connect()
-        try:
-            await new_client.send_code_request(phone=number, force_sms=True)
-        except PhoneNumberBannedError:
+        new_client, error = create(session, number)
+        if error:
             return web.Response(text=f'The number {number} is banned from Telegram')
         return web.Response(text=f'get your code at {number} and append to the url')
     else:
