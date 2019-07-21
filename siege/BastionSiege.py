@@ -48,9 +48,7 @@ class Siege(object):
 
     async def run(self):
         if not self.handlers_exist:
-            if self.session == 'menasheh':
-                drafts = await self.telegram.get_drafts()
-                self.draft = next((x for x in drafts if x.entity.id == self.BOT_ID), None)
+            self.draft = next((x for x in await self.telegram.get_drafts() if x.entity.id == self.BOT_ID), None)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=self.BOT_ID))
             async def handle(event):
@@ -104,12 +102,11 @@ class Siege(object):
                 # if event.message.to_id.user_id == 198287622:
                 #    self.log.critical(event.message)
 
-            if self.draft is not None:
-                @self.telegram.on(events.NewMessage(incoming=True, from_users=529180789))
-                async def handleBastionSiegeAssist(event):
-                    if '🔭' in event.message.message:
-                        await self.draft.delete()  # forces refresh
-                        await self.draft.set_message(event.message.message)
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=529180789))
+            async def handleBastionSiegeAssist(event):
+                if '🔭' in event.message.message:
+                    await self.draft.delete()  # forces refresh
+                    await self.draft.set_message(event.message.message)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
             async def handleFoxRfxbot(event):
