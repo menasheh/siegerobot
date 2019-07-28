@@ -477,7 +477,7 @@ async def parse_message(self, message):
         parse_building_storage(self, message)
     elif 'Barracks' in first_line:
         parse_building_barracks(self, message)
-    elif 'Walls' in first_line and '👥' in message:
+    elif ('Walls' in first_line and '👥' in message) or 'Walls are protective' in message:
         parse_building_walls(self, message)
     elif 'Sawmill' in first_line and '👥' in message:
         parse_building_sawmill(self, message)
@@ -896,6 +896,10 @@ def parse_building_town_hall(self, msg):
 
 
 def parse_building_walls(self, msg):
+    if '👥' not in msg:
+        self.city.walls = 0
+        return
+
     reg = re.compile(
         r'(\d+)\D+(\d+)/(\d+)🏹\D+(\d+)💰(\d+)🍖/(\d+)👥\D+\+(\d+)\D+(\d+)/(\d+)\D+(\d+)\D+(\d+)👥.+(Repair|'
         r'Upgrade)\D+(\d+)💰(⛔️|✅)\D+(\d+)🌲(⛔️|✅)\D+(\d+)⛏(⛔️|✅)', re.S)
