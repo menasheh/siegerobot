@@ -26,7 +26,7 @@ class Siege(object):
         self.entity = "BastionSiegeBot"
         self.draft = None
         self.log = logging.getLogger(__name__ + ":" + self.session)
-        self.warmode = (mode == 1)
+        self.warmode = True  # (mode == 1) to respect config
         self.sleep = None
         self.scriptStartTime = datetime.now()
         self.handlers_exist = False
@@ -44,7 +44,7 @@ class Siege(object):
         self.status.menuDepth = 1
         self.city.update_times = Object([])
 
-        self.city.warbuildings = ["barracks", "walls", "trebuchet"]
+        self.city.warbuildings = ["walls", "trebuchet", "barracks"]
 
     async def run(self):
         if not self.handlers_exist:
@@ -230,7 +230,15 @@ class Siege(object):
         if getattr(self.city, 'farm', 0) == 0:
             return 'farm'
         if self.warmode:
-            buildings = ["barracks"]  # self.city.warbuildings # use this to also upgrade the rest of the warbuildings
+            # todo update this for individual client strategies
+            if 'menasheh' in self.session:
+                # todo only upgrade barracks 100 levels at a time keeping eg; 100 below maximum
+                # todo only upgrade walls when 2 levels possible
+                # todo only upgrade trebuchet when 2 levels possible according to some strategy
+                buildings = ["walls", "trebuchet"]
+            else:
+                buildings = self.city.warbuildings
+
             i = 0
             while i < len(buildings) and \
                     (self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or
