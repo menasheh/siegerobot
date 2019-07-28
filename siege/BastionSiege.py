@@ -103,13 +103,13 @@ class Siege(object):
                 #    self.log.critical(event.message)
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=529180789))
-            async def handleBastionSiegeAssist(event):
+            async def handle_bastion_siege_assist(event):
                 if '🔭' in event.message.message and 'eport' not in event.message.message:
-                    await self.draft.delete()  # forces refresh
-                    await self.draft.set_message(event.message.message)
+                    await clear_draft(self)  # forces refresh
+                    await set_draft(self, event.message.message)
                 if 'This player is an active user' in event.message.message:
-                    await self.draft.delete()  # forces refresh
-                    await self.draft.set_message(event.message.message.split('\n')[0] + ' 🛡💙')
+                    await clear_draft(self)  # forces refresh
+                    await set_draft(self, event.message.message.split('\n')[0] + ' 🛡💙')
 
             @self.telegram.on(events.NewMessage(incoming=True, from_users=148482624))
             async def handleFoxRfxbot(event):
@@ -443,6 +443,16 @@ async def forward_to_bsa(self, id):
     await self.telegram.forward_messages("BastionSiegeAssistBot", id, self.entity)  # 529180789
 
 
+async def clear_draft(self):
+    if self.draft is not None:
+        await self.draft.delete()
+
+
+async def set_draft(self, message):
+    if self.draft is not None:
+        await self.draft.set_message(message)
+
+
 async def parse_message(self, message):
     id = message.id
     message = message.message.replace(u'\u200B', '')
@@ -451,7 +461,7 @@ async def parse_message(self, message):
     if 'Season' in message:
         await forward_to_bsa(self, id)
         parse_profile(self, message)
-        await self.draft.delete()
+        await clear_draft(self)
     elif 'Buildings' in message:
         await forward_to_bsa(self, id)
         parse_buildings_profile(self, message)
@@ -490,7 +500,7 @@ async def parse_message(self, message):
         self.status.expects = 'chooseNumber'
     elif 'Siege has started!' in message:
         self.city.warStatus = 'attack'
-        await self.draft.delete()
+        await clear_draft(self)
     elif 'Congratulations' in message:
         await forward_to_bsa(self, id)
         if 'army' in message:
