@@ -1248,8 +1248,11 @@ async def upgrade_building(self, building):
 
     await self.send_message_and_wait(building_message)
 
-    oldlevel = getattr(self.city, building)
-    await self.send_message_and_wait(self.status.replyMarkup[1])  # Upgrade
+    oldlevel = getattr(self.city, building, 0)
+    markup_index = 1    # Upgrade
+    if not oldlevel:
+        markup_index = 0  # Build
+    await self.send_message_and_wait(self.status.replyMarkup[markup_index])
     if getattr(self.city, building) == oldlevel:
         self.log.error("Something went wrong with " + building + " upgrade, please investigate.")
         self.log.error("gold, max, wood, max, stone, max, food")
