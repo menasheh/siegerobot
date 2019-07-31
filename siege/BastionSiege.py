@@ -261,6 +261,9 @@ class Siege(object):
 
     @staticmethod
     def upgrade_costs(building, level_desired):
+        if building in ['walls', 'trebuchet']:
+            if level_desired % 2 != 0:
+                return Siege.upgrade_costs(building, level_desired + 1)
         coeff = {
             'sawmill': [100, 50, 50],
             'mine': [100, 50, 50],
