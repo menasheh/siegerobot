@@ -8,7 +8,6 @@ import random
 import re
 from telethon import events
 from telethon.errors import FloodWaitError, YouBlockedUserError
-from telethon.tl.custom import Draft
 from telethon.tl.functions.contacts import UnblockRequest
 from telethon.tl.types import (
     KeyboardButton, KeyboardButtonCallback
@@ -301,7 +300,7 @@ class Siege(object):
                 continue
             except YouBlockedUserError as e:
                 self.log.error("You blocked this user! Attempting to unblock. [TODO force signout/set password]")
-                await self.telegram(UnblockRequest(self.entity))
+                await self.telegram(UnblockRequest(id = self.entity))
             break
         while lastid == self.status.lastMsgID:
             await asyncio.sleep(random.randint(1000, 4000) / 1000)
