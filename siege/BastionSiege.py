@@ -445,7 +445,10 @@ def human_readable_indexes(self, message):
 
 
 async def forward_to_bsa(self, id):
-    await self.telegram.forward_messages("BastionSiegeAssistBot", id, self.entity)  # 529180789
+    try:
+        await self.telegram.forward_messages("BastionSiegeAssistBot", id, self.entity)  # 529180789
+    except YouBlockedUserError:
+        await self.telegram(UnblockRequest(id="BastionSiegeAssistBot"))
 
 
 async def clear_draft(self):
