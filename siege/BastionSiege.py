@@ -261,7 +261,7 @@ class Siege(object):
     @staticmethod
     def upgrade_costs(building, level_desired):
         if building in ['walls', 'trebuchet']:
-            if level_desired % 2 != 0:
+            if level_desired % 50 != 0:  # % 2 as a minimum, even if strategy is handled somehow else
                 return Siege.upgrade_costs(building, level_desired + 1)
         if building in ['barracks']:
             if level_desired % 100 != 0:
