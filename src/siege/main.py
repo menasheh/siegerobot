@@ -3,14 +3,16 @@ import logging
 import names
 import random
 import string
+import sys
 import time
 import traceback
+
 from aiohttp import web
 from os.path import expanduser
-import sys
-from siege.BastionSiege import Siege, pretty_seconds
 from telegram.client import auth, create
 from telethon.errors import PhoneNumberBannedError, PhoneNumberOccupiedError
+
+from .BastionSiege import Siege, pretty_seconds
 
 home_folder = expanduser("~")
 siege_log_file = home_folder + '/.hidden/siege.log'

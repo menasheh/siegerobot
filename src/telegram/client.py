@@ -1,6 +1,6 @@
+from os import environ
 from telethon import TelegramClient
 from telethon.errors import PhoneNumberBannedError
-from os import environ
 
 
 async def create(name, number):
