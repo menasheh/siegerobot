@@ -141,6 +141,32 @@ class Siege(object):
                         self.log.warning('Alarm sounded but no attack, defence, or siege available.')
                         self.log.warning(self.buttons)
 
+            @self.telegram.on(events.NewMessage(incoming=True, from_users=530520427))
+            async def handle_rocket_notification(event):
+                alliance_chat = -1001309500910
+                message = event.message.message
+                if 'Атакуй вражину!' in message:
+                    self.log.info('Rockets request your presence at alliance event')
+                    # todo - full army first
+                    if recruits_needed(self):
+                        self.sleep.cancel()
+                    await asyncio.sleep(random.randint(10, 30))
+                    if hasattr(self.buttons, 'joinattack'):
+                        await self.buttons.joinattack
+                        del self.buttons.joinattack
+                        self.log.info("pressed join attack button")
+                    elif hasattr(self.buttons, 'joindefence'):
+                        await self.buttons.joindefence
+                        del self.buttons.joindefence
+                        self.log.info("pressed join defence button")
+                    elif hasattr(self.buttons, 'joinsiege'):
+                        await self.buttons.joinsiege
+                        del self.buttons.joinsiege
+                        self.log.info("pressed join siege button")
+                    else:
+                        self.log.warning('Alarm sounded but no attack, defence, or siege available.')
+                        self.log.warning(self.buttons)
+
             # @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
             async def handleDragonWatcher(event):
                 alliance_chat = -1001151460313
