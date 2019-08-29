@@ -164,8 +164,11 @@ class Siege(object):
                         del self.buttons.joinsiege
                         self.log.info("pressed join siege button")
                     else:
-                        self.log.warning('Alarm sounded but no attack, defence, or siege available.')
+                        self.log.warning('Rocket alert but no attack, defence, or siege available.')
                         self.log.warning(self.buttons)
+                else:
+                    self.log.info('got a message, but didnt understand it')
+                    self.log.info(message)
 
             # @self.telegram.on(events.NewMessage(incoming=True, from_users=491311774))
             async def handleDragonWatcher(event):
