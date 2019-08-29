@@ -141,7 +141,7 @@ class Siege(object):
                         self.log.warning('Alarm sounded but no attack, defence, or siege available.')
                         self.log.warning(self.buttons)
 
-            @self.telegram.on(events.NewMessage(incoming=True, from_users=530520427))
+            @self.telegram.on(events.NewMessage(incoming=True, chats=530520427, from_users=530520427))
             async def handle_rocket_notification(event):
                 alliance_chat = -1001309500910
                 message = event.message.message
