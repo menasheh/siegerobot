@@ -12,7 +12,7 @@ from os.path import expanduser
 from telegram.client import auth, create
 from telethon.errors import PhoneNumberBannedError, PhoneNumberOccupiedError
 
-from .BastionSiege import Siege, pretty_seconds
+from siege.BastionSiege import Siege, pretty_seconds
 
 home_folder = expanduser("~")
 siege_log_file = home_folder + '/.hidden/siege.log'
