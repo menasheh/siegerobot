@@ -1201,6 +1201,11 @@ async def build(self):
                 while missing == 0 and i < len(self.city.warbuildings):
                     already, missing = await employ_up_to_capacity(self, self.city.warbuildings[i], already)
                     i += 1
+                if i == len(self.city.warbuildings) and missing == 0:
+                    if hasattr(self.buttons, 'joinsiege'):
+                        await self.buttons.joinsiege
+                        del self.buttons.joinsiege
+                        self.log.info("pressed join siege button")
                 if already:
                     await self.send_message_and_wait("⬆️ Up menu")
             building = self.get_building_to_upgrade()
