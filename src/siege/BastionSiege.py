@@ -261,12 +261,12 @@ class Siege(object):
 
         for building in self.city.warbuildings:
             costs = Siege.upgrade_costs(building, getattr(self.city, building, 0) + 1, True)
-            self.log.critical(json.dumps(costs))
-            self.log.critical(json.dumps(self.city.maxGold))
-            self.log.critical(json.dumps(self.city.maxWood))
-            self.log.critical(json.dumps(self.city.maxStone))
+            self.log.info(json.dumps(costs))
+            self.log.info(json.dumps(self.city.maxGold))
+            self.log.info(json.dumps(self.city.maxWood))
+            self.log.info(json.dumps(self.city.maxStone))
             if costs[0] <= self.city.maxGold and costs[1] <= self.city.maxWood and costs[2] <= self.city.maxStone:
-                self.log.critical('determined building to upgrade: ' + building)
+                self.log.info('determined building to upgrade: ' + building)
                 return building
 
         result = 'townhall'
