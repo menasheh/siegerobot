@@ -1,5 +1,6 @@
 from datetime import datetime
 import asyncio
+import json
 import logging
 import math
 import names
@@ -257,10 +258,15 @@ class Siege(object):
             return 'storage'
         if getattr(self.city, 'farm', 0) == 0:
             return 'farm'
-        
+
         for building in self.city.warbuildings:
             costs = Siege.upgrade_costs(building, getattr(self.city, building, 0) + 1, True)
+            self.log.critical(json.dumps(costs))
+            self.log.critical(json.dumps(self.city.maxGold))
+            self.log.critical(json.dumps(self.city.maxWood))
+            self.log.critical(json.dumps(self.city.maxStone))
             if costs[0] <= self.city.maxGold and costs[1] <= self.city.maxWood and costs[2] <= self.city.maxStone:
+                self.log.critical('determined building to upgrade: ' + building)
                 return building
 
         result = 'townhall'
@@ -276,7 +282,7 @@ class Siege(object):
         return result
 
     @staticmethod
-    def upgrade_costs(building, level_desired, strategy = False):
+    def upgrade_costs(building, level_desired, strategy=False):
         if strategy:
             def check_level(level, increments):
                 return math.ceil(level / increments) * increments
