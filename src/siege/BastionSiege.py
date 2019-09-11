@@ -257,24 +257,12 @@ class Siege(object):
             return 'storage'
         if getattr(self.city, 'farm', 0) == 0:
             return 'farm'
-        if self.warmode:
-            # todo update this for individual client strategies
-            if 'menasheh' in self.session:
-                # todo only upgrade barracks 100 levels at a time keeping eg; 100 below maximum
-                # todo only upgrade walls when 2 levels possible
-                # todo only upgrade trebuchet when 2 levels possible according to some strategy
-                buildings = ["walls", "trebuchet"]
-            else:
-                buildings = self.city.warbuildings
+        
+        for building in self.city.warbuildings:
+            costs = Siege.upgrade_costs(building, getattr(self.city, building, 0) + 1, True)
+            if costs[0] <= self.city.maxGold and costs[1] <= self.city.maxWood and costs[2] <= self.city.maxStone:
+                return building
 
-            i = 0
-            while i < len(buildings) and \
-                    (self.city.maxWood < getattr(self.city, buildings[i] + 'UpgradeWood') or
-                     self.city.maxStone < getattr(self.city, buildings[i] + 'UpgradeStone') or
-                     self.city.maxGold < getattr(self.city, buildings[i] + 'UpgradeCost')):
-                i += 1
-            if i < len(buildings):
-                return buildings[i]
         result = 'townhall'
         pbp = self.get_upgrade_payback_period(result)
         for building in ["houses", "farm", "sawmill", "mine"]:
@@ -282,7 +270,7 @@ class Siege(object):
             if 0 < other_pbp < pbp:
                 result = building
                 pbp = other_pbp
-        costs = Siege.upgrade_costs(result, getattr(self.city, result, 0) + 1, True)
+        costs = Siege.upgrade_costs(result, getattr(self.city, result, 0) + 1)
         if costs[1] > self.city.maxWood or costs[2] > self.city.maxStone:
             return 'storage'
         return result
