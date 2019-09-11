@@ -282,19 +282,20 @@ class Siege(object):
             if 0 < other_pbp < pbp:
                 result = building
                 pbp = other_pbp
-        costs = Siege.upgrade_costs(result, getattr(self.city, result, 0) + 1)
+        costs = Siege.upgrade_costs(result, getattr(self.city, result, 0) + 1, True)
         if costs[1] > self.city.maxWood or costs[2] > self.city.maxStone:
             return 'storage'
         return result
 
     @staticmethod
-    def upgrade_costs(building, level_desired):
-        if building in ['walls', 'trebuchet']:
-            if level_desired % 50 != 0:  # % 2 as a minimum, even if strategy is handled somehow else
-                return Siege.upgrade_costs(building, level_desired + 1)
-        if building in ['barracks']:
-            if level_desired % 100 != 0:
-                return Siege.upgrade_costs(building, level_desired + 1)
+    def upgrade_costs(building, level_desired, strategy = False):
+        if strategy:
+            def check_level(level, increments):
+                return math.ceil(level / increments) * increments
+            if building in ['walls', 'trebuchet']:
+                level_desired = check_level(level_desired, 50)  # 2 as a minimum, even if strategy is handled somehow else
+            elif building in ['barracks']:
+                level_desired = check_level(level_desired + 500, 100)
         coeff = {
             'sawmill': [100, 50, 50],
             'mine': [100, 50, 50],
