@@ -287,9 +287,11 @@ class Siege(object):
             def check_level(level, increments):
                 return math.ceil(level / increments) * increments
             if building in ['walls', 'trebuchet']:
-                level_desired = check_level(level_desired, 50)  # 2 as a minimum, even if strategy is handled somehow else
+                level_desired = check_level(level_desired, 2)  # 2 as a minimum, even if strategy is handled somehow else
+                # level_desired = check_level(level_desired, 50)  # 2 as a minimum, even if strategy is handled somehow else
             elif building in ['barracks']:
-                level_desired = check_level(level_desired + 500, 100)
+                # level_desired = check_level(level_desired + 500, 100)
+                pass
         coeff = {
             'sawmill': [100, 50, 50],
             'mine': [100, 50, 50],
