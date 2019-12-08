@@ -17,7 +17,7 @@ from siege.BastionSiege import Siege, pretty_seconds
 home_folder = expanduser("~")
 siege_log_file = home_folder + '/.hidden/siege.log'
 robots_log_file = home_folder + '/.hidden/robots.log'
-config_file = 'siege/settings.cfg'
+config_file = 'src/siege/settings.cfg'
 
 log = logging.getLogger("robots")
 log.propagate = False
