@@ -5,7 +5,7 @@ from telethon.errors import PhoneNumberBannedError
 
 async def create(name, number):
         new_client = TelegramClient(
-            name,
+            f'telegram/sessions/{name}',
             environ['TG_API_ID'],
             environ['TG_API_HASH'],
             proxy=None,
