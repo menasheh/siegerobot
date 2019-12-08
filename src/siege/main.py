@@ -17,6 +17,7 @@ from siege.BastionSiege import Siege, pretty_seconds
 home_folder = expanduser("~")
 siege_log_file = home_folder + '/.hidden/siege.log'
 robots_log_file = home_folder + '/.hidden/robots.log'
+config_file = 'siege/settings.cfg'
 
 log = logging.getLogger("robots")
 log.propagate = False
@@ -36,7 +37,7 @@ logging.getLogger('aiohttp.access').setLevel(logging.CRITICAL)
 def get_config():
     result = []
     try:
-        with open('siege/settings.cfg', 'r', encoding='utf-8') as file:
+        with open(config_file, 'r', encoding='utf-8') as file:
             for line in file:
                 result.append(line.split(','))
     except FileNotFoundError:
@@ -165,7 +166,7 @@ async def siege_dashboard_handler(request):
 
 
 def save_session(session, number):
-    f = open("settings.cfg", "a")
+    f = open(config_file, "a")
     f.write(f'\n{session},0,{number}')
     f.close()
 
@@ -188,7 +189,7 @@ async def siege_signup_handler(request):
         except PhoneNumberOccupiedError:
             await new_client.sign_in(number, code)
             message = 'signed in to existing account!'
-        session = new_client.session.filename.split('.')[0]
+        session = new_client.session.filename.split('/')[2].split('.')[0]
         save_session(session, number)
         new_siege = Siege(new_client, 0)
         sieges.append(new_siege)
