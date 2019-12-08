@@ -177,7 +177,7 @@ async def siege_signup_handler(request):
 
     if new_client is None or code is None:
         session = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
-        new_client, error = create(session, number)
+        new_client, error = await create(session, number)
         if error:
             return web.Response(text=f'The number {number} is banned from Telegram')
         return web.Response(text=f'get your code at {number} and append to the url')
